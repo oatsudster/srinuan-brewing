@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Srinuan Brewing | ศรีนวล เบรวิ่ง</title>
+<meta name="description" content="Srinuan Brewing — small-batch craft beer, est. 2023.">
+<link rel="icon" href="images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+
+<!-- Age Gate (bilingual, shown before a language preference exists) -->
+<div id="age-gate" class="age-gate">
+  <div class="age-gate__card">
+    <img src="images/logo.png" alt="Srinuan Brewing" class="age-gate__logo">
+    <h2>Are you 20 years or older?<br><span class="age-gate__th">คุณอายุ 20 ปีขึ้นไปหรือไม่?</span></h2>
+    <p>This website contains content related to alcoholic beverages. Please confirm your age to continue.<br>
+      <span class="age-gate__th">เว็บไซต์นี้มีเนื้อหาเกี่ยวกับเครื่องดื่มแอลกอฮอล์ กรุณายืนยันอายุก่อนเข้าชม</span></p>
+    <div class="age-gate__actions">
+      <button id="age-yes" class="btn btn--primary">Yes, I am 20+ / ใช่ ฉันอายุ 20 ปีขึ้นไป</button>
+      <button id="age-no" class="btn btn--ghost">Not yet / ยังไม่ถึง 20 ปี</button>
+    </div>
+    <p class="age-gate__legal">Drink responsibly · ดื่มไม่ขับ ดื่มอย่างมีสติ</p>
+  </div>
+</div>
+<div id="age-block" class="age-block hidden">
+  <div class="age-gate__card">
+    <p>Sorry, this website is for visitors aged 20 and over only.<br>
+      <span class="age-gate__th">ขออภัย เว็บไซต์นี้สำหรับผู้ที่มีอายุ 20 ปีขึ้นไปเท่านั้น</span></p>
+  </div>
+</div>
+
+<div id="site-content" class="hidden">
+
+<!-- Header -->
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="#top" class="brand">
+      <img src="images/logo.png" alt="Srinuan Brewing" class="brand__logo">
+      <span class="brand__text">
+        <span class="brand__th">ศรีนวล</span>
+        <span class="brand__en">SRINUAN BREWING</span>
+      </span>
+    </a>
+    <nav class="nav">
+      <a href="#products" data-i18n="nav.products">Beers</a>
+      <a href="#story" data-i18n="nav.story">Our Story</a>
+      <a href="#contact" data-i18n="nav.contact">Contact</a>
+      <button class="lang-switch" id="lang-switch" type="button" aria-label="Switch language">
+        <span class="lang-switch__opt" data-lang="en">EN</span>
+        <span class="lang-switch__opt" data-lang="th">TH</span>
+      </button>
+    </nav>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<!-- Hero -->
+<section id="top" class="hero">
+  <div class="hero__bg"></div>
+  <div class="container hero__inner">
+    <p class="eyebrow" data-i18n="hero.eyebrow">EST. 2023 · CRAFT BREWERY</p>
+    <h1 class="hero__title">SRINUAN<span>BREWING</span></h1>
+    <p class="hero__tagline" data-i18n-html="hero.tagline">Small-batch craft beer with a feline soul.<br>Brewed with heart, in every can.</p>
+    <div class="hero__actions">
+      <a href="#products" class="btn btn--primary" data-i18n="hero.cta1">See All Beers</a>
+      <a href="#contact" class="btn btn--ghost" data-i18n="hero.cta2">Where to Buy</a>
+    </div>
+  </div>
+  <div class="hero__scroll" data-i18n="hero.scroll">Scroll to explore ↓</div>
+</section>
+
+<!-- Products -->
+<section id="products" class="products">
+  <div class="container">
+    <p class="eyebrow eyebrow--center" data-i18n="products.eyebrow">OUR BEERS</p>
+    <h2 class="section-title" data-i18n="products.title">Our Craft Beer Lineup</h2>
+    <div class="filter-bar" id="filter-bar"></div>
+    <div class="product-grid" id="product-grid"></div>
+  </div>
+</section>
+
+<!-- Story -->
+<section id="story" class="story">
+  <div class="container story__inner">
+    <div class="story__media">
+      <img src="images/logo.png" alt="Srinuan Brewing badge" class="story__badge">
+    </div>
+    <div class="story__text">
+      <p class="eyebrow" data-i18n="story.eyebrow">OUR STORY</p>
+      <h2 class="section-title" data-i18n="story.title">The Srinuan Story</h2>
+      <p data-i18n="story.p1">Srinuan Brewing was founded in 2023 out of a shared love for craft beer and cats. Every can pairs a carefully built recipe with artwork that tells its own story through a cat character — from bold IPAs to rich stouts and refreshing ciders.</p>
+      <p data-i18n="story.p2">We believe great beer needs more than good taste — it needs a story and a character worth remembering. That's why every cat on our cans has its own personality and world.</p>
+      <div class="story__stats">
+        <div><strong>10+</strong><span data-i18n="story.stat1">Beers</span></div>
+        <div><strong>2023</strong><span data-i18n="story.stat2">Founded</span></div>
+        <div><strong>100%</strong><span data-i18n="story.stat3">Craft Brewed</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact" class="contact">
+  <div class="container contact__inner">
+    <p class="eyebrow eyebrow--center" data-i18n="contact.eyebrow">GET IN TOUCH</p>
+    <h2 class="section-title" data-i18n="contact.title">Where to Buy &amp; Contact</h2>
+    <p class="contact__desc" data-i18n="contact.desc">Interested in ordering, an event collab, or stocking our beer? Reach us through any channel below.</p>
+    <div class="contact__grid">
+      <a href="#" class="contact__card">
+        <span class="contact__icon">💬</span>
+        <span class="contact__label">LINE Official</span>
+        <span class="contact__value">@srinuanbrewing</span>
+      </a>
+      <a href="#" class="contact__card">
+        <span class="contact__icon">📷</span>
+        <span class="contact__label">Instagram</span>
+        <span class="contact__value">@srinuan.brewing</span>
+      </a>
+      <a href="#" class="contact__card">
+        <span class="contact__icon">📘</span>
+        <span class="contact__label">Facebook</span>
+        <span class="contact__value">Srinuan Brewing</span>
+      </a>
+      <a href="#" class="contact__card">
+        <span class="contact__icon">📍</span>
+        <span class="contact__label" data-i18n="contact.location">Location</span>
+        <span class="contact__value" data-i18n="contact.locationValue">Thailand</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <img src="images/logo.png" alt="Srinuan Brewing" class="site-footer__logo">
+    <p data-i18n-html="footer.rights">&copy; <span id="year"></span> Srinuan Brewing. All rights reserved.</p>
+    <p class="site-footer__warn" data-i18n="footer.warn">Drink responsibly · Not for sale to persons under 20 years of age</p>
+  </div>
+</footer>
+
+</div><!-- /site-content -->
+
+<!-- Product Modal -->
+<div id="product-modal" class="modal hidden">
+  <div class="modal__backdrop" id="modal-backdrop"></div>
+  <div class="modal__card" id="modal-card"></div>
+</div>
+
+<script src="js/products.js?v=2"></script>
+<script src="js/script.js?v=2"></script>
+</body>
+</html>
