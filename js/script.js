@@ -256,6 +256,12 @@
     renderCartBar();
   }
 
+  function stockLineHtml(p) {
+    var stock = stockOf(p.id);
+    if (!stockLoaded || stock == null || stock <= 0) return "";
+    return '<p class="product-card__stock">' + t("order.inStock") + ": " + stock + "</p>";
+  }
+
   function stepperHtml(p) {
     var stock = stockOf(p.id);
     var soldOut = stockLoaded && stock != null && stock <= 0;
@@ -328,6 +334,7 @@
         '<p class="product-card__style">' + style + "</p>" +
         '<h3 class="product-card__name">' + name + "</h3>" +
         '<div class="product-card__specs">' + abvIbuColorRow(p) + "</div>" +
+        stockLineHtml(p) +
         '<div class="product-card__order">' + stepperHtml(p) + "</div>" +
       "</article>"
     );
@@ -394,7 +401,7 @@
           '<div class="modal__tags">' + aroma.map(function (a) { return '<span class="modal__tag">' + a + "</span>"; }).join("") + "</div>" +
           '<p class="modal__section-label">' + t("modal.taste") + '</p>' +
           '<p class="modal__desc">' + taste + "</p>" +
-          '<div class="modal__order">' + stepperHtml(p) + "</div>" +
+          '<div class="modal__order">' + stepperHtml(p) + stockLineHtml(p) + "</div>" +
         "</div>" +
       "</div>";
     modal.classList.remove("hidden");
