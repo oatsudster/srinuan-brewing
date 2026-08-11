@@ -179,11 +179,28 @@
     return parts.join("");
   }
 
+  var BADGE_ICONS = {
+    star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.05 6.6.86-4.85 4.62 1.27 6.57L12 17.6l-5.92 3-1.27-6.57-4.85-4.62 6.6-.86z"/></svg>',
+    seal: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 2.1 3.1-.6.9 3 2.9 1.2-.6 3.1L22.8 13l-2.1 2.4.6 3.1-3.1.9-1.2 2.9-3.1-.6L12 24l-2.4-2.1-3.1.6-1.2-2.9-3.1-.9.6-3.1L.6 13l2.1-2.4-.6-3.1 3.1-.9 1.2-3 3.1.6z"/></svg>'
+  };
+
+  function badgeRow(p) {
+    if (!p.badges || !p.badges.length) return "";
+    var items = p.badges.map(function (key) {
+      var b = BADGE_LABELS[key];
+      if (!b) return "";
+      var label = b[currentLang] || b.en;
+      return '<span class="badge badge--' + key + '">' + (BADGE_ICONS[b.icon] || "") + "<em>" + label + "</em></span>";
+    }).join("");
+    return '<div class="product-card__badges">' + items + "</div>";
+  }
+
   function cardTemplate(p) {
     var name = p.name[currentLang] || p.name.en;
     var style = p.style[currentLang] || p.style.en;
     return (
       '<article class="product-card" data-id="' + p.id + '">' +
+        badgeRow(p) +
         '<div class="product-card__img-wrap"><img src="' + p.image + '" alt="' + name + '" loading="lazy"></div>' +
         '<p class="product-card__style">' + style + "</p>" +
         '<h3 class="product-card__name">' + name + "</h3>" +
@@ -229,6 +246,7 @@
       '<div class="modal__body">' +
         '<div class="modal__img"><img src="' + p.image + '" alt="' + name + '"></div>' +
         "<div>" +
+          badgeRow(p) +
           '<p class="modal__style">' + style + "</p>" +
           '<h3 class="modal__name">' + name + "</h3>" +
           (specRows ? '<div class="modal__specs">' + specRows + "</div>" : "") +

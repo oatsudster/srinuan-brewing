@@ -1,5 +1,5 @@
 // Product data sourced from Brewfather recipe sheets where available.
-// Beers without a matching recipe sheet (Honey & Lime Mead, Apple Cider, Midnight)
+// Beers without a matching recipe sheet (Honey & Lime Mead, Apple Cider)
 // intentionally omit ABV/IBU/color numbers rather than guessing.
 // Approximate SRM->RGB swatch, based on the common homebrew color approximation.
 function srmToColor(srm) {
@@ -24,15 +24,21 @@ const STYLE_LABELS = {
   stout:      { en: "Stout",          th: "สเตาต์" }
 };
 
+const BADGE_LABELS = {
+  bestseller: { en: "Best Seller", th: "ขายดีที่สุด", icon: "star" },
+  signature:  { en: "Signature",   th: "ซิกเนเจอร์", icon: "seal" }
+};
+
 const PRODUCTS = [
   {
     id: "ipa",
     image: "images/ipa.png",
+    badges: ["bestseller"],
     tags: ["ipa"],
     name: { en: "India Pale Ale", th: "อินเดีย เพล เอล" },
     style: { en: "American IPA", th: "อเมริกัน ไอพีเอ" },
-    abv: 6.3,
-    ibu: 14,
+    abv: 6.0,
+    ibu: 30,
     ebc: 14,
     colorName: { en: "Golden Amber", th: "สีทองอำพัน" },
     aroma: {
@@ -50,8 +56,8 @@ const PRODUCTS = [
     tags: ["ipa"],
     name: { en: "DDH IPA", th: "ดีดีเอช ไอพีเอ" },
     style: { en: "Double Dry-Hopped IPA", th: "ดับเบิลดราย-ฮอป ไอพีเอ" },
-    abv: 7.1,
-    ibu: 17,
+    abv: 6.7,
+    ibu: 35,
     ebc: 7,
     colorName: { en: "Hazy Pale Gold", th: "สีทองอ่อนขุ่น" },
     aroma: {
@@ -88,7 +94,7 @@ const PRODUCTS = [
     tags: ["weizen"],
     name: { en: "Som-Som", th: "ส้มส้ม" },
     style: { en: "South German Hefeweizen", th: "ไวเซนเยอรมันใต้" },
-    abv: 5.1,
+    abv: 5.0,
     ibu: 11,
     ebc: 6,
     colorName: { en: "Pale Straw", th: "สีฟางอ่อน" },
@@ -126,8 +132,8 @@ const PRODUCTS = [
     tags: ["mead"],
     name: { en: "Honey & Lime Mead", th: "ฮันนี่ แอนด์ ไลม์ มี้ด" },
     style: { en: "Mead", th: "มี้ด" },
-    abv: null,
-    ibu: null,
+    abv: 4.5,
+    ibu: 0,
     ebc: null,
     colorName: { en: null, th: null },
     aroma: {
@@ -145,8 +151,8 @@ const PRODUCTS = [
     tags: ["cider"],
     name: { en: "Apple Cider", th: "แอปเปิ้ล ไซเดอร์" },
     style: { en: "Cider", th: "ไซเดอร์" },
-    abv: null,
-    ibu: null,
+    abv: 5.0,
+    ibu: 0,
     ebc: null,
     colorName: { en: null, th: null },
     aroma: {
@@ -161,6 +167,7 @@ const PRODUCTS = [
   {
     id: "blue-moon-pastry",
     image: "images/blue-moon-pastry.png",
+    badges: ["bestseller", "signature"],
     tags: ["sour"],
     name: { en: "Blue Moon Pastry", th: "บลูมูน เพสตรี้" },
     style: { en: "Black Sour (Pastry Sour)", th: "แบล็กซาวร์ (เพสตรี้ซาวร์)" },
@@ -182,25 +189,6 @@ const PRODUCTS = [
     image: "images/midnight-stout.png",
     tags: ["stout"],
     name: { en: "Midnight", th: "มิดไนท์" },
-    style: { en: "Oatmeal Stout", th: "โอ๊ตมีล สเตาต์" },
-    abv: null,
-    ibu: null,
-    ebc: null,
-    colorName: { en: null, th: null },
-    aroma: {
-      en: ["Roasted malt", "Cocoa"],
-      th: ["มอลต์คั่ว", "โกโก้"]
-    },
-    taste: {
-      en: "A smooth oatmeal stout with a silky body and gentle roasted, cocoa character.",
-      th: "โอ๊ตมีลสเตาต์เนื้อเนียนนุ่ม กลิ่นคั่วและโกโก้อ่อนๆ ดื่มแล้วอบอุ่น"
-    }
-  },
-  {
-    id: "black-harvest",
-    image: "images/black-harvest-stout.png",
-    tags: ["stout"],
-    name: { en: "Black Harvest", th: "แบล็ก ฮาร์เวสต์" },
     style: { en: "Oatmeal Stout", th: "โอ๊ตมีล สเตาต์" },
     abv: 5.5,
     ibu: 13,
