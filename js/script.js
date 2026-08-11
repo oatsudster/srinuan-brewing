@@ -239,7 +239,7 @@
   var stockLoaded = false;
 
   function fetchStock() {
-    return fetch("/api/stock")
+    return fetch("/api/stock?t=" + Date.now(), { cache: "no-store" })
       .then(function (res) { return res.ok ? res.json() : {}; })
       .then(function (data) { STOCK = data || {}; stockLoaded = true; })
       .catch(function () { stockLoaded = false; });

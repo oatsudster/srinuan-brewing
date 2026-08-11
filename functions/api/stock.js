@@ -7,5 +7,7 @@ export async function onRequestGet({ env }) {
     const val = await env.STOCK_KV.get(key.name);
     result[id] = val !== null ? parseInt(val, 10) : 0;
   }
-  return Response.json(result);
+  return Response.json(result, {
+    headers: { "Cache-Control": "no-store, no-cache, must-revalidate" }
+  });
 }
