@@ -53,10 +53,15 @@
       "cart.confirm": "Confirm Order",
       "cart.free": "Free",
       "cart.baht": "THB",
+      "cart.subtotal": "Items",
+      "cart.total": "Total",
       "cart.weight": "Est. weight",
       "cart.shipping": "Est. shipping (Thailand Post EMS)",
       "cart.freeHint": "Free shipping on orders of {n}+ cans",
-      "cart.shipContactUs": "Contact us for a quote"
+      "cart.shipContactUs": "Contact us for a quote",
+      "cart.payTitle": "Scan to Pay via PromptPay",
+      "cart.payHint": "Amount is pre-filled in the QR — just scan with your banking app.",
+      "cart.attachSlip": "Attach payment slip (optional)"
     },
     th: {
       "nav.products": "สินค้า",
@@ -107,10 +112,15 @@
       "cart.confirm": "ยืนยันการสั่งซื้อ",
       "cart.free": "ฟรี",
       "cart.baht": "บาท",
+      "cart.subtotal": "ค่าสินค้า",
+      "cart.total": "ยอดรวมทั้งหมด",
       "cart.weight": "น้ำหนักโดยประมาณ",
       "cart.shipping": "ค่าจัดส่งโดยประมาณ (ไปรษณีย์ไทย EMS)",
       "cart.freeHint": "ส่งฟรีเมื่อสั่งตั้งแต่ {n} กระป๋องขึ้นไป",
-      "cart.shipContactUs": "ติดต่อร้านเพื่อสอบถามค่าส่ง"
+      "cart.shipContactUs": "ติดต่อร้านเพื่อสอบถามค่าส่ง",
+      "cart.payTitle": "สแกนจ่ายผ่าน PromptPay",
+      "cart.payHint": "ระบบใส่ยอดเงินให้อัตโนมัติแล้ว สแกนด้วยแอปธนาคารได้เลย",
+      "cart.attachSlip": "แนบสลิปโอนเงิน (ถ้ามี)"
     }
   };
 
@@ -432,14 +442,35 @@
     }).filter(function (line) { return line.product; });
   }
 
-  function shippingSummaryHtml(totalQty) {
+  function cartSubtotal(lines) {
+    return lines.reduce(function (sum, line) { return sum + priceOf(line.product.id) * line.qty; }, 0);
+  }
+
+  function cartSummaryHtml(lines) {
+    var totalQty = lines.reduce(function (s, l) { return s + l.qty; }, 0);
     var est = estimateShipping(totalQty);
-    var costText = est.free ? t("cart.free") : (est.cost != null ? est.cost + " " + t("cart.baht") : t("cart.shipContactUs"));
+    var subtotal = cartSubtotal(lines);
+    var shipCost = est.free ? 0 : (est.cost || 0);
+    var grandTotal = subtotal + shipCost;
+    var shipText = est.free ? t("cart.free") : (est.cost != null ? est.cost + " " + t("cart.baht") : t("cart.shipContactUs"));
     return (
+      '<div class="cart-summary__row"><span>' + t("cart.subtotal") + "</span><span>" + subtotal + " " + t("cart.baht") + "</span></div>" +
       '<div class="cart-summary__row"><span>' + t("cart.weight") + "</span><span>" + est.weightKg + " kg</span></div>" +
-      '<div class="cart-summary__row"><span>' + t("cart.shipping") + "</span><span>" + costText + "</span></div>" +
+      '<div class="cart-summary__row"><span>' + t("cart.shipping") + "</span><span>" + shipText + "</span></div>" +
+      '<div class="cart-summary__row cart-summary__row--total"><span>' + t("cart.total") + "</span><span>" + grandTotal + " " + t("cart.baht") + "</span></div>" +
       (!est.free ? '<p class="cart-summary__hint">' + t("cart.freeHint").replace("{n}", FREE_SHIPPING_QTY) + "</p>" : "")
     );
+  }
+
+  function renderPromptPayQr(amountBaht) {
+    var container = document.getElementById("promptpay-qr");
+    if (!container) return;
+    if (amountBaht <= 0) { container.innerHTML = ""; return; }
+    var payload = buildPromptPayPayload(amountBaht);
+    var qr = qrcode(0, "M");
+    qr.addData(payload);
+    qr.make();
+    container.innerHTML = qr.createSvgTag(5, 0);
   }
 
   function openCheckoutModal() {
@@ -449,10 +480,12 @@
 
     var itemsHtml = lines.map(function (line) {
       var name = line.product.name[currentLang] || line.product.name.en;
+      var price = priceOf(line.product.id);
       return (
         '<div class="cart-item" data-id="' + line.product.id + '">' +
           '<img src="' + line.product.image + '" alt="' + name + '">' +
-          '<div class="cart-item__info"><h4>' + name + "</h4></div>" +
+          '<div class="cart-item__info"><h4>' + name + "</h4>" +
+            '<span class="cart-item__price">' + price + " " + t("cart.baht") + "</span></div>" +
           '<div class="stepper stepper--sm" data-id="' + line.product.id + '">' +
             '<button class="stepper__btn" data-step="-1">&minus;</button>' +
             '<span class="stepper__qty">' + line.qty + "</span>" +
@@ -467,7 +500,17 @@
       '<div class="order-form">' +
         '<h4 class="order-form__title">' + t("order.title") + "</h4>" +
         '<div class="cart-list" id="cart-list">' + itemsHtml + "</div>" +
-        '<div class="cart-summary" id="cart-summary">' + shippingSummaryHtml(totalQty) + "</div>" +
+        '<div class="cart-summary" id="cart-summary">' + cartSummaryHtml(lines) + "</div>" +
+        '<div class="qr-pay">' +
+          '<p class="qr-pay__label">' + t("cart.payTitle") + "</p>" +
+          '<div id="promptpay-qr" class="qr-pay__code"></div>' +
+          '<p class="qr-pay__hint">' + t("cart.payHint") + "</p>" +
+          '<label class="qr-pay__upload">' +
+            t("cart.attachSlip") +
+            '<input type="file" accept="image/*" id="slip-input">' +
+          "</label>" +
+          '<div id="slip-preview" class="qr-pay__preview"></div>' +
+        "</div>" +
         '<form id="order-form">' +
           '<label>' + t("order.name") + '<input type="text" name="name" required></label>' +
           '<label>' + t("order.phone") + '<input type="tel" name="phone" required></label>' +
@@ -492,10 +535,14 @@
       });
     });
 
+    document.getElementById("slip-input").addEventListener("change", handleSlipSelect);
+
     document.getElementById("order-form").addEventListener("submit", function (e) {
       e.preventDefault();
       submitOrder(e.target);
     });
+
+    renderPromptPayQr(cartSubtotal(lines) + (estimateShipping(totalQty).free ? 0 : (estimateShipping(totalQty).cost || 0)));
   }
 
   function refreshCheckoutModal() {
@@ -506,7 +553,36 @@
       if (row) row.textContent = line.qty;
     });
     var summaryEl = document.getElementById("cart-summary");
-    if (summaryEl) summaryEl.innerHTML = shippingSummaryHtml(cartTotalQty());
+    if (summaryEl) summaryEl.innerHTML = cartSummaryHtml(lines);
+    var totalQty = lines.reduce(function (s, l) { return s + l.qty; }, 0);
+    var est = estimateShipping(totalQty);
+    renderPromptPayQr(cartSubtotal(lines) + (est.free ? 0 : (est.cost || 0)));
+  }
+
+  /* ---------- Slip upload ---------- */
+  var slipDataUrl = null;
+
+  function handleSlipSelect(e) {
+    var file = e.target.files[0];
+    var previewEl = document.getElementById("slip-preview");
+    if (!file) { slipDataUrl = null; previewEl.innerHTML = ""; return; }
+    var img = new Image();
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      img.onload = function () {
+        var maxW = 900;
+        var scale = Math.min(1, maxW / img.width);
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        slipDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+        previewEl.innerHTML = '<img src="' + slipDataUrl + '" alt="slip">';
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
   }
 
   function closeOrderModal() {
@@ -529,7 +605,8 @@
       items: items,
       name: formEl.name.value,
       phone: formEl.phone.value,
-      address: formEl.address.value
+      address: formEl.address.value,
+      slipImage: slipDataUrl || null
     };
 
     submitBtn.disabled = true;
@@ -551,6 +628,7 @@
           formEl.reset();
           formEl.querySelectorAll("input,textarea,button").forEach(function (el) { el.disabled = true; });
           CART = {};
+          slipDataUrl = null;
           renderCartBar();
           renderGrid(currentFilter);
         } else if (result.status === 409) {

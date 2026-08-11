@@ -44,6 +44,59 @@ function estimateShipping(totalQty) {
   return { free: false, cost: emsRateForWeight(weightKg), weightKg: weightKg };
 }
 
+// Prices in THB per can. Mirrored server-side in functions/api/order.js,
+// which is the authoritative source used to compute the amount actually
+// charged - never trust a client-submitted price.
+var PRICES = {
+  ipa: 120,
+  "ddh-ipa": 130,
+  moonlight: 110,
+  "som-som": 110,
+  "nual-gaarden": 110,
+  "honey-lime": 110,
+  "apple-cider": 110,
+  "blue-moon-pastry": 110,
+  midnight: 110
+};
+function priceOf(id) { return PRICES[id] != null ? PRICES[id] : 0; }
+
+// PromptPay dynamic QR payload builder (EMV QR Code spec / PromptPay).
+// The merchant account block below was extracted from the shop's own static
+// PromptPay QR - swapping the point-of-initiation method to "12" (dynamic)
+// and adding a transaction-amount field produces a QR that pre-fills the
+// exact order amount when scanned. No third-party service is involved.
+var PROMPTPAY_MERCHANT_BLOCK = "0016A0000006770101110315004999074338343";
+// ^ tag 29 inner value (AID + proxy/reference subfields), fixed length 39.
+
+function crc16ccitt(str) {
+  var crc = 0xFFFF;
+  for (var i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i) << 8;
+    for (var b = 0; b < 8; b++) {
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+
+function tlv(tag, value) {
+  var len = String(value.length).padStart(2, "0");
+  return tag + len + value;
+}
+
+function buildPromptPayPayload(amountBaht) {
+  var amountStr = amountBaht.toFixed(2);
+  var payload =
+    tlv("00", "01") +
+    tlv("01", "12") +
+    tlv("29", PROMPTPAY_MERCHANT_BLOCK) +
+    tlv("53", "764") +
+    tlv("54", amountStr) +
+    tlv("58", "TH");
+  return payload + "6304" + crc16ccitt(payload + "6304");
+}
+
 const STYLE_LABELS = {
   ipa:        { en: "IPA",            th: "ไอพีเอ" },
   "pale-ale": { en: "Pale Ale",       th: "เพล เอล" },

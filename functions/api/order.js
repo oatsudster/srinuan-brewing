@@ -1,10 +1,11 @@
 // POST /api/order - public, places a cart order: checks stock for every item,
-// decrements it, computes an estimated shipping fee, and notifies the shop
-// owner via Telegram. No payment is processed here; this only creates an
-// order inquiry for the owner to confirm manually.
+// decrements it, computes shipping + total (prices are always taken from the
+// server-side table below, never trusted from the client), and notifies the
+// shop owner via Telegram (with the payment slip photo, if one was attached).
+// No payment is processed here; PromptPay is a self-serve bank transfer the
+// customer completes themselves - this only creates an order inquiry.
 
-// Mirrors the rate table in js/products.js (client-side estimate) - Thailand
-// Post's published domestic EMS rates, flat nationwide by weight.
+// Mirrors js/products.js (client-side estimate/preview) - keep both in sync.
 const CAN_WEIGHT_KG = 0.34;
 const PACKAGING_KG = 0.15;
 const FREE_SHIPPING_QTY = 10;
@@ -12,6 +13,17 @@ const EMS_RATE_TIERS = [
   [0.02, 32], [0.10, 37], [0.25, 42], [0.50, 52], [1.00, 67],
   [1.50, 82], [2.00, 97], [5.00, 120], [10.00, 220], [20.00, 320], [30.00, 480]
 ];
+const PRICES = {
+  ipa: 120,
+  "ddh-ipa": 130,
+  moonlight: 110,
+  "som-som": 110,
+  "nual-gaarden": 110,
+  "honey-lime": 110,
+  "apple-cider": 110,
+  "blue-moon-pastry": 110,
+  midnight: 110
+};
 
 function emsRateForWeight(weightKg) {
   for (const [maxKg, price] of EMS_RATE_TIERS) {
@@ -28,6 +40,40 @@ function estimateShipping(totalQty) {
 
 function escapeText(s) {
   return String(s).replace(/[\r\n]+/g, " ").trim().slice(0, 500);
+}
+
+function base64ToBytes(dataUrl) {
+  const base64 = dataUrl.split(",")[1] || "";
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+async function sendTelegram(env, text, slipImage) {
+  try {
+    if (slipImage && slipImage.startsWith("data:image")) {
+      const bytes = base64ToBytes(slipImage);
+      const form = new FormData();
+      form.append("chat_id", env.TELEGRAM_CHAT_ID);
+      form.append("caption", text.slice(0, 1024));
+      form.append("photo", new Blob([bytes], { type: "image/jpeg" }), "slip.jpg");
+      const resp = await fetch("https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendPhoto", {
+        method: "POST",
+        body: form
+      });
+      if (!resp.ok) console.error("Telegram sendPhoto failed:", await resp.text());
+      return;
+    }
+    const resp = await fetch("https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendMessage", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text })
+    });
+    if (!resp.ok) console.error("Telegram sendMessage failed:", await resp.text());
+  } catch (err) {
+    console.error("Telegram send error:", err);
+  }
 }
 
 export async function onRequestPost({ request, env }) {
@@ -78,38 +124,32 @@ export async function onRequestPost({ request, env }) {
   }
 
   const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
+  const subtotal = items.reduce((sum, i) => sum + (PRICES[i.productId] || 0) * i.quantity, 0);
   const shipping = estimateShipping(totalQty);
+  const shipCost = shipping.free ? 0 : (shipping.cost || 0);
+  const grandTotal = subtotal + shipCost;
 
-  const itemLines = items.map((i) => "  - " + i.productName + " x " + i.quantity).join("\n");
+  const itemLines = items
+    .map((i) => "  - " + i.productName + " x " + i.quantity + " (" + (PRICES[i.productId] || 0) + " THB each)")
+    .join("\n");
   const shipLine = shipping.free
     ? "Free (" + totalQty + "+ cans)"
     : (shipping.cost != null ? shipping.cost + " THB" : "Contact customer - over 30kg");
+  const slipLine = body.slipImage ? "Payment slip: attached above" : "Payment slip: not attached";
 
   const text =
     "New Order - Srinuan Brewing\n\n" +
     "Items:\n" + itemLines + "\n\n" +
-    "Total cans: " + totalQty + "\n" +
+    "Subtotal: " + subtotal + " THB\n" +
     "Est. weight: " + shipping.weightKg + " kg\n" +
-    "Est. shipping (EMS): " + shipLine + "\n\n" +
+    "Shipping (EMS): " + shipLine + "\n" +
+    "Total: " + grandTotal + " THB\n" +
+    slipLine + "\n\n" +
     "Name: " + name + "\n" +
     "Phone: " + phone + "\n" +
     "Address: " + address;
 
-  try {
-    const tgResp = await fetch(
-      "https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendMessage",
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text })
-      }
-    );
-    if (!tgResp.ok) {
-      console.error("Telegram send failed:", await tgResp.text());
-    }
-  } catch (err) {
-    console.error("Telegram send error:", err);
-  }
+  await sendTelegram(env, text, body.slipImage);
 
-  return Response.json({ ok: true, remaining, shipping });
+  return Response.json({ ok: true, remaining, subtotal, shipping: shipCost, total: grandTotal });
 }
