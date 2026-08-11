@@ -34,7 +34,29 @@
       "modal.taste": "Tasting Notes",
       "modal.abv": "ABV",
       "modal.ibu": "IBU",
-      "modal.color": "Color"
+      "modal.color": "Color",
+      "order.button": "Order Now",
+      "order.soldOut": "Sold Out",
+      "order.inStock": "In stock",
+      "order.title": "Place an Order",
+      "order.name": "Full Name",
+      "order.phone": "Phone Number",
+      "order.address": "Delivery Address",
+      "order.quantity": "Quantity",
+      "order.submit": "Send Order",
+      "order.sending": "Sending...",
+      "order.success": "Order sent! We'll contact you shortly to confirm.",
+      "order.errorInsufficient": "Sorry, only {n} left in stock.",
+      "order.errorGeneric": "Something went wrong. Please try again.",
+      "order.close": "Close",
+      "cart.items": "{n} in cart",
+      "cart.confirm": "Confirm Order",
+      "cart.free": "Free",
+      "cart.baht": "THB",
+      "cart.weight": "Est. weight",
+      "cart.shipping": "Est. shipping (Thailand Post EMS)",
+      "cart.freeHint": "Free shipping on orders of {n}+ cans",
+      "cart.shipContactUs": "Contact us for a quote"
     },
     th: {
       "nav.products": "สินค้า",
@@ -66,7 +88,29 @@
       "modal.taste": "รสชาติ",
       "modal.abv": "แอลกอฮอล์",
       "modal.ibu": "ความขม (IBU)",
-      "modal.color": "สี"
+      "modal.color": "สี",
+      "order.button": "สั่งซื้อ",
+      "order.soldOut": "สินค้าหมด",
+      "order.inStock": "คงเหลือ",
+      "order.title": "สั่งซื้อสินค้า",
+      "order.name": "ชื่อ-นามสกุล",
+      "order.phone": "เบอร์โทรศัพท์",
+      "order.address": "ที่อยู่จัดส่ง",
+      "order.quantity": "จำนวน",
+      "order.submit": "ส่งคำสั่งซื้อ",
+      "order.sending": "กำลังส่ง...",
+      "order.success": "ส่งคำสั่งซื้อแล้ว! ทางร้านจะติดต่อกลับเพื่อยืนยันเร็วๆ นี้",
+      "order.errorInsufficient": "ขออภัย เหลือสินค้าเพียง {n} ชิ้น",
+      "order.errorGeneric": "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+      "order.close": "ปิด",
+      "cart.items": "ในตะกร้า {n} ชิ้น",
+      "cart.confirm": "ยืนยันการสั่งซื้อ",
+      "cart.free": "ฟรี",
+      "cart.baht": "บาท",
+      "cart.weight": "น้ำหนักโดยประมาณ",
+      "cart.shipping": "ค่าจัดส่งโดยประมาณ (ไปรษณีย์ไทย EMS)",
+      "cart.freeHint": "ส่งฟรีเมื่อสั่งตั้งแต่ {n} กระป๋องขึ้นไป",
+      "cart.shipContactUs": "ติดต่อร้านเพื่อสอบถามค่าส่ง"
     }
   };
 
@@ -97,6 +141,7 @@
     applyStaticText();
     renderFilters();
     renderGrid(currentFilter);
+    renderCartBar();
   }
 
   /* ---------- Age Gate ---------- */
@@ -179,6 +224,84 @@
     return parts.join("");
   }
 
+  /* ---------- Stock ---------- */
+  var STOCK = {};
+  var stockLoaded = false;
+
+  function fetchStock() {
+    return fetch("/api/stock")
+      .then(function (res) { return res.ok ? res.json() : {}; })
+      .then(function (data) { STOCK = data || {}; stockLoaded = true; })
+      .catch(function () { stockLoaded = false; });
+  }
+
+  function stockOf(id) {
+    return STOCK[id] != null ? STOCK[id] : null;
+  }
+
+  /* ---------- Cart ---------- */
+  var CART = {};
+
+  function cartQtyOf(id) { return CART[id] || 0; }
+
+  function cartTotalQty() {
+    return Object.keys(CART).reduce(function (sum, id) { return sum + CART[id]; }, 0);
+  }
+
+  function setCartQty(id, qty) {
+    var stock = stockOf(id);
+    var max = stock != null ? stock : 99;
+    qty = Math.max(0, Math.min(qty, max));
+    if (qty <= 0) { delete CART[id]; } else { CART[id] = qty; }
+    renderCartBar();
+  }
+
+  function stepperHtml(p) {
+    var stock = stockOf(p.id);
+    var soldOut = stockLoaded && stock != null && stock <= 0;
+    if (soldOut) {
+      return '<div class="stepper stepper--soldout">' + t("order.soldOut") + "</div>";
+    }
+    var qty = cartQtyOf(p.id);
+    return (
+      '<div class="stepper" data-id="' + p.id + '">' +
+        '<button class="stepper__btn" data-step="-1" ' + (qty <= 0 ? "disabled" : "") + '>&minus;</button>' +
+        '<span class="stepper__qty">' + qty + "</span>" +
+        '<button class="stepper__btn" data-step="1">+</button>' +
+      "</div>"
+    );
+  }
+
+  function refreshSteppers() {
+    document.querySelectorAll(".stepper[data-id]").forEach(function (el) {
+      var id = el.dataset.id;
+      var qty = cartQtyOf(id);
+      var qtyEl = el.querySelector(".stepper__qty");
+      if (qtyEl) qtyEl.textContent = qty;
+      var decBtn = el.querySelector('[data-step="-1"]');
+      if (decBtn) decBtn.disabled = qty <= 0;
+    });
+  }
+
+  /* ---------- Cart bar ---------- */
+  var cartBar = document.getElementById("cart-bar");
+
+  function renderCartBar() {
+    var total = cartTotalQty();
+    if (total <= 0) {
+      cartBar.classList.add("hidden");
+      cartBar.innerHTML = "";
+      refreshSteppers();
+      return;
+    }
+    cartBar.classList.remove("hidden");
+    cartBar.innerHTML =
+      '<span class="cart-bar__count">' + t("cart.items").replace("{n}", "<strong>" + total + "</strong>") + "</span>" +
+      '<button class="cart-bar__btn" id="cart-confirm-btn">' + t("cart.confirm") + "</button>";
+    document.getElementById("cart-confirm-btn").addEventListener("click", openCheckoutModal);
+    refreshSteppers();
+  }
+
   var BADGE_ICONS = {
     star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.05 6.6.86-4.85 4.62 1.27 6.57L12 17.6l-5.92 3-1.27-6.57-4.85-4.62 6.6-.86z"/></svg>',
     seal: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 2.1 3.1-.6.9 3 2.9 1.2-.6 3.1L22.8 13l-2.1 2.4.6 3.1-3.1.9-1.2 2.9-3.1-.6L12 24l-2.4-2.1-3.1.6-1.2-2.9-3.1-.9.6-3.1L.6 13l2.1-2.4-.6-3.1 3.1-.9 1.2-3 3.1.6z"/></svg>'
@@ -205,8 +328,21 @@
         '<p class="product-card__style">' + style + "</p>" +
         '<h3 class="product-card__name">' + name + "</h3>" +
         '<div class="product-card__specs">' + abvIbuColorRow(p) + "</div>" +
+        '<div class="product-card__order">' + stepperHtml(p) + "</div>" +
       "</article>"
     );
+  }
+
+  function bindSteppers(root) {
+    root.querySelectorAll(".stepper[data-id]").forEach(function (el) {
+      el.querySelectorAll("[data-step]").forEach(function (btn) {
+        btn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          var id = el.dataset.id;
+          setCartQty(id, cartQtyOf(id) + parseInt(btn.dataset.step, 10));
+        });
+      });
+    });
   }
 
   function renderGrid(filter) {
@@ -216,8 +352,12 @@
     }
     grid.innerHTML = items.map(cardTemplate).join("");
     grid.querySelectorAll(".product-card").forEach(function (card) {
-      card.addEventListener("click", function () { openModal(card.dataset.id); });
+      card.addEventListener("click", function (e) {
+        if (e.target.closest(".stepper")) return;
+        openModal(card.dataset.id);
+      });
     });
+    bindSteppers(grid);
   }
 
   /* ---------- Modal ---------- */
@@ -254,11 +394,13 @@
           '<div class="modal__tags">' + aroma.map(function (a) { return '<span class="modal__tag">' + a + "</span>"; }).join("") + "</div>" +
           '<p class="modal__section-label">' + t("modal.taste") + '</p>' +
           '<p class="modal__desc">' + taste + "</p>" +
+          '<div class="modal__order">' + stepperHtml(p) + "</div>" +
         "</div>" +
       "</div>";
     modal.classList.remove("hidden");
     document.body.style.overflow = "hidden";
     document.getElementById("modal-close").addEventListener("click", closeModal);
+    bindSteppers(modalCard);
   }
 
   function closeModal() {
@@ -268,11 +410,168 @@
 
   modalBackdrop.addEventListener("click", closeModal);
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeModal();
+    if (e.key === "Escape") { closeModal(); closeOrderModal(); }
   });
+
+  /* ---------- Checkout Modal (cart) ---------- */
+  var orderModal = document.getElementById("order-modal");
+  var orderModalCard = document.getElementById("order-modal-card");
+  var orderModalBackdrop = document.getElementById("order-modal-backdrop");
+
+  function cartLineItems() {
+    return Object.keys(CART).map(function (id) {
+      var p = PRODUCTS.find(function (x) { return x.id === id; });
+      return { product: p, qty: CART[id] };
+    }).filter(function (line) { return line.product; });
+  }
+
+  function shippingSummaryHtml(totalQty) {
+    var est = estimateShipping(totalQty);
+    var costText = est.free ? t("cart.free") : (est.cost != null ? est.cost + " " + t("cart.baht") : t("cart.shipContactUs"));
+    return (
+      '<div class="cart-summary__row"><span>' + t("cart.weight") + "</span><span>" + est.weightKg + " kg</span></div>" +
+      '<div class="cart-summary__row"><span>' + t("cart.shipping") + "</span><span>" + costText + "</span></div>" +
+      (!est.free ? '<p class="cart-summary__hint">' + t("cart.freeHint").replace("{n}", FREE_SHIPPING_QTY) + "</p>" : "")
+    );
+  }
+
+  function openCheckoutModal() {
+    var lines = cartLineItems();
+    if (!lines.length) return;
+    var totalQty = cartTotalQty();
+
+    var itemsHtml = lines.map(function (line) {
+      var name = line.product.name[currentLang] || line.product.name.en;
+      return (
+        '<div class="cart-item" data-id="' + line.product.id + '">' +
+          '<img src="' + line.product.image + '" alt="' + name + '">' +
+          '<div class="cart-item__info"><h4>' + name + "</h4></div>" +
+          '<div class="stepper stepper--sm" data-id="' + line.product.id + '">' +
+            '<button class="stepper__btn" data-step="-1">&minus;</button>' +
+            '<span class="stepper__qty">' + line.qty + "</span>" +
+            '<button class="stepper__btn" data-step="1">+</button>' +
+          "</div>" +
+        "</div>"
+      );
+    }).join("");
+
+    orderModalCard.innerHTML =
+      '<button class="modal__close" id="order-modal-close">&times;</button>' +
+      '<div class="order-form">' +
+        '<h4 class="order-form__title">' + t("order.title") + "</h4>" +
+        '<div class="cart-list" id="cart-list">' + itemsHtml + "</div>" +
+        '<div class="cart-summary" id="cart-summary">' + shippingSummaryHtml(totalQty) + "</div>" +
+        '<form id="order-form">' +
+          '<label>' + t("order.name") + '<input type="text" name="name" required></label>' +
+          '<label>' + t("order.phone") + '<input type="tel" name="phone" required></label>' +
+          '<label>' + t("order.address") + '<textarea name="address" required rows="3"></textarea></label>' +
+          '<button type="submit" class="btn btn--primary order-form__submit">' + t("order.submit") + "</button>" +
+          '<p class="order-form__msg" id="order-form-msg"></p>' +
+        "</form>" +
+      "</div>";
+
+    orderModal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    document.getElementById("order-modal-close").addEventListener("click", closeOrderModal);
+
+    var cartListEl = document.getElementById("cart-list");
+    cartListEl.querySelectorAll(".stepper[data-id]").forEach(function (el) {
+      el.querySelectorAll("[data-step]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var id = el.dataset.id;
+          setCartQty(id, cartQtyOf(id) + parseInt(btn.dataset.step, 10));
+          refreshCheckoutModal();
+        });
+      });
+    });
+
+    document.getElementById("order-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      submitOrder(e.target);
+    });
+  }
+
+  function refreshCheckoutModal() {
+    var lines = cartLineItems();
+    if (!lines.length) { closeOrderModal(); return; }
+    lines.forEach(function (line) {
+      var row = orderModalCard.querySelector('.cart-item[data-id="' + line.product.id + '"] .stepper__qty');
+      if (row) row.textContent = line.qty;
+    });
+    var summaryEl = document.getElementById("cart-summary");
+    if (summaryEl) summaryEl.innerHTML = shippingSummaryHtml(cartTotalQty());
+  }
+
+  function closeOrderModal() {
+    orderModal.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+
+  function submitOrder(formEl) {
+    var lines = cartLineItems();
+    if (!lines.length) return;
+    var msgEl = document.getElementById("order-form-msg");
+    var submitBtn = formEl.querySelector(".order-form__submit");
+
+    var items = lines.map(function (line) {
+      var name = line.product.name[currentLang] || line.product.name.en;
+      return { productId: line.product.id, productName: name, quantity: line.qty };
+    });
+
+    var payload = {
+      items: items,
+      name: formEl.name.value,
+      phone: formEl.phone.value,
+      address: formEl.address.value
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = t("order.sending");
+    msgEl.className = "order-form__msg";
+    msgEl.textContent = "";
+
+    fetch("/api/order", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) { return res.json().then(function (data) { return { status: res.status, data: data }; }); })
+      .then(function (result) {
+        if (result.status === 200 && result.data.ok) {
+          Object.keys(result.data.remaining || {}).forEach(function (id) { STOCK[id] = result.data.remaining[id]; });
+          msgEl.className = "order-form__msg order-form__msg--ok";
+          msgEl.textContent = t("order.success");
+          formEl.reset();
+          formEl.querySelectorAll("input,textarea,button").forEach(function (el) { el.disabled = true; });
+          CART = {};
+          renderCartBar();
+          renderGrid(currentFilter);
+        } else if (result.status === 409) {
+          msgEl.className = "order-form__msg order-form__msg--err";
+          var shortfall = (result.data.shortfalls || [])[0];
+          msgEl.textContent = shortfall
+            ? t("order.errorInsufficient").replace("{n}", shortfall.available)
+            : t("order.errorGeneric");
+          submitBtn.disabled = false;
+          submitBtn.textContent = t("order.submit");
+        } else {
+          throw new Error("order_failed");
+        }
+      })
+      .catch(function () {
+        msgEl.className = "order-form__msg order-form__msg--err";
+        msgEl.textContent = t("order.errorGeneric");
+        submitBtn.disabled = false;
+        submitBtn.textContent = t("order.submit");
+      });
+  }
+
+  orderModalBackdrop.addEventListener("click", closeOrderModal);
 
   /* ---------- Init ---------- */
   applyStaticText();
   renderFilters();
   renderGrid("all");
+  renderCartBar();
+  fetchStock().then(function () { renderGrid(currentFilter); });
 })();

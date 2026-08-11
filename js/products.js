@@ -13,6 +13,37 @@ function ebcToSrm(ebc) {
   return ebc == null ? null : Math.round((ebc / 1.97) * 10) / 10;
 }
 
+// Shipping estimate, based on Thailand Post's published domestic EMS rate
+// table (flat nationwide by weight, not zone-based). Mirrored in
+// functions/api/order.js as the server-side source of truth — keep both in sync.
+var CAN_WEIGHT_KG = 0.34;
+var PACKAGING_KG = 0.15;
+var FREE_SHIPPING_QTY = 10;
+var EMS_RATE_TIERS = [
+  [0.02, 32], [0.10, 37], [0.25, 42], [0.50, 52], [1.00, 67],
+  [1.50, 82], [2.00, 97], [5.00, 120], [10.00, 220], [20.00, 320], [30.00, 480]
+];
+
+function cartWeightKg(totalQty) {
+  return totalQty > 0 ? Math.round((totalQty * CAN_WEIGHT_KG + PACKAGING_KG) * 100) / 100 : 0;
+}
+
+function emsRateForWeight(weightKg) {
+  for (var i = 0; i < EMS_RATE_TIERS.length; i++) {
+    if (weightKg <= EMS_RATE_TIERS[i][0]) return EMS_RATE_TIERS[i][1];
+  }
+  return null; // over 30kg - contact shop directly
+}
+
+function estimateShipping(totalQty) {
+  if (totalQty <= 0) return { free: false, cost: 0, weightKg: 0 };
+  if (totalQty >= FREE_SHIPPING_QTY) {
+    return { free: true, cost: 0, weightKg: cartWeightKg(totalQty) };
+  }
+  var weightKg = cartWeightKg(totalQty);
+  return { free: false, cost: emsRateForWeight(weightKg), weightKg: weightKg };
+}
+
 const STYLE_LABELS = {
   ipa:        { en: "IPA",            th: "ไอพีเอ" },
   "pale-ale": { en: "Pale Ale",       th: "เพล เอล" },

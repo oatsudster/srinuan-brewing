@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Stock | Srinuan Brewing</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=4">
+<style>
+  body { min-height: 100vh; }
+  .admin-wrap { max-width: 640px; margin: 0 auto; padding: 60px 24px 100px; }
+  .admin-login {
+    max-width: 360px; margin: 15vh auto 0; text-align: center;
+    background: var(--navy-900); border: 1px solid rgba(217,164,91,0.25);
+    border-radius: var(--radius); padding: 36px 30px;
+  }
+  .admin-login input {
+    width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(245,236,217,0.2);
+    background: var(--navy-800); color: var(--cream-100); font-family: var(--font-body); font-size: 15px;
+    margin: 16px 0; box-sizing: border-box;
+  }
+  .admin-login__error { color: var(--danger); font-size: 13px; min-height: 18px; }
+  .admin-title { font-family: var(--font-display); font-size: 26px; margin-bottom: 24px; text-align: center; }
+  .stock-row {
+    display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+    background: var(--navy-800); border: 1px solid rgba(217,164,91,0.12); border-radius: 12px; margin-bottom: 12px;
+  }
+  .stock-row img { width: 46px; height: 46px; object-fit: contain; }
+  .stock-row__name { flex: 1; font-weight: 500; }
+  .stock-row input[type="number"] {
+    width: 84px; padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(245,236,217,0.2);
+    background: var(--navy-900); color: var(--cream-100); font-size: 15px; text-align: center;
+  }
+  .stock-row__status { font-size: 11px; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
+  .stock-row__status.ok { background: rgba(63,122,118,0.18); color: var(--teal-400); }
+  .stock-row__status.saving { background: rgba(217,164,91,0.15); color: var(--gold-400); }
+  .admin-logout { text-align: center; margin-top: 30px; }
+  .admin-logout a { color: var(--ink-muted); font-size: 13px; text-decoration: underline; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div id="login-view" class="admin-wrap">
+  <div class="admin-login">
+    <h1 class="admin-title">Admin Login</h1>
+    <input type="password" id="admin-password" placeholder="Password" autocomplete="current-password">
+    <button class="btn btn--primary" id="login-btn" style="width:100%">Login</button>
+    <p class="admin-login__error" id="login-error"></p>
+  </div>
+</div>
+
+<div id="stock-view" class="admin-wrap hidden">
+  <h1 class="admin-title">Stock Management</h1>
+  <div id="stock-list"></div>
+  <div class="admin-logout"><a id="logout-link">Log out</a></div>
+</div>
+
+<script src="js/products.js?v=4"></script>
+<script>
+(function () {
+  "use strict";
+  var PW_KEY = "srinuan_admin_pw";
+  var loginView = document.getElementById("login-view");
+  var stockView = document.getElementById("stock-view");
+  var loginBtn = document.getElementById("login-btn");
+  var pwInput = document.getElementById("admin-password");
+  var loginError = document.getElementById("login-error");
+  var stockList = document.getElementById("stock-list");
+
+  function showStockView() {
+    loginView.classList.add("hidden");
+    stockView.classList.remove("hidden");
+    loadStock();
+  }
+
+  async function tryLogin(password) {
+    loginError.textContent = "";
+    loginBtn.disabled = true;
+    try {
+      var res = await fetch("/api/admin-login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ password: password })
+      });
+      var data = await res.json();
+      if (data.ok) {
+        sessionStorage.setItem(PW_KEY, password);
+        showStockView();
+      } else {
+        loginError.textContent = "Wrong password";
+      }
+    } catch (e) {
+      loginError.textContent = "Connection error";
+    }
+    loginBtn.disabled = false;
+  }
+
+  loginBtn.addEventListener("click", function () { tryLogin(pwInput.value); });
+  pwInput.addEventListener("keydown", function (e) { if (e.key === "Enter") tryLogin(pwInput.value); });
+
+  document.getElementById("logout-link").addEventListener("click", function () {
+    sessionStorage.removeItem(PW_KEY);
+    location.reload();
+  });
+
+  async function loadStock() {
+    stockList.innerHTML = "Loading...";
+    var res = await fetch("/api/stock");
+    var stock = await res.json();
+    stockList.innerHTML = "";
+    PRODUCTS.forEach(function (p) {
+      var row = document.createElement("div");
+      row.className = "stock-row";
+      row.innerHTML =
+        '<img src="' + p.image + '" alt="">' +
+        '<div class="stock-row__name">' + p.name.en + "</div>" +
+        '<input type="number" min="0" value="' + (stock[p.id] != null ? stock[p.id] : 0) + '" data-id="' + p.id + '">' +
+        '<span class="stock-row__status"></span>';
+      stockList.appendChild(row);
+
+      var input = row.querySelector("input");
+      var statusEl = row.querySelector(".stock-row__status");
+      var timer = null;
+      input.addEventListener("input", function () {
+        clearTimeout(timer);
+        statusEl.textContent = "";
+        statusEl.className = "stock-row__status";
+        timer = setTimeout(function () { saveStock(p.id, input.value, statusEl); }, 600);
+      });
+    });
+  }
+
+  async function saveStock(productId, value, statusEl) {
+    statusEl.textContent = "Saving...";
+    statusEl.className = "stock-row__status saving";
+    var password = sessionStorage.getItem(PW_KEY);
+    try {
+      var res = await fetch("/api/admin-stock", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-admin-password": password },
+        body: JSON.stringify({ productId: productId, stock: value })
+      });
+      if (res.ok) {
+        statusEl.textContent = "Saved";
+        statusEl.className = "stock-row__status ok";
+      } else if (res.status === 401) {
+        alert("Session expired, please log in again.");
+        location.reload();
+      } else {
+        statusEl.textContent = "Error";
+      }
+    } catch (e) {
+      statusEl.textContent = "Error";
+    }
+  }
+
+  var savedPw = sessionStorage.getItem(PW_KEY);
+  if (savedPw) { tryLogin(savedPw); }
+})();
+</script>
+</body>
+</html>
