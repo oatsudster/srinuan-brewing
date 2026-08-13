@@ -77,7 +77,7 @@
       "filter.all": "ทั้งหมด",
       "story.eyebrow": "เรื่องราวของเรา",
       "story.title": "เรื่องราวของศรีนวล",
-      "story.p1": "ศรีนวล เบรวิ่ง ก่อตั้งขึ้นในปี 2023 จากความหลงใหลในคราฟต์เบียร์และแมว ทุกกระป๋องของเราคือการผสมผสานระหว่างสูตรเบียร์ที่พิถีพิถัน กับงานศิลปะที่เล่าเรื่องราวผ่านตัวละครแมวประจำแต่ละรสชาติ ตั้งแต่ IPA รสจัดจ้าน ไปจนถึงสเตาต์เข้มข้น และไซเดอร์สดชื่น",
+      "story.p1": "ศรีนวล บริววิ่ง ก่อตั้งขึ้นในปี 2023 จากความหลงใหลในคราฟต์เบียร์และแมว ทุกกระป๋องของเราคือการผสมผสานระหว่างสูตรเบียร์ที่พิถีพิถัน กับงานศิลปะที่เล่าเรื่องราวผ่านตัวละครแมวประจำแต่ละรสชาติ ตั้งแต่ IPA รสจัดจ้าน ไปจนถึงสเตาต์เข้มข้น และไซเดอร์สดชื่น",
       "story.p2": "เราเชื่อว่าเบียร์ที่ดีไม่ได้มีดีแค่รสชาติ แต่ต้องมีเรื่องราวและคาแรกเตอร์ที่จดจำได้ นี่คือเหตุผลที่แมวแต่ละตัวบนกระป๋องของเรา มีบุคลิกและโลกของตัวเองที่ไม่เหมือนใคร",
       "story.stat1": "รสชาติ",
       "story.stat2": "ก่อตั้ง",
@@ -334,13 +334,30 @@
     return '<div class="product-card__badges">' + items + "</div>";
   }
 
+  function isSoldOut(p) {
+    var stock = stockOf(p.id);
+    return stockLoaded && stock != null && stock <= 0;
+  }
+
+  function soldOutRibbonHtml(p) {
+    if (!isSoldOut(p)) return "";
+    return '<div class="soldout-ribbon">' + t("order.soldOut") + "</div>";
+  }
+
+  function priceTagHtml(p) {
+    var price = priceOf(p.id);
+    if (!price) return "";
+    return '<div class="price-tag">' + price + " " + t("cart.baht") + "</div>";
+  }
+
   function cardTemplate(p) {
     var name = p.name[currentLang] || p.name.en;
     var style = p.style[currentLang] || p.style.en;
     return (
-      '<article class="product-card" data-id="' + p.id + '">' +
+      '<article class="product-card' + (isSoldOut(p) ? " product-card--soldout" : "") + '" data-id="' + p.id + '">' +
         badgeRow(p) +
-        '<div class="product-card__img-wrap"><img src="' + p.image + '" alt="' + name + '" loading="lazy"></div>' +
+        priceTagHtml(p) +
+        '<div class="product-card__img-wrap"><img src="' + p.image + '" alt="' + name + '" loading="lazy">' + soldOutRibbonHtml(p) + "</div>" +
         '<p class="product-card__style">' + style + "</p>" +
         '<h3 class="product-card__name">' + name + "</h3>" +
         '<div class="product-card__specs">' + abvIbuColorRow(p) + "</div>" +
@@ -401,7 +418,7 @@
     modalCard.innerHTML =
       '<button class="modal__close" id="modal-close">&times;</button>' +
       '<div class="modal__body">' +
-        '<div class="modal__img"><img src="' + p.image + '" alt="' + name + '"></div>' +
+        '<div class="modal__img"><img src="' + p.image + '" alt="' + name + '">' + soldOutRibbonHtml(p) + "</div>" +
         "<div>" +
           badgeRow(p) +
           '<p class="modal__style">' + style + "</p>" +
