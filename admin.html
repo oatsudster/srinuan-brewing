@@ -6,7 +6,7 @@
 <title>Admin | Srinuan Brewing</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=11">
+<link rel="stylesheet" href="css/style.css?v=12">
 <style>
   body { min-height: 100vh; }
   .admin-wrap { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
@@ -66,6 +66,26 @@
   }
   .order-card__shipped-info { font-size: 12.5px; color: var(--teal-400); margin-top: 8px; }
   .admin-empty { text-align: center; color: var(--ink-muted); padding: 30px 0; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 26px; }
+  .stat-card {
+    background: var(--navy-800); border: 1px solid rgba(217,164,91,0.12); border-radius: 12px;
+    padding: 18px 16px;
+  }
+  .stat-card__label { font-size: 12px; color: var(--ink-muted); margin-bottom: 6px; }
+  .stat-card__value { font-family: var(--font-display); font-size: 24px; color: var(--gold-400); }
+  .stat-card__sub { font-size: 11.5px; color: var(--ink-muted); margin-top: 4px; }
+  .dash-section-title { font-size: 14px; font-weight: 600; color: var(--cream-200); margin: 22px 0 10px; }
+  .low-stock-row {
+    display: flex; justify-content: space-between; align-items: center; padding: 10px 14px;
+    background: var(--navy-800); border: 1px solid rgba(192,85,63,0.25); border-radius: 10px; margin-bottom: 8px;
+  }
+  .low-stock-row span:last-child { font-weight: 700; color: var(--danger); }
+  .bestseller-row {
+    display: flex; justify-content: space-between; align-items: center; padding: 10px 14px;
+    background: var(--navy-800); border: 1px solid rgba(217,164,91,0.12); border-radius: 10px; margin-bottom: 8px;
+  }
+  .bestseller-row span:last-child { font-weight: 700; color: var(--gold-400); }
 </style>
 </head>
 <body>
@@ -81,11 +101,17 @@
 
 <div id="main-view" class="admin-wrap hidden">
   <div class="admin-tabs">
-    <button class="admin-tab active" id="tab-stock">Stock</button>
+    <button class="admin-tab active" id="tab-dashboard">Dashboard</button>
+    <button class="admin-tab" id="tab-stock">Stock</button>
     <button class="admin-tab" id="tab-orders">Orders</button>
   </div>
 
-  <div id="stock-view">
+  <div id="dashboard-view">
+    <h1 class="admin-title">Dashboard</h1>
+    <div id="dashboard-content">Loading...</div>
+  </div>
+
+  <div id="stock-view" class="hidden">
     <h1 class="admin-title">Stock Management</h1>
     <div id="stock-list"></div>
   </div>
@@ -98,7 +124,7 @@
   <div class="admin-logout"><a id="logout-link">Log out</a></div>
 </div>
 
-<script src="js/products.js?v=11"></script>
+<script src="js/products.js?v=12"></script>
 <script>
 (function () {
   "use strict";
@@ -110,28 +136,38 @@
   var loginError = document.getElementById("login-error");
   var stockList = document.getElementById("stock-list");
   var ordersList = document.getElementById("orders-list");
+  var dashboardContent = document.getElementById("dashboard-content");
+  var dashboardView = document.getElementById("dashboard-view");
   var stockView = document.getElementById("stock-view");
   var ordersView = document.getElementById("orders-view");
+  var tabDashboard = document.getElementById("tab-dashboard");
   var tabStock = document.getElementById("tab-stock");
   var tabOrders = document.getElementById("tab-orders");
+  var LOW_STOCK_THRESHOLD = 5;
 
   function showMainView() {
     loginView.classList.add("hidden");
     mainView.classList.remove("hidden");
-    loadStock();
+    loadDashboard();
   }
 
+  function setActiveTab(tab) {
+    [tabDashboard, tabStock, tabOrders].forEach(function (t) { t.classList.remove("active"); });
+    [dashboardView, stockView, ordersView].forEach(function (v) { v.classList.add("hidden"); });
+    tab.el.classList.add("active");
+    tab.view.classList.remove("hidden");
+  }
+
+  tabDashboard.addEventListener("click", function () {
+    setActiveTab({ el: tabDashboard, view: dashboardView });
+    loadDashboard();
+  });
   tabStock.addEventListener("click", function () {
-    tabStock.classList.add("active");
-    tabOrders.classList.remove("active");
-    stockView.classList.remove("hidden");
-    ordersView.classList.add("hidden");
+    setActiveTab({ el: tabStock, view: stockView });
+    loadStock();
   });
   tabOrders.addEventListener("click", function () {
-    tabOrders.classList.add("active");
-    tabStock.classList.remove("active");
-    ordersView.classList.remove("hidden");
-    stockView.classList.add("hidden");
+    setActiveTab({ el: tabOrders, view: ordersView });
     loadOrders();
   });
 
@@ -214,6 +250,64 @@
     } catch (e) {
       statusEl.textContent = "Error";
     }
+  }
+
+  async function loadDashboard() {
+    dashboardContent.innerHTML = "Loading...";
+    var password = sessionStorage.getItem(PW_KEY);
+    var ordersRes = await fetch("/api/admin-orders?t=" + Date.now(), {
+      headers: { "x-admin-password": password },
+      cache: "no-store"
+    });
+    var stockRes = await fetch("/api/stock?t=" + Date.now(), { cache: "no-store" });
+    if (!ordersRes.ok || !stockRes.ok) { dashboardContent.innerHTML = "Error loading dashboard."; return; }
+    var orders = await ordersRes.json();
+    var stock = await stockRes.json();
+
+    var totalOrders = orders.length;
+    var totalRevenue = orders.reduce(function (sum, o) { return sum + (o.total || 0); }, 0);
+    var pendingCount = orders.filter(function (o) { return o.status !== "shipped"; }).length;
+    var shippedCount = totalOrders - pendingCount;
+
+    var qtyByProduct = {};
+    orders.forEach(function (o) {
+      (o.items || []).forEach(function (i) {
+        qtyByProduct[i.productName] = (qtyByProduct[i.productName] || 0) + i.quantity;
+      });
+    });
+    var bestSellers = Object.keys(qtyByProduct)
+      .map(function (name) { return { name: name, qty: qtyByProduct[name] }; })
+      .sort(function (a, b) { return b.qty - a.qty; })
+      .slice(0, 5);
+
+    var lowStock = (typeof PRODUCTS !== "undefined" ? PRODUCTS : [])
+      .map(function (p) { return { name: p.name.en, qty: stock[p.id] != null ? stock[p.id] : 0 }; })
+      .filter(function (p) { return p.qty <= LOW_STOCK_THRESHOLD; })
+      .sort(function (a, b) { return a.qty - b.qty; });
+
+    var html =
+      '<div class="stat-grid">' +
+        '<div class="stat-card"><div class="stat-card__label">Total Orders</div><div class="stat-card__value">' + totalOrders + "</div></div>" +
+        '<div class="stat-card"><div class="stat-card__label">Total Revenue</div><div class="stat-card__value">' + totalRevenue.toLocaleString() + " THB</div></div>" +
+        '<div class="stat-card"><div class="stat-card__label">Pending</div><div class="stat-card__value">' + pendingCount + '</div><div class="stat-card__sub">awaiting shipment</div></div>' +
+        '<div class="stat-card"><div class="stat-card__label">Shipped</div><div class="stat-card__value">' + shippedCount + "</div></div>" +
+      "</div>";
+
+    html += '<div class="dash-section-title">Best Sellers</div>';
+    html += bestSellers.length
+      ? bestSellers.map(function (b) {
+          return '<div class="bestseller-row"><span>' + b.name + "</span><span>" + b.qty + " sold</span></div>";
+        }).join("")
+      : '<p class="admin-empty">No sales yet.</p>';
+
+    html += '<div class="dash-section-title">Low Stock (≤ ' + LOW_STOCK_THRESHOLD + ")</div>";
+    html += lowStock.length
+      ? lowStock.map(function (p) {
+          return '<div class="low-stock-row"><span>' + p.name + "</span><span>" + p.qty + " left</span></div>";
+        }).join("")
+      : '<p class="admin-empty">All products well stocked.</p>';
+
+    dashboardContent.innerHTML = html;
   }
 
   async function loadOrders() {

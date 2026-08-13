@@ -9,6 +9,7 @@
 const CAN_WEIGHT_KG = 0.34;
 const PACKAGING_KG = 0.15;
 const FREE_SHIPPING_QTY = 10;
+const LOW_STOCK_THRESHOLD = 5;
 const EMS_RATE_TIERS = [
   [0.02, 32], [0.10, 37], [0.25, 42], [0.50, 52], [1.00, 67],
   [1.50, 82], [2.00, 97], [5.00, 120], [10.00, 220], [20.00, 320], [30.00, 480]
@@ -122,11 +123,16 @@ export async function onRequestPost({ request, env }) {
   }
 
   const remaining = {};
+  const lowStockAlerts = [];
   for (const item of items) {
     const key = "stock:" + item.productId;
-    const next = currentStock[item.productId] - item.quantity;
+    const before = currentStock[item.productId];
+    const next = before - item.quantity;
     await env.STOCK_KV.put(key, String(next));
     remaining[item.productId] = next;
+    if (before > LOW_STOCK_THRESHOLD && next <= LOW_STOCK_THRESHOLD) {
+      lowStockAlerts.push({ productName: item.productName, remaining: next });
+    }
   }
 
   const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -159,6 +165,13 @@ export async function onRequestPost({ request, env }) {
     "Address: " + address;
 
   await sendTelegram(env, text, body.slipImage);
+
+  if (lowStockAlerts.length) {
+    const alertText =
+      "⚠️ Low Stock Alert\n\n" +
+      lowStockAlerts.map((a) => "  - " + a.productName + ": " + a.remaining + " left").join("\n");
+    await sendTelegram(env, alertText, null);
+  }
 
   const orderRecord = {
     id: orderId,

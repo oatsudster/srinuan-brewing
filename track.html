@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Your Order | Srinuan Brewing</title>
+<link rel="icon" href="images/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=12">
+<style>
+  body { min-height: 100vh; }
+  .track-wrap { max-width: 520px; margin: 0 auto; padding: 70px 24px 100px; }
+  .track-header { text-align: center; margin-bottom: 34px; }
+  .track-header a { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .track-header img { width: 42px; height: 42px; border-radius: 50%; }
+  .track-title { font-family: var(--font-display); font-size: 26px; margin: 0 0 8px; }
+  .track-sub { color: var(--ink-muted); font-size: 14px; }
+  .track-form {
+    background: var(--navy-900); border: 1px solid rgba(217,164,91,0.2); border-radius: var(--radius);
+    padding: 28px; display: flex; flex-direction: column; gap: 14px;
+  }
+  .track-form label { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--ink-muted); }
+  .track-form input {
+    padding: 11px 13px; border-radius: 10px; border: 1px solid rgba(245,236,217,0.2);
+    background: var(--navy-800); color: var(--cream-100); font-family: var(--font-body); font-size: 14.5px;
+  }
+  .track-msg { font-size: 13.5px; min-height: 18px; }
+  .track-msg--err { color: var(--danger); }
+  .track-result {
+    margin-top: 24px; background: var(--navy-900); border: 1px solid rgba(217,164,91,0.2);
+    border-radius: var(--radius); padding: 24px; display: none;
+  }
+  .track-result.show { display: block; }
+  .track-result__row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 6px 0; color: var(--cream-200); }
+  .track-result__row span:last-child { font-weight: 600; color: var(--gold-400); }
+  .track-status {
+    display: inline-block; padding: 4px 14px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+  .track-status.pending { background: rgba(217,164,91,0.15); color: var(--gold-400); }
+  .track-status.shipped { background: rgba(63,122,118,0.18); color: var(--teal-400); }
+</style>
+</head>
+<body>
+<div class="track-wrap">
+  <div class="track-header">
+    <a href="index.html"><img src="images/logo.png" alt="Srinuan Brewing"></a>
+    <h1 class="track-title">Track Your Order</h1>
+    <p class="track-sub">Enter your order ID and phone number to check status.</p>
+  </div>
+
+  <form class="track-form" id="track-form">
+    <label>Order ID<input type="text" name="orderId" placeholder="e.g. 20260813-B0C8F5" required></label>
+    <label>Phone Number<input type="tel" name="phone" required></label>
+    <button type="submit" class="btn btn--primary">Check Status</button>
+    <p class="track-msg" id="track-msg"></p>
+  </form>
+
+  <div class="track-result" id="track-result"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var form = document.getElementById("track-form");
+  var msgEl = document.getElementById("track-msg");
+  var resultEl = document.getElementById("track-result");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    msgEl.textContent = "";
+    msgEl.className = "track-msg";
+    resultEl.classList.remove("show");
+
+    var orderId = form.orderId.value.trim();
+    var phone = form.phone.value.trim();
+
+    fetch("/api/track-order?id=" + encodeURIComponent(orderId) + "&phone=" + encodeURIComponent(phone), { cache: "no-store" })
+      .then(function (res) { return res.json().then(function (data) { return { status: res.status, data: data }; }); })
+      .then(function (result) {
+        if (result.status !== 200) {
+          msgEl.textContent = "Order not found. Check your order ID and phone number.";
+          msgEl.className = "track-msg track-msg--err";
+          return;
+        }
+        var o = result.data;
+        var itemsText = o.items.map(function (i) { return i.productName + " x" + i.quantity; }).join(", ");
+        var statusLabel = o.status === "shipped" ? "Shipped" : "Pending";
+        var html =
+          '<span class="track-status ' + o.status + '">' + statusLabel + "</span>" +
+          '<div class="track-result__row"><span>Order ID</span><span>#' + o.id + "</span></div>" +
+          '<div class="track-result__row"><span>Items</span><span>' + itemsText + "</span></div>" +
+          '<div class="track-result__row"><span>Total</span><span>' + o.total + " THB</span></div>" +
+          '<div class="track-result__row"><span>Ordered</span><span>' + new Date(o.createdAt).toLocaleDateString() + "</span></div>";
+        if (o.status === "shipped") {
+          html += '<div class="track-result__row"><span>Tracking</span><span>' + (o.carrier ? o.carrier + " - " : "") + o.trackingNumber + "</span></div>";
+        }
+        resultEl.innerHTML = html;
+        resultEl.classList.add("show");
+      })
+      .catch(function () {
+        msgEl.textContent = "Connection error. Please try again.";
+        msgEl.className = "track-msg track-msg--err";
+      });
+  });
+})();
+</script>
+</body>
+</html>
