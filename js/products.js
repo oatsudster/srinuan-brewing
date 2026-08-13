@@ -177,7 +177,7 @@ const PRODUCTS = [
     image: "images/som-som-weizen.png",
     tags: ["weizen"],
     name: { en: "Som-Som", th: "ส้มส้ม" },
-    style: { en: "South German Hefeweizen", th: "ไวเซนเยอรมันใต้" },
+    style: { en: "German Hefeweizen", th: "ไวเซนเยอรมัน" },
     abv: 5.0,
     ibu: 11,
     ebc: 6,
