@@ -6,10 +6,12 @@ async function sendTrackingEmail(env, order) {
   try {
     const carrierLine = order.carrier ? order.carrier + " - " : "";
     const html =
+      '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' +
       "<p>Hi " + order.name + ",</p>" +
       "<p>Your Srinuan Brewing order <strong>#" + order.id + "</strong> has shipped!</p>" +
       "<p><strong>Tracking number:</strong> " + carrierLine + order.trackingNumber + "</p>" +
-      "<p>Thank you for your order!</p>";
+      "<p>Thank you for your order!</p>" +
+      "</body></html>";
     const resp = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
