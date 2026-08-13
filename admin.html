@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Stock | Srinuan Brewing</title>
+<title>Admin | Srinuan Brewing</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=10">
+<link rel="stylesheet" href="css/style.css?v=11">
 <style>
   body { min-height: 100vh; }
-  .admin-wrap { max-width: 640px; margin: 0 auto; padding: 60px 24px 100px; }
+  .admin-wrap { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
   .admin-login {
     max-width: 360px; margin: 15vh auto 0; text-align: center;
     background: var(--navy-900); border: 1px solid rgba(217,164,91,0.25);
@@ -22,6 +22,12 @@
   }
   .admin-login__error { color: var(--danger); font-size: 13px; min-height: 18px; }
   .admin-title { font-family: var(--font-display); font-size: 26px; margin-bottom: 24px; text-align: center; }
+  .admin-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 28px; }
+  .admin-tab {
+    padding: 9px 22px; border-radius: 999px; border: 1px solid rgba(217,164,91,0.3);
+    background: transparent; color: var(--cream-200); font-family: var(--font-body); font-size: 14px; cursor: pointer;
+  }
+  .admin-tab.active { background: var(--gold-400); color: var(--navy-950); font-weight: 600; border-color: var(--gold-400); }
   .stock-row {
     display: flex; align-items: center; gap: 14px; padding: 14px 16px;
     background: var(--navy-800); border: 1px solid rgba(217,164,91,0.12); border-radius: 12px; margin-bottom: 12px;
@@ -37,6 +43,29 @@
   .stock-row__status.saving { background: rgba(217,164,91,0.15); color: var(--gold-400); }
   .admin-logout { text-align: center; margin-top: 30px; }
   .admin-logout a { color: var(--ink-muted); font-size: 13px; text-decoration: underline; cursor: pointer; }
+
+  .order-card {
+    background: var(--navy-800); border: 1px solid rgba(217,164,91,0.12); border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 14px;
+  }
+  .order-card__head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .order-card__id { font-family: var(--font-display); font-size: 15px; color: var(--gold-400); }
+  .order-card__status { font-size: 11px; padding: 3px 10px; border-radius: 999px; font-weight: 600; text-transform: uppercase; }
+  .order-card__status.pending { background: rgba(217,164,91,0.15); color: var(--gold-400); }
+  .order-card__status.shipped { background: rgba(63,122,118,0.18); color: var(--teal-400); }
+  .order-card__items { font-size: 13px; color: var(--cream-200); margin: 0 0 8px; }
+  .order-card__meta { font-size: 12.5px; color: var(--ink-muted); margin: 0 0 4px; }
+  .order-card__ship { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .order-card__ship input {
+    flex: 1; min-width: 120px; padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(245,236,217,0.2);
+    background: var(--navy-900); color: var(--cream-100); font-size: 13.5px;
+  }
+  .order-card__ship button {
+    padding: 8px 16px; border-radius: 8px; border: none; background: var(--gold-400); color: var(--navy-950);
+    font-weight: 600; font-size: 13px; cursor: pointer;
+  }
+  .order-card__shipped-info { font-size: 12.5px; color: var(--teal-400); margin-top: 8px; }
+  .admin-empty { text-align: center; color: var(--ink-muted); padding: 30px 0; }
 </style>
 </head>
 <body>
@@ -50,29 +79,61 @@
   </div>
 </div>
 
-<div id="stock-view" class="admin-wrap hidden">
-  <h1 class="admin-title">Stock Management</h1>
-  <div id="stock-list"></div>
+<div id="main-view" class="admin-wrap hidden">
+  <div class="admin-tabs">
+    <button class="admin-tab active" id="tab-stock">Stock</button>
+    <button class="admin-tab" id="tab-orders">Orders</button>
+  </div>
+
+  <div id="stock-view">
+    <h1 class="admin-title">Stock Management</h1>
+    <div id="stock-list"></div>
+  </div>
+
+  <div id="orders-view" class="hidden">
+    <h1 class="admin-title">Orders</h1>
+    <div id="orders-list"></div>
+  </div>
+
   <div class="admin-logout"><a id="logout-link">Log out</a></div>
 </div>
 
-<script src="js/products.js?v=10"></script>
+<script src="js/products.js?v=11"></script>
 <script>
 (function () {
   "use strict";
   var PW_KEY = "srinuan_admin_pw";
   var loginView = document.getElementById("login-view");
-  var stockView = document.getElementById("stock-view");
+  var mainView = document.getElementById("main-view");
   var loginBtn = document.getElementById("login-btn");
   var pwInput = document.getElementById("admin-password");
   var loginError = document.getElementById("login-error");
   var stockList = document.getElementById("stock-list");
+  var ordersList = document.getElementById("orders-list");
+  var stockView = document.getElementById("stock-view");
+  var ordersView = document.getElementById("orders-view");
+  var tabStock = document.getElementById("tab-stock");
+  var tabOrders = document.getElementById("tab-orders");
 
-  function showStockView() {
+  function showMainView() {
     loginView.classList.add("hidden");
-    stockView.classList.remove("hidden");
+    mainView.classList.remove("hidden");
     loadStock();
   }
+
+  tabStock.addEventListener("click", function () {
+    tabStock.classList.add("active");
+    tabOrders.classList.remove("active");
+    stockView.classList.remove("hidden");
+    ordersView.classList.add("hidden");
+  });
+  tabOrders.addEventListener("click", function () {
+    tabOrders.classList.add("active");
+    tabStock.classList.remove("active");
+    ordersView.classList.remove("hidden");
+    stockView.classList.add("hidden");
+    loadOrders();
+  });
 
   async function tryLogin(password) {
     loginError.textContent = "";
@@ -86,7 +147,7 @@
       var data = await res.json();
       if (data.ok) {
         sessionStorage.setItem(PW_KEY, password);
-        showStockView();
+        showMainView();
       } else {
         loginError.textContent = "Wrong password";
       }
@@ -152,6 +213,75 @@
       }
     } catch (e) {
       statusEl.textContent = "Error";
+    }
+  }
+
+  async function loadOrders() {
+    ordersList.innerHTML = "Loading...";
+    var password = sessionStorage.getItem(PW_KEY);
+    var res = await fetch("/api/admin-orders?t=" + Date.now(), {
+      headers: { "x-admin-password": password },
+      cache: "no-store"
+    });
+    if (!res.ok) { ordersList.innerHTML = "Error loading orders."; return; }
+    var orders = await res.json();
+    if (!orders.length) { ordersList.innerHTML = '<p class="admin-empty">No orders yet.</p>'; return; }
+    ordersList.innerHTML = "";
+    orders.forEach(function (o) { ordersList.appendChild(orderCard(o)); });
+  }
+
+  function orderCard(o) {
+    var card = document.createElement("div");
+    card.className = "order-card";
+    var itemsText = o.items.map(function (i) { return i.productName + " x" + i.quantity; }).join(", ");
+    var date = new Date(o.createdAt).toLocaleString();
+    card.innerHTML =
+      '<div class="order-card__head">' +
+        '<span class="order-card__id">#' + o.id + "</span>" +
+        '<span class="order-card__status ' + o.status + '">' + o.status + "</span>" +
+      "</div>" +
+      '<p class="order-card__items">' + itemsText + "</p>" +
+      '<p class="order-card__meta">' + o.name + " · " + o.phone + (o.email ? " · " + o.email : "") + "</p>" +
+      '<p class="order-card__meta">' + o.address + "</p>" +
+      '<p class="order-card__meta">Total: ' + o.total + " THB · " + date + "</p>";
+
+    if (o.status === "shipped") {
+      var info = document.createElement("p");
+      info.className = "order-card__shipped-info";
+      info.textContent = "Shipped: " + (o.carrier ? o.carrier + " - " : "") + o.trackingNumber;
+      card.appendChild(info);
+    } else {
+      var shipRow = document.createElement("div");
+      shipRow.className = "order-card__ship";
+      shipRow.innerHTML =
+        '<input type="text" placeholder="Carrier (e.g. Thailand Post)" class="carrier-input">' +
+        '<input type="text" placeholder="Tracking number" class="tracking-input">' +
+        '<button type="button">Mark Shipped</button>';
+      shipRow.querySelector("button").addEventListener("click", function () {
+        markShipped(o.id, shipRow.querySelector(".carrier-input").value, shipRow.querySelector(".tracking-input").value, card);
+      });
+      card.appendChild(shipRow);
+    }
+    return card;
+  }
+
+  async function markShipped(orderId, carrier, trackingNumber, card) {
+    if (!trackingNumber.trim()) { alert("Enter a tracking number first."); return; }
+    var password = sessionStorage.getItem(PW_KEY);
+    try {
+      var res = await fetch("/api/admin-ship", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-admin-password": password },
+        body: JSON.stringify({ orderId: orderId, carrier: carrier, trackingNumber: trackingNumber })
+      });
+      var data = await res.json();
+      if (res.ok && data.ok) {
+        loadOrders();
+      } else {
+        alert("Failed to update order.");
+      }
+    } catch (e) {
+      alert("Connection error.");
     }
   }
 

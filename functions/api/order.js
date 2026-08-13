@@ -76,6 +76,10 @@ async function sendTelegram(env, text, slipImage) {
   }
 }
 
+function isValidEmail(s) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+}
+
 export async function onRequestPost({ request, env }) {
   const body = await request.json().catch(() => null);
   if (!body || !Array.isArray(body.items) || body.items.length === 0) {
@@ -85,6 +89,8 @@ export async function onRequestPost({ request, env }) {
   const name = escapeText(body.name || "");
   const phone = escapeText(body.phone || "");
   const address = escapeText(body.address || "");
+  const emailRaw = escapeText(body.email || "");
+  const email = isValidEmail(emailRaw) ? emailRaw : "";
   if (!name || !phone || !address) {
     return Response.json({ error: "missing_fields" }, { status: 400 });
   }
@@ -129,6 +135,8 @@ export async function onRequestPost({ request, env }) {
   const shipCost = shipping.free ? 0 : (shipping.cost || 0);
   const grandTotal = subtotal + shipCost;
 
+  const orderId = new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+
   const itemLines = items
     .map((i) => "  - " + i.productName + " x " + i.quantity + " (" + (PRICES[i.productId] || 0) + " THB each)")
     .join("\n");
@@ -138,7 +146,7 @@ export async function onRequestPost({ request, env }) {
   const slipLine = body.slipImage ? "Payment slip: attached above" : "Payment slip: not attached";
 
   const text =
-    "New Order - Srinuan Brewing\n\n" +
+    "New Order #" + orderId + " - Srinuan Brewing\n\n" +
     "Items:\n" + itemLines + "\n\n" +
     "Subtotal: " + subtotal + " THB\n" +
     "Est. weight: " + shipping.weightKg + " kg\n" +
@@ -147,9 +155,27 @@ export async function onRequestPost({ request, env }) {
     slipLine + "\n\n" +
     "Name: " + name + "\n" +
     "Phone: " + phone + "\n" +
+    "Email: " + (email || "-") + "\n" +
     "Address: " + address;
 
   await sendTelegram(env, text, body.slipImage);
 
-  return Response.json({ ok: true, remaining, subtotal, shipping: shipCost, total: grandTotal });
+  const orderRecord = {
+    id: orderId,
+    items,
+    name,
+    phone,
+    email,
+    address,
+    subtotal,
+    shipping: shipCost,
+    total: grandTotal,
+    status: "pending",
+    trackingNumber: null,
+    carrier: null,
+    createdAt: new Date().toISOString()
+  };
+  await env.STOCK_KV.put("order:" + orderId, JSON.stringify(orderRecord));
+
+  return Response.json({ ok: true, remaining, subtotal, shipping: shipCost, total: grandTotal, orderId });
 }

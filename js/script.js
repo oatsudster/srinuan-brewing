@@ -15,6 +15,7 @@
       "hero.scroll": "Scroll to explore ↓",
       "products.eyebrow": "OUR BEERS",
       "products.title": "Our Craft Beer Lineup",
+      "promo.freeShipping": "🚚 Buy {n}+ cans, get FREE shipping!",
       "filter.all": "All",
       "story.eyebrow": "OUR STORY",
       "story.title": "The Srinuan Story",
@@ -41,6 +42,8 @@
       "order.title": "Place an Order",
       "order.name": "Full Name",
       "order.phone": "Phone Number",
+      "order.email": "Email (for tracking updates)",
+      "order.emailPlaceholder": "you@example.com",
       "order.address": "Delivery Address",
       "order.quantity": "Quantity",
       "order.submit": "Send Order",
@@ -74,6 +77,7 @@
       "hero.scroll": "เลื่อนลงเพื่อดูเพิ่มเติม ↓",
       "products.eyebrow": "สินค้าของเรา",
       "products.title": "สินค้าคราฟต์เบียร์ของเรา",
+      "promo.freeShipping": "🚚 ซื้อครบ {n} กระป๋องขึ้นไป ส่งฟรีทันที!",
       "filter.all": "ทั้งหมด",
       "story.eyebrow": "เรื่องราวของเรา",
       "story.title": "เรื่องราวของศรีนวล",
@@ -100,6 +104,8 @@
       "order.title": "สั่งซื้อสินค้า",
       "order.name": "ชื่อ-นามสกุล",
       "order.phone": "เบอร์โทรศัพท์",
+      "order.email": "อีเมล (สำหรับแจ้งเลขพัสดุ)",
+      "order.emailPlaceholder": "you@example.com",
       "order.address": "ที่อยู่จัดส่ง",
       "order.quantity": "จำนวน",
       "order.submit": "ส่งคำสั่งซื้อ",
@@ -145,10 +151,16 @@
     });
   }
 
+  function renderPromoBanner() {
+    var el = document.getElementById("promo-banner");
+    if (el) el.textContent = t("promo.freeShipping").replace("{n}", FREE_SHIPPING_QTY);
+  }
+
   function setLang(lang) {
     currentLang = lang;
     localStorage.setItem(LANG_KEY, lang);
     applyStaticText();
+    renderPromoBanner();
     renderFilters();
     renderGrid(currentFilter);
     renderCartBar();
@@ -531,6 +543,7 @@
         '<form id="order-form">' +
           '<label>' + t("order.name") + '<input type="text" name="name" required></label>' +
           '<label>' + t("order.phone") + '<input type="tel" name="phone" required></label>' +
+          '<label>' + t("order.email") + '<input type="email" name="email" placeholder="' + t("order.emailPlaceholder") + '"></label>' +
           '<label>' + t("order.address") + '<textarea name="address" required rows="3"></textarea></label>' +
           '<button type="submit" class="btn btn--primary order-form__submit">' + t("order.submit") + "</button>" +
           '<p class="order-form__msg" id="order-form-msg"></p>' +
@@ -622,6 +635,7 @@
       items: items,
       name: formEl.name.value,
       phone: formEl.phone.value,
+      email: formEl.email.value,
       address: formEl.address.value,
       slipImage: slipDataUrl || null
     };
@@ -672,6 +686,7 @@
 
   /* ---------- Init ---------- */
   applyStaticText();
+  renderPromoBanner();
   renderFilters();
   renderGrid("all");
   renderCartBar();
