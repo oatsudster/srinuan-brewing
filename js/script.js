@@ -524,7 +524,7 @@
         '<div class="cart-item" data-id="' + line.product.id + '">' +
           '<img src="' + line.product.image + '" alt="' + name + '">' +
           '<div class="cart-item__info"><h4>' + name + "</h4>" +
-            '<span class="cart-item__price">' + price + " " + t("cart.baht") + "</span></div>" +
+            '<span class="cart-item__price">' + price + " " + t("cart.baht") + " &middot; " + line.product.abv + "% ABV</span></div>" +
           '<div class="stepper stepper--sm" data-id="' + line.product.id + '">' +
             '<button class="stepper__btn" data-step="-1">&minus;</button>' +
             '<span class="stepper__qty">' + line.qty + "</span>" +
