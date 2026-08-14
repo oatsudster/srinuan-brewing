@@ -44,6 +44,12 @@
       "order.email": "Email (for tracking updates)",
       "order.emailPlaceholder": "you@example.com",
       "order.address": "Delivery Address",
+      "order.addressLine": "House No. / Village",
+      "order.addressLinePlaceholder": "e.g. 55 Moo 3",
+      "order.subdistrict": "Sub-district",
+      "order.district": "District",
+      "order.province": "Province",
+      "order.postalCode": "Postal Code",
       "order.quantity": "Quantity",
       "order.submit": "Send Order",
       "order.sending": "Sending...",
@@ -105,6 +111,12 @@
       "order.email": "อีเมล (สำหรับแจ้งเลขพัสดุ)",
       "order.emailPlaceholder": "you@example.com",
       "order.address": "ที่อยู่จัดส่ง",
+      "order.addressLine": "เลขที่/หมู่บ้าน",
+      "order.addressLinePlaceholder": "เช่น 55 หมู่ 3",
+      "order.subdistrict": "ตำบล/แขวง",
+      "order.district": "อำเภอ/เขต",
+      "order.province": "จังหวัด",
+      "order.postalCode": "รหัสไปรษณีย์",
       "order.quantity": "จำนวน",
       "order.submit": "ส่งคำสั่งซื้อ",
       "order.sending": "กำลังส่ง...",
@@ -542,7 +554,18 @@
           '<label>' + t("order.name") + '<input type="text" name="name" required></label>' +
           '<label>' + t("order.phone") + '<input type="tel" name="phone" required></label>' +
           '<label>' + t("order.email") + '<input type="email" name="email" placeholder="' + t("order.emailPlaceholder") + '"></label>' +
-          '<label>' + t("order.address") + '<textarea name="address" required rows="3"></textarea></label>' +
+          '<div class="order-form__address-group">' +
+            '<p class="order-form__address-title">' + t("order.address") + '</p>' +
+            '<label>' + t("order.addressLine") + '<input type="text" name="addressLine" placeholder="' + t("order.addressLinePlaceholder") + '" required></label>' +
+            '<div class="order-form__address-row">' +
+              '<label>' + t("order.subdistrict") + '<input type="text" name="subdistrict" required></label>' +
+              '<label>' + t("order.district") + '<input type="text" name="district" required></label>' +
+            "</div>" +
+            '<div class="order-form__address-row">' +
+              '<label>' + t("order.province") + '<input type="text" name="province" required></label>' +
+              '<label>' + t("order.postalCode") + '<input type="text" name="postalCode" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required></label>' +
+            "</div>" +
+          "</div>" +
           '<button type="submit" class="btn btn--primary order-form__submit">' + t("order.submit") + "</button>" +
           '<p class="order-form__msg" id="order-form-msg"></p>' +
         "</form>" +
@@ -629,12 +652,20 @@
       return { productId: line.product.id, productName: name, quantity: line.qty };
     });
 
+    var address = [
+      formEl.addressLine.value.trim(),
+      "ต." + formEl.subdistrict.value.trim(),
+      "อ." + formEl.district.value.trim(),
+      "จ." + formEl.province.value.trim(),
+      formEl.postalCode.value.trim()
+    ].join(" ");
+
     var payload = {
       items: items,
       name: formEl.name.value,
       phone: formEl.phone.value,
       email: formEl.email.value,
-      address: formEl.address.value,
+      address: address,
       slipImage: slipDataUrl || null
     };
 
