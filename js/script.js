@@ -31,7 +31,7 @@
       "events.desc": "Hosting a private party, wedding, or corporate event?<br>We bring our draft beer tap setup to you, fully stocked and ready to pour.",
       "events.kegLabel": "Keg (20L)",
       "events.kegPrice": "Starting from 4,000 THB / keg",
-      "events.kegServings": "🥤 ~60 servings (300ml cups)",
+      "events.kegServings": "🥤 ~60 servings (300ml glass)",
       "events.note": "Flavors available: same lineup as our canned beers. Looking for something specific? Contact us to discuss.",
       "events.cta": "Contact Us to Book",
       "contact.eyebrow": "GET IN TOUCH",

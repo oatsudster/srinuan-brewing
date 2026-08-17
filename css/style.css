@@ -495,9 +495,9 @@ a { color: inherit; text-decoration: none; }
 .events__content { max-width: 600px; margin: 0 auto; }
 .events__content p { color: var(--ink-muted); font-size: 15.5px; margin: 0 0 20px; }
 .events__keg-card {
-  display: inline-flex; align-items: center; gap: 20px; text-align: left;
+  display: inline-flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
   background: var(--navy-800); border: 1px solid rgba(217,164,91,0.25); border-radius: 14px;
-  padding: 20px 30px; margin-bottom: 18px;
+  padding: 24px 36px; margin: 0 auto 18px;
 }
 .events__keg-icon { font-size: 36px; line-height: 1; }
 .events__keg-label {
