@@ -43,7 +43,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   const body = await request.json().catch(() => null);
-  if (!body || !body.orderId || !body.trackingNumber) {
+  if (!body || !body.orderId) {
     return Response.json({ error: "invalid_body" }, { status: 400 });
   }
 
@@ -52,13 +52,18 @@ export async function onRequestPost({ request, env }) {
   if (!raw) return Response.json({ error: "not_found" }, { status: 404 });
 
   const order = JSON.parse(raw);
+  const isPickup = order.deliveryMethod === "pickup";
+  if (!isPickup && !body.trackingNumber) {
+    return Response.json({ error: "invalid_body" }, { status: 400 });
+  }
+
   order.status = "shipped";
-  order.trackingNumber = String(body.trackingNumber).trim().slice(0, 100);
-  order.carrier = body.carrier ? String(body.carrier).trim().slice(0, 50) : null;
+  order.trackingNumber = isPickup ? null : String(body.trackingNumber).trim().slice(0, 100);
+  order.carrier = isPickup ? null : (body.carrier ? String(body.carrier).trim().slice(0, 50) : null);
   order.shippedAt = new Date().toISOString();
 
   await env.STOCK_KV.put(key, JSON.stringify(order));
-  const emailResult = await sendTrackingEmail(env, order);
+  const emailResult = isPickup ? { sent: false } : await sendTrackingEmail(env, order);
 
   return Response.json({ ok: true, emailSent: emailResult.sent });
 }

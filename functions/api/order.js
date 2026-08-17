@@ -87,12 +87,13 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ error: "invalid_body" }, { status: 400 });
   }
 
+  const deliveryMethod = body.deliveryMethod === "pickup" ? "pickup" : "delivery";
   const name = escapeText(body.name || "");
   const phone = escapeText(body.phone || "");
-  const address = escapeText(body.address || "");
+  const address = deliveryMethod === "pickup" ? "" : escapeText(body.address || "");
   const emailRaw = escapeText(body.email || "");
   const email = isValidEmail(emailRaw) ? emailRaw : "";
-  if (!name || !phone || !address) {
+  if (!name || !phone || (deliveryMethod === "delivery" && !address)) {
     return Response.json({ error: "missing_fields" }, { status: 400 });
   }
 
@@ -137,8 +138,8 @@ export async function onRequestPost({ request, env }) {
 
   const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
   const subtotal = items.reduce((sum, i) => sum + (PRICES[i.productId] || 0) * i.quantity, 0);
-  const shipping = estimateShipping(totalQty);
-  const shipCost = shipping.free ? 0 : (shipping.cost || 0);
+  const shipping = deliveryMethod === "pickup" ? { free: true, cost: 0, weightKg: 0 } : estimateShipping(totalQty);
+  const shipCost = deliveryMethod === "pickup" ? 0 : (shipping.free ? 0 : (shipping.cost || 0));
   const grandTotal = subtotal + shipCost;
 
   const orderId = new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -146,23 +147,23 @@ export async function onRequestPost({ request, env }) {
   const itemLines = items
     .map((i) => "  - " + i.productName + " x " + i.quantity + " (" + (PRICES[i.productId] || 0) + " THB each)")
     .join("\n");
-  const shipLine = shipping.free
-    ? "Free (" + totalQty + "+ cans)"
-    : (shipping.cost != null ? shipping.cost + " THB" : "Contact customer - over 30kg");
+  const shipLine = deliveryMethod === "pickup"
+    ? "Self pickup (no shipping)"
+    : (shipping.free ? "Free (" + totalQty + "+ cans)" : (shipping.cost != null ? shipping.cost + " THB" : "Contact customer - over 30kg"));
   const slipLine = body.slipImage ? "Payment slip: attached above" : "Payment slip: not attached";
 
   const text =
     "New Order #" + orderId + " - Srinuan Brewing\n\n" +
     "Items:\n" + itemLines + "\n\n" +
     "Subtotal: " + subtotal + " THB\n" +
-    "Est. weight: " + shipping.weightKg + " kg\n" +
-    "Shipping (EMS): " + shipLine + "\n" +
+    (deliveryMethod === "pickup" ? "" : "Est. weight: " + shipping.weightKg + " kg\n") +
+    "Shipping: " + shipLine + "\n" +
     "Total: " + grandTotal + " THB\n" +
     slipLine + "\n\n" +
     "Name: " + name + "\n" +
     "Phone: " + phone + "\n" +
     "Email: " + (email || "-") + "\n" +
-    "Address: " + address;
+    (deliveryMethod === "pickup" ? "Pickup: Self pickup at Tham Phanna, Nakhon Si Thammarat" : "Address: " + address);
 
   await sendTelegram(env, text, body.slipImage);
 
@@ -180,6 +181,7 @@ export async function onRequestPost({ request, env }) {
     phone,
     email,
     address,
+    deliveryMethod,
     subtotal,
     shipping: shipCost,
     total: grandTotal,

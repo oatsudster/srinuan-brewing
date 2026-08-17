@@ -7,6 +7,7 @@
     en: {
       "nav.products": "Beers",
       "nav.story": "Our Story",
+      "nav.events": "Events",
       "nav.contact": "Contact",
       "nav.track": "Track Order",
       "hero.eyebrow": "EST. 2023 · CRAFT BREWERY",
@@ -25,6 +26,13 @@
       "story.stat1": "Beers",
       "story.stat2": "Founded",
       "story.stat3": "Craft Brewed",
+      "events.eyebrow": "EVENTS & PRIVATE PARTIES",
+      "events.title": "Bring Srinuan to Your Event",
+      "events.desc": "Hosting a private party, wedding, or corporate event? We bring our draft beer tap setup to you, fully stocked and ready to pour.",
+      "events.kegLabel": "Keg (20L)",
+      "events.kegPrice": "Starting from 4,000 THB / keg",
+      "events.note": "Flavors available: same lineup as our canned beers. Looking for something specific? Contact us to discuss.",
+      "events.cta": "Contact Us to Book",
       "contact.eyebrow": "GET IN TOUCH",
       "contact.title": "Where to Buy & Contact",
       "contact.desc": "Interested in ordering, an event collab, or stocking our beer? Reach us through any channel below.",
@@ -43,6 +51,9 @@
       "order.phone": "Phone Number",
       "order.email": "Email (for tracking updates)",
       "order.emailPlaceholder": "you@example.com",
+      "order.deliveryEms": "Delivery (Thailand Post EMS)",
+      "order.pickup": "Self Pickup",
+      "order.pickupHint": "Pick up in person at Tham Phanna, Nakhon Si Thammarat — no shipping cost. We'll confirm a pickup time with you.",
       "order.address": "Delivery Address",
       "order.addressLine": "House No. / Village",
       "order.addressLinePlaceholder": "e.g. 55 Moo 3",
@@ -69,11 +80,13 @@
       "cart.shipContactUs": "Contact us for a quote",
       "cart.payTitle": "Scan to Pay via PromptPay",
       "cart.payHint": "Amount is pre-filled in the QR — just scan with your banking app.",
-      "cart.attachSlip": "Attach payment slip (optional)"
+      "cart.attachSlip": "Attach payment slip (optional)",
+      "cart.pickupFree": "Free (self pickup)"
     },
     th: {
       "nav.products": "สินค้า",
       "nav.story": "เรื่องราว",
+      "nav.events": "งานอีเวนต์",
       "nav.contact": "ติดต่อ",
       "nav.track": "เช็คสถานะออเดอร์",
       "hero.eyebrow": "ก่อตั้ง 2023 · คราฟต์เบียร์รี",
@@ -92,6 +105,13 @@
       "story.stat1": "รสชาติ",
       "story.stat2": "ก่อตั้ง",
       "story.stat3": "คราฟต์แท้",
+      "events.eyebrow": "งานอีเวนต์ & ปาร์ตี้ส่วนตัว",
+      "events.title": "พาศรีนวลไปงานของคุณ",
+      "events.desc": "จัดปาร์ตี้ส่วนตัว งานแต่ง หรืองานอีเวนต์บริษัท เรายกชุดก๊อกเบียร์สดพร้อมเบียร์ไปให้ถึงหน้างาน",
+      "events.kegLabel": "ถังเคก (20 ลิตร)",
+      "events.kegPrice": "เริ่มต้น 4,000 บาท/ถัง",
+      "events.note": "รสชาติมีให้เลือกตามไลน์เบียร์กระป๋องของเรา หากต้องการรสชาติอื่นเพิ่มเติม ติดต่อสอบถามได้เลย",
+      "events.cta": "ติดต่อจองคิวงาน",
       "contact.eyebrow": "ติดต่อเรา",
       "contact.title": "ช่องทางสั่งซื้อ & ติดต่อเรา",
       "contact.desc": "สนใจสั่งซื้อ ร่วมงานอีเวนต์ หรือนำเบียร์ของเราไปวางจำหน่าย ทักหาเราได้ทุกช่องทาง",
@@ -110,6 +130,9 @@
       "order.phone": "เบอร์โทรศัพท์",
       "order.email": "อีเมล (สำหรับแจ้งเลขพัสดุ)",
       "order.emailPlaceholder": "you@example.com",
+      "order.deliveryEms": "จัดส่งทางไปรษณีย์ (EMS)",
+      "order.pickup": "มารับด้วยตนเอง",
+      "order.pickupHint": "มารับสินค้าด้วยตนเองที่ถ้ำพรรณรา จ.นครศรีธรรมราช ไม่เสียค่าส่ง ทางร้านจะติดต่อนัดเวลารับสินค้า",
       "order.address": "ที่อยู่จัดส่ง",
       "order.addressLine": "เลขที่/หมู่บ้าน",
       "order.addressLinePlaceholder": "เช่น 55 หมู่ 3",
@@ -136,7 +159,8 @@
       "cart.shipContactUs": "ติดต่อร้านเพื่อสอบถามค่าส่ง",
       "cart.payTitle": "สแกนจ่ายผ่าน PromptPay",
       "cart.payHint": "ระบบใส่ยอดเงินให้อัตโนมัติแล้ว สแกนด้วยแอปธนาคารได้เลย",
-      "cart.attachSlip": "แนบสลิปโอนเงิน (ถ้ามี)"
+      "cart.attachSlip": "แนบสลิปโอนเงิน (ถ้ามี)",
+      "cart.pickupFree": "ฟรี (มารับเอง)"
     }
   };
 
@@ -485,19 +509,22 @@
     return lines.reduce(function (sum, line) { return sum + priceOf(line.product.id) * line.qty; }, 0);
   }
 
-  function cartSummaryHtml(lines) {
+  function cartSummaryHtml(lines, deliveryMethod) {
     var totalQty = lines.reduce(function (s, l) { return s + l.qty; }, 0);
     var est = estimateShipping(totalQty);
     var subtotal = cartSubtotal(lines);
-    var shipCost = est.free ? 0 : (est.cost || 0);
+    var isPickup = deliveryMethod === "pickup";
+    var shipCost = isPickup ? 0 : (est.free ? 0 : (est.cost || 0));
     var grandTotal = subtotal + shipCost;
-    var shipText = est.free ? t("cart.free") : (est.cost != null ? est.cost + " " + t("cart.baht") : t("cart.shipContactUs"));
+    var shipText = isPickup
+      ? t("cart.pickupFree")
+      : (est.free ? t("cart.free") : (est.cost != null ? est.cost + " " + t("cart.baht") : t("cart.shipContactUs")));
     return (
       '<div class="cart-summary__row"><span>' + t("cart.subtotal") + "</span><span>" + subtotal + " " + t("cart.baht") + "</span></div>" +
-      '<div class="cart-summary__row"><span>' + t("cart.weight") + "</span><span>" + est.weightKg + " kg</span></div>" +
+      (!isPickup ? '<div class="cart-summary__row"><span>' + t("cart.weight") + "</span><span>" + est.weightKg + " kg</span></div>" : "") +
       '<div class="cart-summary__row"><span>' + t("cart.shipping") + "</span><span>" + shipText + "</span></div>" +
       '<div class="cart-summary__row cart-summary__row--total"><span>' + t("cart.total") + "</span><span>" + grandTotal + " " + t("cart.baht") + "</span></div>" +
-      (!est.free ? '<p class="cart-summary__hint">' + t("cart.freeHint").replace("{n}", FREE_SHIPPING_QTY) + "</p>" : "")
+      (!isPickup && !est.free ? '<p class="cart-summary__hint">' + t("cart.freeHint").replace("{n}", FREE_SHIPPING_QTY) + "</p>" : "")
     );
   }
 
@@ -512,10 +539,13 @@
     container.innerHTML = qr.createSvgTag(5, 0);
   }
 
+  var checkoutDeliveryMethod = "delivery";
+
   function openCheckoutModal() {
     var lines = cartLineItems();
     if (!lines.length) return;
     var totalQty = cartTotalQty();
+    checkoutDeliveryMethod = "delivery";
 
     var itemsHtml = lines.map(function (line) {
       var name = line.product.name[currentLang] || line.product.name.en;
@@ -540,7 +570,7 @@
       '<div class="order-form">' +
         '<h4 class="order-form__title">' + t("order.title") + "</h4>" +
         '<div class="cart-list" id="cart-list">' + itemsHtml + "</div>" +
-        '<div class="cart-summary" id="cart-summary">' + cartSummaryHtml(lines) + "</div>" +
+        '<div class="cart-summary" id="cart-summary">' + cartSummaryHtml(lines, checkoutDeliveryMethod) + "</div>" +
         '<div class="qr-pay">' +
           '<p class="qr-pay__label">' + t("cart.payTitle") + "</p>" +
           '<div id="promptpay-qr" class="qr-pay__code"></div>' +
@@ -555,7 +585,18 @@
           '<label>' + t("order.name") + '<input type="text" name="name" required></label>' +
           '<label>' + t("order.phone") + '<input type="tel" name="phone" required></label>' +
           '<label>' + t("order.email") + '<input type="email" name="email" placeholder="' + t("order.emailPlaceholder") + '"></label>' +
-          '<div class="order-form__address-group">' +
+          '<div class="delivery-method">' +
+            '<label class="delivery-method__option">' +
+              '<input type="radio" name="deliveryMethod" value="delivery" checked>' +
+              '<span>' + t("order.deliveryEms") + "</span>" +
+            "</label>" +
+            '<label class="delivery-method__option">' +
+              '<input type="radio" name="deliveryMethod" value="pickup">' +
+              '<span>' + t("order.pickup") + "</span>" +
+            "</label>" +
+          "</div>" +
+          '<p class="delivery-method__hint" id="pickup-hint" style="display:none">' + t("order.pickupHint") + "</p>" +
+          '<div class="order-form__address-group" id="address-group">' +
             '<p class="order-form__address-title">' + t("order.address") + '</p>' +
             '<label>' + t("order.addressLine") + '<input type="text" name="addressLine" placeholder="' + t("order.addressLinePlaceholder") + '" required></label>' +
             '<div class="order-form__address-row">' +
@@ -589,12 +630,31 @@
 
     document.getElementById("slip-input").addEventListener("change", handleSlipSelect);
 
+    document.querySelectorAll('input[name="deliveryMethod"]').forEach(function (radio) {
+      radio.addEventListener("change", function () {
+        checkoutDeliveryMethod = radio.value;
+        updateDeliveryUI();
+        refreshCheckoutModal();
+      });
+    });
+
     document.getElementById("order-form").addEventListener("submit", function (e) {
       e.preventDefault();
       submitOrder(e.target);
     });
 
     renderPromptPayQr(cartSubtotal(lines) + (estimateShipping(totalQty).free ? 0 : (estimateShipping(totalQty).cost || 0)));
+  }
+
+  function updateDeliveryUI() {
+    var isPickup = checkoutDeliveryMethod === "pickup";
+    var group = document.getElementById("address-group");
+    var hint = document.getElementById("pickup-hint");
+    if (group) {
+      group.style.display = isPickup ? "none" : "";
+      group.querySelectorAll("input").forEach(function (inp) { inp.required = !isPickup; });
+    }
+    if (hint) hint.style.display = isPickup ? "" : "none";
   }
 
   function refreshCheckoutModal() {
@@ -605,10 +665,12 @@
       if (row) row.textContent = line.qty;
     });
     var summaryEl = document.getElementById("cart-summary");
-    if (summaryEl) summaryEl.innerHTML = cartSummaryHtml(lines);
+    if (summaryEl) summaryEl.innerHTML = cartSummaryHtml(lines, checkoutDeliveryMethod);
     var totalQty = lines.reduce(function (s, l) { return s + l.qty; }, 0);
     var est = estimateShipping(totalQty);
-    renderPromptPayQr(cartSubtotal(lines) + (est.free ? 0 : (est.cost || 0)));
+    var isPickup = checkoutDeliveryMethod === "pickup";
+    var shipCost = isPickup ? 0 : (est.free ? 0 : (est.cost || 0));
+    renderPromptPayQr(cartSubtotal(lines) + shipCost);
   }
 
   /* ---------- Slip upload ---------- */
@@ -653,7 +715,8 @@
       return { productId: line.product.id, productName: name, quantity: line.qty };
     });
 
-    var address = [
+    var isPickup = formEl.deliveryMethod.value === "pickup";
+    var address = isPickup ? "" : [
       formEl.addressLine.value.trim(),
       "ต." + formEl.subdistrict.value.trim(),
       "อ." + formEl.district.value.trim(),
@@ -667,6 +730,7 @@
       phone: formEl.phone.value,
       email: formEl.email.value,
       address: address,
+      deliveryMethod: formEl.deliveryMethod.value,
       slipImage: slipDataUrl || null
     };
 

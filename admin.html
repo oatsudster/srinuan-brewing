@@ -6,7 +6,7 @@
 <title>Admin | Srinuan Brewing</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=17">
+<link rel="stylesheet" href="css/style.css?v=18">
 <style>
   body { min-height: 100vh; }
   .admin-wrap { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
@@ -124,7 +124,7 @@
   <div class="admin-logout"><a id="logout-link">Log out</a></div>
 </div>
 
-<script src="js/products.js?v=17"></script>
+<script src="js/products.js?v=18"></script>
 <script>
 (function () {
   "use strict";
@@ -336,14 +336,23 @@
       "</div>" +
       '<p class="order-card__items">' + itemsText + "</p>" +
       '<p class="order-card__meta">' + o.name + " · " + o.phone + (o.email ? " · " + o.email : "") + "</p>" +
-      '<p class="order-card__meta">' + o.address + "</p>" +
+      '<p class="order-card__meta">' + (o.deliveryMethod === "pickup" ? "🚶 Self Pickup" : o.address) + "</p>" +
       '<p class="order-card__meta">Total: ' + o.total + " THB · " + date + "</p>";
 
+    var isPickup = o.deliveryMethod === "pickup";
     if (o.status === "shipped") {
       var info = document.createElement("p");
       info.className = "order-card__shipped-info";
-      info.textContent = "Shipped: " + (o.carrier ? o.carrier + " - " : "") + o.trackingNumber;
+      info.textContent = isPickup ? "Picked up" : "Shipped: " + (o.carrier ? o.carrier + " - " : "") + o.trackingNumber;
       card.appendChild(info);
+    } else if (isPickup) {
+      var pickupRow = document.createElement("div");
+      pickupRow.className = "order-card__ship";
+      pickupRow.innerHTML = '<button type="button">Mark as Picked Up</button>';
+      pickupRow.querySelector("button").addEventListener("click", function () {
+        markShipped(o.id, "", "", card, false);
+      });
+      card.appendChild(pickupRow);
     } else {
       var shipRow = document.createElement("div");
       shipRow.className = "order-card__ship";
@@ -359,8 +368,8 @@
     return card;
   }
 
-  async function markShipped(orderId, carrier, trackingNumber, card) {
-    if (!trackingNumber.trim()) { alert("Enter a tracking number first."); return; }
+  async function markShipped(orderId, carrier, trackingNumber, card, requireTracking) {
+    if (requireTracking !== false && !trackingNumber.trim()) { alert("Enter a tracking number first."); return; }
     var password = sessionStorage.getItem(PW_KEY);
     try {
       var res = await fetch("/api/admin-ship", {
