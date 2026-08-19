@@ -235,7 +235,7 @@ const PRODUCTS = [
     tags: ["mead"],
     name: { en: "Cali Mead", th: "คาลิ มี้ด" },
     style: { en: "Calamansi & Honey Mead", th: "มี้ดส้มจี๊ดผสมน้ำผึ้ง" },
-    abv: null,
+    abv: 4.0,
     ibu: 0,
     ebc: null,
     colorName: { en: null, th: null },
