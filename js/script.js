@@ -17,7 +17,8 @@
       "hero.scroll": "Scroll to explore ↓",
       "products.eyebrow": "OUR BEERS",
       "products.title": "Our Craft Beer Lineup",
-      "promo.freeShipping": "🚚 Buy {n}+ cans, get FREE shipping!",
+      "promo.freeShippingTitle": "FREE SHIPPING",
+      "promo.freeShippingSub": "on every order of {n} cans or more",
       "filter.all": "All",
       "story.eyebrow": "OUR STORY",
       "story.title": "The Srinuan Story",
@@ -105,7 +106,8 @@
       "hero.scroll": "เลื่อนลงเพื่อดูเพิ่มเติม ↓",
       "products.eyebrow": "สินค้าของเรา",
       "products.title": "สินค้าคราฟต์เบียร์ของเรา",
-      "promo.freeShipping": "🚚 ซื้อครบ {n} กระป๋องขึ้นไป ส่งฟรีทันที!",
+      "promo.freeShippingTitle": "ส่งฟรีทั่วประเทศ",
+      "promo.freeShippingSub": "เมื่อสั่งครบ {n} กระป๋องขึ้นไป",
       "filter.all": "ทั้งหมด",
       "story.eyebrow": "เรื่องราวของเรา",
       "story.title": "เรื่องราวของศรีนวล",
@@ -210,9 +212,27 @@
     });
   }
 
+  // Inline SVG rather than an emoji: it inherits the navy text colour and stays
+  // crisp at any size / on any device.
+  var TRUCK_ICON =
+    '<svg class="promo-banner__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+    'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M2.5 5.5h11v10h-11z"/>' +
+      '<path d="M13.5 9h3.7l3.6 3.6v2.9h-7.3z"/>' +
+      '<circle cx="7" cy="17.6" r="2"/>' +
+      '<circle cx="16.8" cy="17.6" r="2"/>' +
+      '<path d="M9 17.6h5.8"/>' +
+    "</svg>";
+
   function renderPromoBanner() {
     var el = document.getElementById("promo-banner");
-    if (el) el.textContent = t("promo.freeShipping").replace("{n}", FREE_SHIPPING_QTY);
+    if (!el) return;
+    el.innerHTML =
+      TRUCK_ICON +
+      '<span class="promo-banner__text">' +
+        '<span class="promo-banner__title">' + t("promo.freeShippingTitle") + "</span>" +
+        '<span class="promo-banner__sub">' + t("promo.freeShippingSub").replace("{n}", FREE_SHIPPING_QTY) + "</span>" +
+      "</span>";
   }
 
   function setLang(lang) {
