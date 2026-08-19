@@ -6,7 +6,7 @@
 <title>Admin | Srinuan Brewing</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=23">
+<link rel="stylesheet" href="css/style.css?v=24">
 <style>
   body { min-height: 100vh; }
   .admin-wrap { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
@@ -129,11 +129,20 @@
   <div class="admin-logout"><a id="logout-link">Log out</a></div>
 </div>
 
-<script src="js/products.js?v=23"></script>
+<script src="js/products.js?v=24"></script>
 <script>
 (function () {
   "use strict";
   var PW_KEY = "srinuan_admin_pw";
+
+  // Order fields (name, address, email, product names) are customer-supplied and
+  // are rendered into innerHTML - escape them or a hostile order becomes script
+  // running in the admin session, which holds the admin password.
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
   var loginView = document.getElementById("login-view");
   var mainView = document.getElementById("main-view");
   var loginBtn = document.getElementById("login-btn");
@@ -301,7 +310,7 @@
     html += '<div class="dash-section-title">Best Sellers</div>';
     html += bestSellers.length
       ? bestSellers.map(function (b) {
-          return '<div class="bestseller-row"><span>' + b.name + "</span><span>" + b.qty + " sold</span></div>";
+          return '<div class="bestseller-row"><span>' + esc(b.name) + "</span><span>" + esc(b.qty) + " sold</span></div>";
         }).join("")
       : '<p class="admin-empty">No sales yet.</p>';
 
@@ -332,17 +341,17 @@
   function orderCard(o) {
     var card = document.createElement("div");
     card.className = "order-card";
-    var itemsText = o.items.map(function (i) { return i.productName + " x" + i.quantity; }).join(", ");
+    var itemsText = o.items.map(function (i) { return esc(i.productName) + " x" + esc(i.quantity); }).join(", ");
     var date = new Date(o.createdAt).toLocaleString();
     card.innerHTML =
       '<div class="order-card__head">' +
-        '<span class="order-card__id">#' + o.id + "</span>" +
-        '<span class="order-card__status ' + o.status + '">' + o.status + "</span>" +
+        '<span class="order-card__id">#' + esc(o.id) + "</span>" +
+        '<span class="order-card__status ' + esc(o.status) + '">' + esc(o.status) + "</span>" +
       "</div>" +
       '<p class="order-card__items">' + itemsText + "</p>" +
-      '<p class="order-card__meta">' + o.name + " · " + o.phone + (o.email ? " · " + o.email : "") + "</p>" +
-      '<p class="order-card__meta">' + (o.deliveryMethod === "pickup" ? "🚶 Self Pickup" : o.address) + "</p>" +
-      '<p class="order-card__meta">Total: ' + o.total + " THB · " + date + "</p>";
+      '<p class="order-card__meta">' + esc(o.name) + " · " + esc(o.phone) + (o.email ? " · " + esc(o.email) : "") + "</p>" +
+      '<p class="order-card__meta">' + (o.deliveryMethod === "pickup" ? "🚶 Self Pickup" : esc(o.address)) + "</p>" +
+      '<p class="order-card__meta">Total: ' + esc(o.total) + " THB · " + date + "</p>";
 
     var isPickup = o.deliveryMethod === "pickup";
     if (o.status === "shipped") {

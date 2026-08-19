@@ -53,6 +53,11 @@
       "order.email": "Email (for tracking updates)",
       "order.emailPlaceholder": "you@example.com",
       "order.errorNoSlip": "Please attach your payment slip before submitting.",
+      "order.errorSlipProcessing": "Your slip is still uploading — please wait a moment.",
+      "order.errorSlipRead": "Could not read that image. Please try another file.",
+      "order.slipProcessing": "Processing slip...",
+      "cart.stockChanged": "Some items were adjusted — stock changed while you were shopping. Please check the total before paying.",
+      "cart.allSoldOut": "Sorry, those items just sold out.",
       "order.deliveryEms": "Delivery (Thailand Post EMS)",
       "order.pickup": "Self Pickup",
       "order.pickupHint": "Pick up in person at Tham Phanna, Nakhon Si Thammarat — no shipping cost. We'll confirm a pickup time with you.",
@@ -134,6 +139,11 @@
       "order.email": "อีเมล (สำหรับแจ้งเลขพัสดุ)",
       "order.emailPlaceholder": "you@example.com",
       "order.errorNoSlip": "กรุณาแนบสลิปโอนเงินก่อนส่งคำสั่งซื้อ",
+      "order.errorSlipProcessing": "กำลังอัปโหลดสลิป กรุณารอสักครู่",
+      "order.errorSlipRead": "อ่านไฟล์รูปไม่ได้ กรุณาเลือกไฟล์อื่น",
+      "order.slipProcessing": "กำลังประมวลผลสลิป...",
+      "cart.stockChanged": "มีบางรายการถูกปรับจำนวน เนื่องจากสต็อกเปลี่ยนระหว่างที่คุณเลือกซื้อ กรุณาตรวจสอบยอดรวมก่อนชำระเงิน",
+      "cart.allSoldOut": "ขออภัย สินค้าที่เลือกเพิ่งหมดพอดี",
       "order.deliveryEms": "จัดส่งทางไปรษณีย์ (EMS)",
       "order.pickup": "มารับด้วยตนเอง",
       "order.pickupHint": "มารับสินค้าด้วยตนเองที่ถ้ำพรรณรา จ.นครศรีธรรมราช ไม่เสียค่าส่ง ทางร้านจะติดต่อนัดเวลารับสินค้า",
@@ -316,6 +326,39 @@
     renderCartBar();
   }
 
+  function clampCartToStock() {
+    var changed = false;
+    Object.keys(CART).forEach(function (id) {
+      var stock = stockOf(id);
+      if (stock == null) return;
+      if (CART[id] > stock) {
+        changed = true;
+        if (stock <= 0) { delete CART[id]; } else { CART[id] = stock; }
+      }
+    });
+    return changed;
+  }
+
+  // Re-check stock right before checkout: the customer is about to scan the QR
+  // and pay, so the amount must reflect stock as it is now, not at page load.
+  function openCheckoutFlow() {
+    if (!cartTotalQty()) return;
+    fetchStock().then(function () {
+      var changed = clampCartToStock();
+      renderCartBar();
+      renderGrid(currentFilter);
+      if (!cartTotalQty()) { alert(t("cart.allSoldOut")); return; }
+      openCheckoutModal();
+      if (changed) {
+        var msgEl = document.getElementById("order-form-msg");
+        if (msgEl) {
+          msgEl.className = "order-form__msg order-form__msg--err";
+          msgEl.textContent = t("cart.stockChanged");
+        }
+      }
+    });
+  }
+
   function stockLineHtml(p) {
     var stock = stockOf(p.id);
     if (!stockLoaded || stock == null || stock <= 0) return "";
@@ -364,7 +407,7 @@
     cartBar.innerHTML =
       '<span class="cart-bar__count">' + t("cart.items").replace("{n}", "<strong>" + total + "</strong>") + "</span>" +
       '<button class="cart-bar__btn" id="cart-confirm-btn">' + t("cart.confirm") + "</button>";
-    document.getElementById("cart-confirm-btn").addEventListener("click", openCheckoutModal);
+    document.getElementById("cart-confirm-btn").addEventListener("click", openCheckoutFlow);
     refreshSteppers();
   }
 
@@ -550,6 +593,10 @@
     if (!lines.length) return;
     var totalQty = cartTotalQty();
     checkoutDeliveryMethod = "delivery";
+    // Never carry a previously attached slip into a new checkout - it may be for
+    // a different (smaller) amount, and the customer sees an empty upload box.
+    slipDataUrl = null;
+    slipEncoding = false;
 
     var itemsHtml = lines.map(function (line) {
       var name = line.product.name[currentLang] || line.product.name.en;
@@ -664,6 +711,9 @@
   function refreshCheckoutModal() {
     var lines = cartLineItems();
     if (!lines.length) { closeOrderModal(); return; }
+    orderModalCard.querySelectorAll(".cart-item[data-id]").forEach(function (el) {
+      if (!CART[el.dataset.id]) el.remove();
+    });
     lines.forEach(function (line) {
       var row = orderModalCard.querySelector('.cart-item[data-id="' + line.product.id + '"] .stepper__qty');
       if (row) row.textContent = line.qty;
@@ -679,26 +729,58 @@
 
   /* ---------- Slip upload ---------- */
   var slipDataUrl = null;
+  var slipEncoding = false;
+
+  // Resizing a phone photo takes a moment; lock the submit button while it runs
+  // so a fast tap can't be rejected as "no slip attached".
+  function setSlipEncoding(on) {
+    slipEncoding = on;
+    var btn = document.querySelector(".order-form__submit");
+    if (!btn) return;
+    btn.disabled = on;
+    btn.textContent = on ? t("order.slipProcessing") : t("order.submit");
+  }
 
   function handleSlipSelect(e) {
     var file = e.target.files[0];
     var previewEl = document.getElementById("slip-preview");
     var uploadEl = document.querySelector(".qr-pay__upload");
     if (uploadEl) uploadEl.classList.remove("qr-pay__upload--error");
-    if (!file) { slipDataUrl = null; previewEl.innerHTML = ""; return; }
+    slipDataUrl = null;
+    if (!file) { previewEl.innerHTML = ""; setSlipEncoding(false); return; }
+
+    setSlipEncoding(true);
+    previewEl.innerHTML = "";
+
+    function fail() {
+      slipDataUrl = null;
+      setSlipEncoding(false);
+      var msgEl = document.getElementById("order-form-msg");
+      if (msgEl) {
+        msgEl.className = "order-form__msg order-form__msg--err";
+        msgEl.textContent = t("order.errorSlipRead");
+      }
+      if (uploadEl) uploadEl.classList.add("qr-pay__upload--error");
+    }
+
     var img = new Image();
     var reader = new FileReader();
+    reader.onerror = fail;
+    img.onerror = fail;
     reader.onload = function (ev) {
       img.onload = function () {
-        var maxW = 900;
-        var scale = Math.min(1, maxW / img.width);
-        var canvas = document.createElement("canvas");
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        var ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        slipDataUrl = canvas.toDataURL("image/jpeg", 0.82);
-        previewEl.innerHTML = '<img src="' + slipDataUrl + '" alt="slip">';
+        try {
+          var maxW = 900;
+          var scale = Math.min(1, maxW / img.width);
+          var canvas = document.createElement("canvas");
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          var ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          slipDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+          previewEl.innerHTML = '<img src="' + slipDataUrl + '" alt="slip">';
+          setSlipEncoding(false);
+        } catch (err) { fail(); }
       };
       img.src = ev.target.result;
     };
@@ -708,6 +790,8 @@
   function closeOrderModal() {
     orderModal.classList.add("hidden");
     document.body.style.overflow = "";
+    slipDataUrl = null;
+    slipEncoding = false;
   }
 
   function submitOrder(formEl) {
@@ -717,6 +801,11 @@
     var submitBtn = formEl.querySelector(".order-form__submit");
     var uploadEl = document.querySelector(".qr-pay__upload");
 
+    if (slipEncoding) {
+      msgEl.className = "order-form__msg order-form__msg--err";
+      msgEl.textContent = t("order.errorSlipProcessing");
+      return;
+    }
     if (!slipDataUrl) {
       msgEl.className = "order-form__msg order-form__msg--err";
       msgEl.textContent = t("order.errorNoSlip");
@@ -779,6 +868,12 @@
             : t("order.errorGeneric");
           submitBtn.disabled = false;
           submitBtn.textContent = t("order.submit");
+          fetchStock().then(function () {
+            clampCartToStock();
+            renderCartBar();
+            renderGrid(currentFilter);
+            refreshCheckoutModal();
+          });
         } else {
           throw new Error("order_failed");
         }
@@ -799,5 +894,9 @@
   renderFilters();
   renderGrid("all");
   renderCartBar();
-  fetchStock().then(function () { renderGrid(currentFilter); });
+  fetchStock().then(function () {
+    clampCartToStock();
+    renderCartBar();
+    renderGrid(currentFilter);
+  });
 })();

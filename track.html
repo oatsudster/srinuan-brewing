@@ -6,7 +6,7 @@
 <title>Track Your Order | Srinuan Brewing</title>
 <link rel="icon" href="images/logo.png">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=23">
+<link rel="stylesheet" href="css/style.css?v=24">
 <style>
   body { min-height: 100vh; }
   .track-wrap { max-width: 520px; margin: 0 auto; padding: 70px 24px 100px; }
@@ -66,6 +66,12 @@
   var msgEl = document.getElementById("track-msg");
   var resultEl = document.getElementById("track-result");
 
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     msgEl.textContent = "";
@@ -85,16 +91,16 @@
         }
         var o = result.data;
         var isPickup = o.deliveryMethod === "pickup";
-        var itemsText = o.items.map(function (i) { return i.productName + " x" + i.quantity; }).join(", ");
+        var itemsText = o.items.map(function (i) { return esc(i.productName) + " x" + esc(i.quantity); }).join(", ");
         var statusLabel = o.status === "shipped" ? (isPickup ? "Picked Up" : "Shipped") : (isPickup ? "Awaiting Pickup" : "Pending");
         var html =
-          '<span class="track-status ' + o.status + '">' + statusLabel + "</span>" +
-          '<div class="track-result__row"><span>Order ID</span><span>#' + o.id + "</span></div>" +
+          '<span class="track-status ' + esc(o.status) + '">' + statusLabel + "</span>" +
+          '<div class="track-result__row"><span>Order ID</span><span>#' + esc(o.id) + "</span></div>" +
           '<div class="track-result__row"><span>Items</span><span>' + itemsText + "</span></div>" +
-          '<div class="track-result__row"><span>Total</span><span>' + o.total + " THB</span></div>" +
+          '<div class="track-result__row"><span>Total</span><span>' + esc(o.total) + " THB</span></div>" +
           '<div class="track-result__row"><span>Ordered</span><span>' + new Date(o.createdAt).toLocaleDateString() + "</span></div>";
         if (o.status === "shipped" && !isPickup) {
-          html += '<div class="track-result__row"><span>Tracking</span><span>' + (o.carrier ? o.carrier + " - " : "") + o.trackingNumber + "</span></div>";
+          html += '<div class="track-result__row"><span>Tracking</span><span>' + (o.carrier ? esc(o.carrier) + " - " : "") + esc(o.trackingNumber) + "</span></div>";
         }
         resultEl.innerHTML = html;
         resultEl.classList.add("show");

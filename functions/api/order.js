@@ -53,23 +53,26 @@ function base64ToBytes(dataUrl) {
 
 async function sendTelegram(env, text, slipImage) {
   try {
+    // Photo captions are capped at 1024 chars by Telegram, and the delivery
+    // address is the last line - so a long order would silently lose it.
+    // Send the slip with a short caption, then the full details as their own
+    // message (4096 limit).
     if (slipImage && slipImage.startsWith("data:image")) {
       const bytes = base64ToBytes(slipImage);
       const form = new FormData();
       form.append("chat_id", env.TELEGRAM_CHAT_ID);
-      form.append("caption", text.slice(0, 1024));
+      form.append("caption", text.slice(0, 200));
       form.append("photo", new Blob([bytes], { type: "image/jpeg" }), "slip.jpg");
-      const resp = await fetch("https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendPhoto", {
+      const photoResp = await fetch("https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendPhoto", {
         method: "POST",
         body: form
       });
-      if (!resp.ok) console.error("Telegram sendPhoto failed:", await resp.text());
-      return;
+      if (!photoResp.ok) console.error("Telegram sendPhoto failed:", await photoResp.text());
     }
     const resp = await fetch("https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendMessage", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text })
+      body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: text.slice(0, 4096) })
     });
     if (!resp.ok) console.error("Telegram sendMessage failed:", await resp.text());
   } catch (err) {
@@ -91,10 +94,22 @@ export async function onRequestPost({ request, env }) {
   const name = escapeText(body.name || "");
   const phone = escapeText(body.phone || "");
   const address = deliveryMethod === "pickup" ? "" : escapeText(body.address || "");
-  const emailRaw = escapeText(body.email || "");
-  const email = isValidEmail(emailRaw) ? emailRaw : "";
+  const email = escapeText(body.email || "");
   if (!name || !phone || (deliveryMethod === "delivery" && !address)) {
     return Response.json({ error: "missing_fields" }, { status: 400 });
+  }
+  // Was silently blanked before, which meant no tracking email and nobody knew.
+  if (!isValidEmail(email)) {
+    return Response.json({ error: "invalid_email" }, { status: 400 });
+  }
+  // The browser blocks this, but the browser is not a security boundary: without
+  // a server check a direct POST creates a real order and decrements stock.
+  const slipImage = typeof body.slipImage === "string" ? body.slipImage : "";
+  if (!/^data:image\/(jpeg|jpg|png|webp);base64,/.test(slipImage)) {
+    return Response.json({ error: "missing_slip" }, { status: 400 });
+  }
+  if (slipImage.length > 8 * 1024 * 1024) {
+    return Response.json({ error: "slip_too_large" }, { status: 413 });
   }
 
   const items = [];
@@ -150,7 +165,7 @@ export async function onRequestPost({ request, env }) {
   const shipLine = deliveryMethod === "pickup"
     ? "Self pickup (no shipping)"
     : (shipping.free ? "Free (" + totalQty + "+ cans)" : (shipping.cost != null ? shipping.cost + " THB" : "Contact customer - over 30kg"));
-  const slipLine = body.slipImage ? "Payment slip: attached above" : "Payment slip: not attached";
+  const slipLine = "Payment slip: attached above";
 
   const text =
     "New Order #" + orderId + " - Srinuan Brewing\n\n" +
@@ -165,7 +180,7 @@ export async function onRequestPost({ request, env }) {
     "Email: " + (email || "-") + "\n" +
     (deliveryMethod === "pickup" ? "Pickup: Self pickup at Tham Phanna, Nakhon Si Thammarat" : "Address: " + address);
 
-  await sendTelegram(env, text, body.slipImage);
+  await sendTelegram(env, text, slipImage);
 
   if (lowStockAlerts.length) {
     const alertText =
