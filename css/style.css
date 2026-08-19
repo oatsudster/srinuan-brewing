@@ -54,8 +54,23 @@ a { color: inherit; text-decoration: none; }
   color: var(--gold-400);
   text-transform: uppercase;
   margin: 0 0 10px;
+  /* one asymmetric flourish, mirrored on the right, so any heading length and
+     either language sits neatly between them */
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
-.eyebrow--center { text-align: center; }
+.eyebrow::before,
+.eyebrow::after {
+  content: "";
+  flex: none;
+  width: 52px;
+  height: 12px;
+  background: url("../images/ornament.png") center / contain no-repeat;
+  opacity: 0.9;
+}
+.eyebrow::after { transform: scaleX(-1); }
+.eyebrow--center { justify-content: center; text-align: center; }
 
 .section-title {
   font-family: var(--font-display);
@@ -750,6 +765,8 @@ a { color: inherit; text-decoration: none; }
   .story__stats { gap: 24px; flex-wrap: wrap; }
   .order-form__address-row { grid-template-columns: 1fr; }
   .promo-banner { margin-bottom: 26px; }
+  .eyebrow { gap: 10px; }
+  .eyebrow::before, .eyebrow::after { width: 36px; }
 }
 
 /* ===== Stepper (add to cart) ===== */
