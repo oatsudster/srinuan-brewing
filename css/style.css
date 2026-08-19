@@ -364,11 +364,12 @@ a { color: inherit; text-decoration: none; }
   top: 14px;
   right: 14px;
   z-index: 2;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: var(--navy-950);
-  border: 1px solid rgba(217, 164, 91, 0.4);
-  color: var(--gold-400);
+  padding: 6px 20px;
+  line-height: 1.35;
+  /* illustrated plaque; stretched to the label box, which stays a consistent
+     width because every price is three digits plus a unit */
+  background: url("../images/price-tag.png") center / 100% 100% no-repeat;
+  color: var(--gold-300);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -525,23 +526,41 @@ a { color: inherit; text-decoration: none; }
 .events__media img { width: 100%; display: block; }
 .events__content { max-width: 600px; margin: 0 auto; }
 .events__content p { color: var(--ink-muted); font-size: 15.5px; margin: 0 0 20px; }
+/* Artwork supplies the keg, glass and frame; text is drawn by the browser so
+   Thai shapes correctly and the price stays easy to change. */
 .events__keg-card {
-  display: inline-flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
-  background: var(--navy-800); border: 1px solid rgba(217,164,91,0.25); border-radius: 14px;
-  padding: 24px 36px; margin: 0 auto 18px;
+  position: relative;
+  container-type: inline-size;
+  width: min(620px, 100%);
+  aspect-ratio: 3264 / 1312;
+  margin: 0 auto 18px;
+  background: url("../images/keg-card.jpg") center / contain no-repeat;
 }
-.events__keg-icon { font-size: 36px; line-height: 1; }
+.events__keg-panel {
+  position: absolute;
+  left: 43.5%;
+  width: 51.5%;
+  top: 11%;
+  height: 77.5%;
+  padding: 0 2%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  text-align: center;
+}
 .events__keg-label {
-  display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--ink-muted); margin-bottom: 5px;
+  font-size: 11px; font-size: 2.4cqw; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-muted); line-height: 1.2;
 }
 .events__keg-price {
-  display: block; font-family: var(--font-display); font-size: 22px; font-weight: 700;
-  color: var(--gold-400); line-height: 1.25;
+  font-size: 20px; font-size: 4.1cqw; font-weight: 700;
+  color: var(--gold-400); line-height: 1.2;
 }
 .events__keg-servings {
-  display: block; font-size: 12.5px; color: var(--cream-200);
-  margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(217,164,91,0.15);
+  font-size: 11px; font-size: 2.3cqw; color: var(--cream-200); line-height: 1.35;
+  margin-top: 0.4em; padding-top: 0.4em; border-top: 1px solid rgba(217,164,91,0.22);
 }
 .events__note { font-size: 13px !important; color: var(--ink-muted); margin-bottom: 24px !important; }
 
