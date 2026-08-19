@@ -52,6 +52,7 @@
       "order.phone": "Phone Number",
       "order.email": "Email (for tracking updates)",
       "order.emailPlaceholder": "you@example.com",
+      "order.errorNoSlip": "Please attach your payment slip before submitting.",
       "order.deliveryEms": "Delivery (Thailand Post EMS)",
       "order.pickup": "Self Pickup",
       "order.pickupHint": "Pick up in person at Tham Phanna, Nakhon Si Thammarat — no shipping cost. We'll confirm a pickup time with you.",
@@ -81,7 +82,7 @@
       "cart.shipContactUs": "Contact us for a quote",
       "cart.payTitle": "Scan to Pay via PromptPay",
       "cart.payHint": "Amount is pre-filled in the QR — just scan with your banking app.",
-      "cart.attachSlip": "Attach payment slip (optional)",
+      "cart.attachSlip": "📎 Attach Payment Slip (required)",
       "cart.pickupFree": "Free (self pickup)"
     },
     th: {
@@ -132,6 +133,7 @@
       "order.phone": "เบอร์โทรศัพท์",
       "order.email": "อีเมล (สำหรับแจ้งเลขพัสดุ)",
       "order.emailPlaceholder": "you@example.com",
+      "order.errorNoSlip": "กรุณาแนบสลิปโอนเงินก่อนส่งคำสั่งซื้อ",
       "order.deliveryEms": "จัดส่งทางไปรษณีย์ (EMS)",
       "order.pickup": "มารับด้วยตนเอง",
       "order.pickupHint": "มารับสินค้าด้วยตนเองที่ถ้ำพรรณรา จ.นครศรีธรรมราช ไม่เสียค่าส่ง ทางร้านจะติดต่อนัดเวลารับสินค้า",
@@ -161,7 +163,7 @@
       "cart.shipContactUs": "ติดต่อร้านเพื่อสอบถามค่าส่ง",
       "cart.payTitle": "สแกนจ่ายผ่าน PromptPay",
       "cart.payHint": "ระบบใส่ยอดเงินให้อัตโนมัติแล้ว สแกนด้วยแอปธนาคารได้เลย",
-      "cart.attachSlip": "แนบสลิปโอนเงิน (ถ้ามี)",
+      "cart.attachSlip": "📎 แนบสลิปโอนเงิน (จำเป็นต้องแนบ)",
       "cart.pickupFree": "ฟรี (มารับเอง)"
     }
   };
@@ -586,7 +588,7 @@
         '<form id="order-form">' +
           '<label>' + t("order.name") + '<input type="text" name="name" required></label>' +
           '<label>' + t("order.phone") + '<input type="tel" name="phone" required></label>' +
-          '<label>' + t("order.email") + '<input type="email" name="email" placeholder="' + t("order.emailPlaceholder") + '"></label>' +
+          '<label>' + t("order.email") + '<input type="email" name="email" placeholder="' + t("order.emailPlaceholder") + '" required></label>' +
           '<div class="delivery-method">' +
             '<label class="delivery-method__option">' +
               '<input type="radio" name="deliveryMethod" value="delivery" checked>' +
@@ -681,6 +683,8 @@
   function handleSlipSelect(e) {
     var file = e.target.files[0];
     var previewEl = document.getElementById("slip-preview");
+    var uploadEl = document.querySelector(".qr-pay__upload");
+    if (uploadEl) uploadEl.classList.remove("qr-pay__upload--error");
     if (!file) { slipDataUrl = null; previewEl.innerHTML = ""; return; }
     var img = new Image();
     var reader = new FileReader();
@@ -711,6 +715,15 @@
     if (!lines.length) return;
     var msgEl = document.getElementById("order-form-msg");
     var submitBtn = formEl.querySelector(".order-form__submit");
+    var uploadEl = document.querySelector(".qr-pay__upload");
+
+    if (!slipDataUrl) {
+      msgEl.className = "order-form__msg order-form__msg--err";
+      msgEl.textContent = t("order.errorNoSlip");
+      if (uploadEl) uploadEl.classList.add("qr-pay__upload--error");
+      return;
+    }
+    if (uploadEl) uploadEl.classList.remove("qr-pay__upload--error");
 
     var items = lines.map(function (line) {
       var name = line.product.name[currentLang] || line.product.name.en;

@@ -884,17 +884,23 @@ a { color: inherit; text-decoration: none; }
 .qr-pay__code svg { width: 176px; height: 176px; background: #fff; border-radius: 8px; padding: 8px; }
 .qr-pay__hint { font-size: 11.5px; color: var(--ink-muted); margin: 0 0 16px; }
 .qr-pay__upload {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 9px 18px;
-  border-radius: 999px;
-  border: 1px dashed rgba(217, 164, 91, 0.4);
-  color: var(--cream-200);
-  font-size: 12.5px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 18px;
+  border-radius: 10px;
+  border: 2px solid var(--gold-400);
+  background: rgba(217, 164, 91, 0.1);
+  color: var(--gold-400);
+  font-size: 13.5px;
+  font-weight: 600;
   cursor: pointer;
 }
-.qr-pay__upload:hover { border-color: var(--gold-400); color: var(--gold-400); }
+.qr-pay__upload:hover { background: rgba(217, 164, 91, 0.18); }
 .qr-pay__upload input { display: none; }
+.qr-pay__upload--error { border-color: var(--danger); background: rgba(192,85,63,0.1); color: var(--danger); }
 .qr-pay__preview { margin-top: 12px; }
 .qr-pay__preview img { max-width: 140px; max-height: 140px; border-radius: 8px; border: 1px solid rgba(217,164,91,0.25); }

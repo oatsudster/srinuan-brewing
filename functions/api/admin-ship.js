@@ -4,12 +4,12 @@
 async function sendTrackingEmail(env, order) {
   if (!order.email || !env.RESEND_API_KEY) return { sent: false };
   try {
-    const carrierLine = order.carrier ? order.carrier + " - " : "";
+    const trackUrl = "https://track.thailandpost.co.th/?trackNumber=" + encodeURIComponent(order.trackingNumber);
     const html =
       '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' +
       "<p>Hi " + order.name + ",</p>" +
-      "<p>Your Srinuan Brewing order <strong>#" + order.id + "</strong> has shipped!</p>" +
-      "<p><strong>Tracking number:</strong> " + carrierLine + order.trackingNumber + "</p>" +
+      "<p>Your Srinuan Brewing order <strong>#" + order.id + "</strong> has shipped via " + order.carrier + "!</p>" +
+      '<p><a href="' + trackUrl + '" style="display:inline-block;padding:12px 24px;background:#d9a45b;color:#0d1b2a;text-decoration:none;border-radius:8px;font-weight:bold;">Track Your Package</a></p>' +
       "<p>Thank you for your order!</p>" +
       "</body></html>";
     const resp = await fetch("https://api.resend.com/emails", {

@@ -6,7 +6,7 @@
 <title>Admin | Srinuan Brewing</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=22">
+<link rel="stylesheet" href="css/style.css?v=23">
 <style>
   body { min-height: 100vh; }
   .admin-wrap { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
@@ -63,6 +63,11 @@
   .order-card__ship button {
     padding: 8px 16px; border-radius: 8px; border: none; background: var(--gold-400); color: var(--navy-950);
     font-weight: 600; font-size: 13px; cursor: pointer;
+  }
+  .order-card__carrier-lock {
+    display: flex; align-items: center; padding: 8px 10px; border-radius: 8px;
+    background: var(--navy-900); border: 1px solid rgba(245,236,217,0.12);
+    color: var(--ink-muted); font-size: 13px; white-space: nowrap;
   }
   .order-card__shipped-info { font-size: 12.5px; color: var(--teal-400); margin-top: 8px; }
   .admin-empty { text-align: center; color: var(--ink-muted); padding: 30px 0; }
@@ -124,7 +129,7 @@
   <div class="admin-logout"><a id="logout-link">Log out</a></div>
 </div>
 
-<script src="js/products.js?v=22"></script>
+<script src="js/products.js?v=23"></script>
 <script>
 (function () {
   "use strict";
@@ -357,11 +362,11 @@
       var shipRow = document.createElement("div");
       shipRow.className = "order-card__ship";
       shipRow.innerHTML =
-        '<input type="text" placeholder="Carrier (e.g. Thailand Post)" class="carrier-input">' +
+        '<span class="order-card__carrier-lock">Carrier: Thailand Post</span>' +
         '<input type="text" placeholder="Tracking number" class="tracking-input">' +
         '<button type="button">Mark Shipped</button>';
       shipRow.querySelector("button").addEventListener("click", function () {
-        markShipped(o.id, shipRow.querySelector(".carrier-input").value, shipRow.querySelector(".tracking-input").value, card);
+        markShipped(o.id, "Thailand Post", shipRow.querySelector(".tracking-input").value, card);
       });
       card.appendChild(shipRow);
     }
