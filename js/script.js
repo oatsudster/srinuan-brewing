@@ -64,7 +64,7 @@
       "order.pickupHint": "Pick up in person at Tham Phanna, Nakhon Si Thammarat — no shipping cost. We'll confirm a pickup time with you.",
       "order.address": "Delivery Address",
       "order.addressLine": "House No. / Village",
-      "order.addressLinePlaceholder": "e.g. 55 Moo 3",
+      "order.addressLinePlaceholder": "e.g. 663 Moo 1",
       "order.subdistrict": "Sub-district",
       "order.district": "District",
       "order.province": "Province",
@@ -73,6 +73,11 @@
       "order.submit": "Send Order",
       "order.sending": "Sending...",
       "order.success": "Order sent! We'll contact you shortly to confirm.",
+      "order.successTitle": "Order received!",
+      "order.successId": "Your order number",
+      "order.successKeep": "Keep this number to check your delivery status.",
+      "order.successTrack": "Check order status",
+      "order.addressHint": "Fill each box separately - no need to type the full address in one field.",
       "order.errorInsufficient": "Sorry, only {n} left in stock.",
       "order.errorGeneric": "Something went wrong. Please try again.",
       "order.close": "Close",
@@ -153,7 +158,7 @@
       "order.pickupHint": "มารับสินค้าด้วยตนเองที่ถ้ำพรรณรา จ.นครศรีธรรมราช ไม่เสียค่าส่ง ทางร้านจะติดต่อนัดเวลารับสินค้า",
       "order.address": "ที่อยู่จัดส่ง",
       "order.addressLine": "เลขที่/หมู่บ้าน",
-      "order.addressLinePlaceholder": "เช่น 55 หมู่ 3",
+      "order.addressLinePlaceholder": "เช่น 663 หมู่ 1",
       "order.subdistrict": "ตำบล/แขวง",
       "order.district": "อำเภอ/เขต",
       "order.province": "จังหวัด",
@@ -162,6 +167,11 @@
       "order.submit": "ส่งคำสั่งซื้อ",
       "order.sending": "กำลังส่ง...",
       "order.success": "ส่งคำสั่งซื้อแล้ว! ทางร้านจะติดต่อกลับเพื่อยืนยันเร็วๆ นี้",
+      "order.successTitle": "รับคำสั่งซื้อแล้ว!",
+      "order.successId": "เลขออเดอร์ของคุณ",
+      "order.successKeep": "กรุณาเก็บเลขนี้ไว้ สำหรับเช็คสถานะการจัดส่ง",
+      "order.successTrack": "เช็คสถานะออเดอร์",
+      "order.addressHint": "กรอกแยกทีละช่อง ไม่ต้องพิมพ์ที่อยู่เต็มในช่องเดียว",
       "order.errorInsufficient": "ขออภัย เหลือสินค้าเพียง {n} ชิ้น",
       "order.errorGeneric": "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
       "order.close": "ปิด",
@@ -669,6 +679,7 @@
           '<p class="delivery-method__hint" id="pickup-hint" style="display:none">' + tTh("order.pickupHint") + "</p>" +
           '<div class="order-form__address-group" id="address-group">' +
             '<p class="order-form__address-title">' + tTh("order.address") + '</p>' +
+            '<p class="order-form__address-hint">' + tTh("order.addressHint") + '</p>' +
             '<label>' + tTh("order.addressLine") + '<input type="text" name="addressLine" placeholder="' + tTh("order.addressLinePlaceholder") + '" required></label>' +
             '<div class="order-form__address-row">' +
               '<label>' + tTh("order.subdistrict") + '<input type="text" name="subdistrict" required></label>' +
@@ -875,7 +886,14 @@
         if (result.status === 200 && result.data.ok) {
           Object.keys(result.data.remaining || {}).forEach(function (id) { STOCK[id] = result.data.remaining[id]; });
           msgEl.className = "order-form__msg order-form__msg--ok";
-          msgEl.textContent = tTh("order.success");
+          // The order number is the only way a customer can use the tracking
+          // page later, so put it on screen rather than a generic "sent".
+          msgEl.innerHTML =
+            '<span class="order-done__title">' + tTh("order.successTitle") + "</span>" +
+            '<span class="order-done__label">' + tTh("order.successId") + "</span>" +
+            '<span class="order-done__id">#' + String(result.data.orderId || "").replace(/[^A-Za-z0-9-]/g, "") + "</span>" +
+            '<span class="order-done__keep">' + tTh("order.successKeep") + "</span>" +
+            '<a class="order-done__track" href="track.html">' + tTh("order.successTrack") + "</a>";
           formEl.reset();
           formEl.querySelectorAll("input,textarea,button").forEach(function (el) { el.disabled = true; });
           CART = {};

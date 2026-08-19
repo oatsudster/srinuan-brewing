@@ -80,6 +80,59 @@ async function sendTelegram(env, text, slipImage) {
   }
 }
 
+function escapeHtml(v) {
+  return String(v == null ? "" : v)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+// The customer has just transferred money; without this they leave with no
+// receipt and no order number, which also makes the tracking page unusable.
+async function sendOrderConfirmation(env, order) {
+  if (!order.email || !env.RESEND_API_KEY) return { sent: false };
+  try {
+    const rows = order.items
+      .map((i) => "<tr><td style=\"padding:4px 12px 4px 0\">" + escapeHtml(i.productName) +
+                  "</td><td style=\"padding:4px 0;text-align:right\">x" + escapeHtml(i.quantity) + "</td></tr>")
+      .join("");
+    const where = order.deliveryMethod === "pickup"
+      ? "รับสินค้าเอง ที่ถ้ำพรรณรา จ.นครศรีธรรมราช"
+      : escapeHtml(order.address);
+    const html =
+      '<!DOCTYPE html><html><head><meta charset="utf-8"></head>' +
+      '<body style="font-family:sans-serif;color:#1a1a1a">' +
+      "<p>สวัสดีครับ คุณ" + escapeHtml(order.name) + "</p>" +
+      "<p>ศรีนวล บริววิ่ง ได้รับคำสั่งซื้อของคุณเรียบร้อยแล้ว</p>" +
+      '<p style="font-size:13px;color:#666;margin-bottom:4px">เลขออเดอร์ของคุณ</p>' +
+      '<p style="font-size:24px;font-weight:bold;color:#b8860b;margin-top:0">#' + escapeHtml(order.id) + "</p>" +
+      "<table>" + rows + "</table>" +
+      "<p>ค่าสินค้า " + escapeHtml(order.subtotal) + " บาท<br>" +
+      "ค่าจัดส่ง " + (order.shipping ? escapeHtml(order.shipping) + " บาท" : "ฟรี") + "<br>" +
+      "<strong>ยอดรวม " + escapeHtml(order.total) + " บาท</strong></p>" +
+      "<p>จัดส่งไปที่: " + where + "</p>" +
+      '<p><a href="https://srinuan-brewing.pages.dev/track.html" ' +
+      'style="display:inline-block;padding:12px 24px;background:#d9a45b;color:#0d1b2a;' +
+      'text-decoration:none;border-radius:8px;font-weight:bold">เช็คสถานะออเดอร์</a></p>' +
+      "<p>ทางร้านจะตรวจสอบสลิปและติดต่อกลับเพื่อยืนยันอีกครั้ง ขอบคุณที่อุดหนุนครับ</p>" +
+      "</body></html>";
+    const resp = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
+      body: JSON.stringify({
+        from: "Srinuan Brewing <onboarding@resend.dev>",
+        to: [order.email],
+        subject: "รับคำสั่งซื้อแล้ว #" + order.id + " - Srinuan Brewing",
+        html
+      })
+    });
+    if (!resp.ok) { console.error("Resend confirmation failed:", await resp.text()); return { sent: false }; }
+    return { sent: true };
+  } catch (err) {
+    console.error("Resend confirmation error:", err);
+    return { sent: false };
+  }
+}
+
 function isValidEmail(s) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 }
@@ -206,6 +259,7 @@ export async function onRequestPost({ request, env }) {
     createdAt: new Date().toISOString()
   };
   await env.STOCK_KV.put("order:" + orderId, JSON.stringify(orderRecord));
+  const mail = await sendOrderConfirmation(env, orderRecord);
 
-  return Response.json({ ok: true, remaining, subtotal, shipping: shipCost, total: grandTotal, orderId });
+  return Response.json({ ok: true, remaining, subtotal, shipping: shipCost, total: grandTotal, orderId, emailSent: mail.sent });
 }
