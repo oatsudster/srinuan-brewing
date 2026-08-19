@@ -59,6 +59,7 @@
       "order.slipProcessing": "Processing slip...",
       "cart.stockChanged": "Some items were adjusted — stock changed while you were shopping. Please check the total before paying.",
       "cart.allSoldOut": "Sorry, those items just sold out.",
+      "order.deliveryMethod": "How would you like to receive it?",
       "order.deliveryEms": "Delivery (Thailand Post EMS)",
       "order.pickup": "Self Pickup",
       "order.pickupHint": "Pick up in person at Tham Phanna, Nakhon Si Thammarat — no shipping cost. We'll confirm a pickup time with you.",
@@ -153,6 +154,7 @@
       "order.slipProcessing": "กำลังประมวลผลสลิป...",
       "cart.stockChanged": "มีบางรายการถูกปรับจำนวน เนื่องจากสต็อกเปลี่ยนระหว่างที่คุณเลือกซื้อ กรุณาตรวจสอบยอดรวมก่อนชำระเงิน",
       "cart.allSoldOut": "ขออภัย สินค้าที่เลือกเพิ่งหมดพอดี",
+      "order.deliveryMethod": "เลือกวิธีรับสินค้า ก่อนโอนเงิน",
       "order.deliveryEms": "จัดส่งทางไปรษณีย์ (EMS)",
       "order.pickup": "มารับด้วยตนเอง",
       "order.pickupHint": "มารับสินค้าด้วยตนเองที่ถ้ำพรรณรา จ.นครศรีธรรมราช ไม่เสียค่าส่ง ทางร้านจะติดต่อนัดเวลารับสินค้า",
@@ -652,6 +654,20 @@
         '<h4 class="order-form__title">' + tTh("order.title") + "</h4>" +
         '<div class="cart-list" id="cart-list">' + itemsHtml + "</div>" +
         '<div class="cart-summary" id="cart-summary">' + cartSummaryHtml(lines, checkoutDeliveryMethod) + "</div>" +
+        '<div class="delivery-choice">' +
+          '<p class="delivery-choice__title">' + tTh("order.deliveryMethod") + "</p>" +
+          '<div class="delivery-method">' +
+            '<label class="delivery-method__option">' +
+              '<input type="radio" name="deliveryMethod" value="delivery" checked>' +
+              '<span>' + tTh("order.deliveryEms") + "</span>" +
+            "</label>" +
+            '<label class="delivery-method__option">' +
+              '<input type="radio" name="deliveryMethod" value="pickup">' +
+              '<span>' + tTh("order.pickup") + "</span>" +
+            "</label>" +
+          "</div>" +
+          '<p class="delivery-method__hint" id="pickup-hint" style="display:none">' + tTh("order.pickupHint") + "</p>" +
+        "</div>" +
         '<div class="qr-pay">' +
           '<p class="qr-pay__label">' + tTh("cart.payTitle") + "</p>" +
           '<div id="promptpay-qr" class="qr-pay__code"></div>' +
@@ -666,17 +682,6 @@
           '<label>' + tTh("order.name") + '<input type="text" name="name" required></label>' +
           '<label>' + tTh("order.phone") + '<input type="tel" name="phone" required></label>' +
           '<label>' + tTh("order.email") + '<input type="email" name="email" placeholder="' + tTh("order.emailPlaceholder") + '" required></label>' +
-          '<div class="delivery-method">' +
-            '<label class="delivery-method__option">' +
-              '<input type="radio" name="deliveryMethod" value="delivery" checked>' +
-              '<span>' + tTh("order.deliveryEms") + "</span>" +
-            "</label>" +
-            '<label class="delivery-method__option">' +
-              '<input type="radio" name="deliveryMethod" value="pickup">' +
-              '<span>' + tTh("order.pickup") + "</span>" +
-            "</label>" +
-          "</div>" +
-          '<p class="delivery-method__hint" id="pickup-hint" style="display:none">' + tTh("order.pickupHint") + "</p>" +
           '<div class="order-form__address-group" id="address-group">' +
             '<p class="order-form__address-title">' + tTh("order.address") + '</p>' +
             '<p class="order-form__address-hint">' + tTh("order.addressHint") + '</p>' +
@@ -852,7 +857,7 @@
       return { productId: line.product.id, productName: name, quantity: line.qty };
     });
 
-    var isPickup = formEl.deliveryMethod.value === "pickup";
+    var isPickup = checkoutDeliveryMethod === "pickup";
     var address = isPickup ? "" : [
       formEl.addressLine.value.trim(),
       "ต." + formEl.subdistrict.value.trim(),
@@ -867,7 +872,7 @@
       phone: formEl.phone.value,
       email: formEl.email.value,
       address: address,
-      deliveryMethod: formEl.deliveryMethod.value,
+      deliveryMethod: checkoutDeliveryMethod,
       slipImage: slipDataUrl || null
     };
 
