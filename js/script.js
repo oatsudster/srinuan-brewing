@@ -184,6 +184,13 @@
     return (i18n[currentLang] && i18n[currentLang][key]) || (i18n.en[key] || key);
   }
 
+  // The checkout screen always renders in Thai, whatever the site toggle says:
+  // buyers are filling in a Thai name and address, so Thai labels are easier to
+  // read and fill in. Site chrome still follows the EN/TH switch.
+  function tTh(key) {
+    return (i18n.th && i18n.th[key]) || t(key);
+  }
+
   function applyStaticText() {
     document.documentElement.lang = currentLang;
     document.querySelectorAll("[data-i18n]").forEach(function (el) {
@@ -347,13 +354,13 @@
       var changed = clampCartToStock();
       renderCartBar();
       renderGrid(currentFilter);
-      if (!cartTotalQty()) { alert(t("cart.allSoldOut")); return; }
+      if (!cartTotalQty()) { alert(tTh("cart.allSoldOut")); return; }
       openCheckoutModal();
       if (changed) {
         var msgEl = document.getElementById("order-form-msg");
         if (msgEl) {
           msgEl.className = "order-form__msg order-form__msg--err";
-          msgEl.textContent = t("cart.stockChanged");
+          msgEl.textContent = tTh("cart.stockChanged");
         }
       }
     });
@@ -564,14 +571,14 @@
     var shipCost = isPickup ? 0 : (est.free ? 0 : (est.cost || 0));
     var grandTotal = subtotal + shipCost;
     var shipText = isPickup
-      ? t("cart.pickupFree")
-      : (est.free ? t("cart.free") : (est.cost != null ? est.cost + " " + t("cart.baht") : t("cart.shipContactUs")));
+      ? tTh("cart.pickupFree")
+      : (est.free ? tTh("cart.free") : (est.cost != null ? est.cost + " " + tTh("cart.baht") : tTh("cart.shipContactUs")));
     return (
-      '<div class="cart-summary__row"><span>' + t("cart.subtotal") + "</span><span>" + subtotal + " " + t("cart.baht") + "</span></div>" +
-      (!isPickup ? '<div class="cart-summary__row"><span>' + t("cart.weight") + "</span><span>" + est.weightKg + " kg</span></div>" : "") +
-      '<div class="cart-summary__row"><span>' + t("cart.shipping") + "</span><span>" + shipText + "</span></div>" +
-      '<div class="cart-summary__row cart-summary__row--total"><span>' + t("cart.total") + "</span><span>" + grandTotal + " " + t("cart.baht") + "</span></div>" +
-      (!isPickup && !est.free ? '<p class="cart-summary__hint">' + t("cart.freeHint").replace("{n}", FREE_SHIPPING_QTY) + "</p>" : "")
+      '<div class="cart-summary__row"><span>' + tTh("cart.subtotal") + "</span><span>" + subtotal + " " + tTh("cart.baht") + "</span></div>" +
+      (!isPickup ? '<div class="cart-summary__row"><span>' + tTh("cart.weight") + "</span><span>" + est.weightKg + " kg</span></div>" : "") +
+      '<div class="cart-summary__row"><span>' + tTh("cart.shipping") + "</span><span>" + shipText + "</span></div>" +
+      '<div class="cart-summary__row cart-summary__row--total"><span>' + tTh("cart.total") + "</span><span>" + grandTotal + " " + tTh("cart.baht") + "</span></div>" +
+      (!isPickup && !est.free ? '<p class="cart-summary__hint">' + tTh("cart.freeHint").replace("{n}", FREE_SHIPPING_QTY) + "</p>" : "")
     );
   }
 
@@ -599,14 +606,14 @@
     slipEncoding = false;
 
     var itemsHtml = lines.map(function (line) {
-      var name = line.product.name[currentLang] || line.product.name.en;
-      var style = line.product.style[currentLang] || line.product.style.en;
+      var name = line.product.name.th || line.product.name.en;
+      var style = line.product.style.th || line.product.style.en;
       var price = priceOf(line.product.id);
       return (
         '<div class="cart-item" data-id="' + line.product.id + '">' +
           '<img src="' + line.product.image + '" alt="' + name + '">' +
           '<div class="cart-item__info"><h4>' + name + " (" + style + ")</h4>" +
-            '<span class="cart-item__price">' + price + " " + t("cart.baht") + " &middot; " + line.product.abv + "% ABV</span></div>" +
+            '<span class="cart-item__price">' + price + " " + tTh("cart.baht") + " &middot; " + line.product.abv + "% ABV</span></div>" +
           '<div class="stepper stepper--sm" data-id="' + line.product.id + '">' +
             '<button class="stepper__btn" data-step="-1">&minus;</button>' +
             '<span class="stepper__qty">' + line.qty + "</span>" +
@@ -619,47 +626,47 @@
     orderModalCard.innerHTML =
       '<button class="modal__close" id="order-modal-close">&times;</button>' +
       '<div class="order-form">' +
-        '<h4 class="order-form__title">' + t("order.title") + "</h4>" +
+        '<h4 class="order-form__title">' + tTh("order.title") + "</h4>" +
         '<div class="cart-list" id="cart-list">' + itemsHtml + "</div>" +
         '<div class="cart-summary" id="cart-summary">' + cartSummaryHtml(lines, checkoutDeliveryMethod) + "</div>" +
         '<div class="qr-pay">' +
-          '<p class="qr-pay__label">' + t("cart.payTitle") + "</p>" +
+          '<p class="qr-pay__label">' + tTh("cart.payTitle") + "</p>" +
           '<div id="promptpay-qr" class="qr-pay__code"></div>' +
-          '<p class="qr-pay__hint">' + t("cart.payHint") + "</p>" +
+          '<p class="qr-pay__hint">' + tTh("cart.payHint") + "</p>" +
           '<label class="qr-pay__upload">' +
-            t("cart.attachSlip") +
+            tTh("cart.attachSlip") +
             '<input type="file" accept="image/*" id="slip-input">' +
           "</label>" +
           '<div id="slip-preview" class="qr-pay__preview"></div>' +
         "</div>" +
         '<form id="order-form">' +
-          '<label>' + t("order.name") + '<input type="text" name="name" required></label>' +
-          '<label>' + t("order.phone") + '<input type="tel" name="phone" required></label>' +
-          '<label>' + t("order.email") + '<input type="email" name="email" placeholder="' + t("order.emailPlaceholder") + '" required></label>' +
+          '<label>' + tTh("order.name") + '<input type="text" name="name" required></label>' +
+          '<label>' + tTh("order.phone") + '<input type="tel" name="phone" required></label>' +
+          '<label>' + tTh("order.email") + '<input type="email" name="email" placeholder="' + tTh("order.emailPlaceholder") + '" required></label>' +
           '<div class="delivery-method">' +
             '<label class="delivery-method__option">' +
               '<input type="radio" name="deliveryMethod" value="delivery" checked>' +
-              '<span>' + t("order.deliveryEms") + "</span>" +
+              '<span>' + tTh("order.deliveryEms") + "</span>" +
             "</label>" +
             '<label class="delivery-method__option">' +
               '<input type="radio" name="deliveryMethod" value="pickup">' +
-              '<span>' + t("order.pickup") + "</span>" +
+              '<span>' + tTh("order.pickup") + "</span>" +
             "</label>" +
           "</div>" +
-          '<p class="delivery-method__hint" id="pickup-hint" style="display:none">' + t("order.pickupHint") + "</p>" +
+          '<p class="delivery-method__hint" id="pickup-hint" style="display:none">' + tTh("order.pickupHint") + "</p>" +
           '<div class="order-form__address-group" id="address-group">' +
-            '<p class="order-form__address-title">' + t("order.address") + '</p>' +
-            '<label>' + t("order.addressLine") + '<input type="text" name="addressLine" placeholder="' + t("order.addressLinePlaceholder") + '" required></label>' +
+            '<p class="order-form__address-title">' + tTh("order.address") + '</p>' +
+            '<label>' + tTh("order.addressLine") + '<input type="text" name="addressLine" placeholder="' + tTh("order.addressLinePlaceholder") + '" required></label>' +
             '<div class="order-form__address-row">' +
-              '<label>' + t("order.subdistrict") + '<input type="text" name="subdistrict" required></label>' +
-              '<label>' + t("order.district") + '<input type="text" name="district" required></label>' +
+              '<label>' + tTh("order.subdistrict") + '<input type="text" name="subdistrict" required></label>' +
+              '<label>' + tTh("order.district") + '<input type="text" name="district" required></label>' +
             "</div>" +
             '<div class="order-form__address-row">' +
-              '<label>' + t("order.province") + '<input type="text" name="province" required></label>' +
-              '<label>' + t("order.postalCode") + '<input type="text" name="postalCode" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required></label>' +
+              '<label>' + tTh("order.province") + '<input type="text" name="province" required></label>' +
+              '<label>' + tTh("order.postalCode") + '<input type="text" name="postalCode" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required></label>' +
             "</div>" +
           "</div>" +
-          '<button type="submit" class="btn btn--primary order-form__submit">' + t("order.submit") + "</button>" +
+          '<button type="submit" class="btn btn--primary order-form__submit">' + tTh("order.submit") + "</button>" +
           '<p class="order-form__msg" id="order-form-msg"></p>' +
         "</form>" +
       "</div>";
@@ -738,7 +745,7 @@
     var btn = document.querySelector(".order-form__submit");
     if (!btn) return;
     btn.disabled = on;
-    btn.textContent = on ? t("order.slipProcessing") : t("order.submit");
+    btn.textContent = on ? tTh("order.slipProcessing") : tTh("order.submit");
   }
 
   function handleSlipSelect(e) {
@@ -758,7 +765,7 @@
       var msgEl = document.getElementById("order-form-msg");
       if (msgEl) {
         msgEl.className = "order-form__msg order-form__msg--err";
-        msgEl.textContent = t("order.errorSlipRead");
+        msgEl.textContent = tTh("order.errorSlipRead");
       }
       if (uploadEl) uploadEl.classList.add("qr-pay__upload--error");
     }
@@ -803,19 +810,21 @@
 
     if (slipEncoding) {
       msgEl.className = "order-form__msg order-form__msg--err";
-      msgEl.textContent = t("order.errorSlipProcessing");
+      msgEl.textContent = tTh("order.errorSlipProcessing");
       return;
     }
     if (!slipDataUrl) {
       msgEl.className = "order-form__msg order-form__msg--err";
-      msgEl.textContent = t("order.errorNoSlip");
+      msgEl.textContent = tTh("order.errorNoSlip");
       if (uploadEl) uploadEl.classList.add("qr-pay__upload--error");
       return;
     }
     if (uploadEl) uploadEl.classList.remove("qr-pay__upload--error");
 
     var items = lines.map(function (line) {
-      var name = line.product.name[currentLang] || line.product.name.en;
+      // Records keep the canonical English name so Telegram, the admin list and
+      // the best-seller totals stay consistent with older orders.
+      var name = line.product.name.en || line.product.name.th;
       return { productId: line.product.id, productName: name, quantity: line.qty };
     });
 
@@ -839,7 +848,7 @@
     };
 
     submitBtn.disabled = true;
-    submitBtn.textContent = t("order.sending");
+    submitBtn.textContent = tTh("order.sending");
     msgEl.className = "order-form__msg";
     msgEl.textContent = "";
 
@@ -853,7 +862,7 @@
         if (result.status === 200 && result.data.ok) {
           Object.keys(result.data.remaining || {}).forEach(function (id) { STOCK[id] = result.data.remaining[id]; });
           msgEl.className = "order-form__msg order-form__msg--ok";
-          msgEl.textContent = t("order.success");
+          msgEl.textContent = tTh("order.success");
           formEl.reset();
           formEl.querySelectorAll("input,textarea,button").forEach(function (el) { el.disabled = true; });
           CART = {};
@@ -864,10 +873,10 @@
           msgEl.className = "order-form__msg order-form__msg--err";
           var shortfall = (result.data.shortfalls || [])[0];
           msgEl.textContent = shortfall
-            ? t("order.errorInsufficient").replace("{n}", shortfall.available)
-            : t("order.errorGeneric");
+            ? tTh("order.errorInsufficient").replace("{n}", shortfall.available)
+            : tTh("order.errorGeneric");
           submitBtn.disabled = false;
-          submitBtn.textContent = t("order.submit");
+          submitBtn.textContent = tTh("order.submit");
           fetchStock().then(function () {
             clampCartToStock();
             renderCartBar();
@@ -880,9 +889,9 @@
       })
       .catch(function () {
         msgEl.className = "order-form__msg order-form__msg--err";
-        msgEl.textContent = t("order.errorGeneric");
+        msgEl.textContent = tTh("order.errorGeneric");
         submitBtn.disabled = false;
-        submitBtn.textContent = t("order.submit");
+        submitBtn.textContent = tTh("order.submit");
       });
   }
 
