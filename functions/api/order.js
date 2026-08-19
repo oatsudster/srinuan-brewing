@@ -21,6 +21,7 @@ const PRICES = {
   "som-som": 110,
   "nual-gaarden": 110,
   "honey-lime": 110,
+  "cali-mead": 110,
   "apple-cider": 110,
   "blue-moon-pastry": 110,
   midnight: 110

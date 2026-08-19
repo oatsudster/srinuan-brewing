@@ -54,6 +54,7 @@ var PRICES = {
   "som-som": 110,
   "nual-gaarden": 110,
   "honey-lime": 110,
+  "cali-mead": 110,
   "apple-cider": 110,
   "blue-moon-pastry": 110,
   midnight: 110
@@ -226,6 +227,25 @@ const PRODUCTS = [
     taste: {
       en: "A honey mead brightened with fresh lime, balancing natural sweetness with citrus acidity for an easy, refreshing sip.",
       th: "มี้ดจากน้ำผึ้งแท้ เติมความสดชื่นด้วยมะนาว บาลานซ์ความหวานธรรมชาติกับความเปรี้ยวจากส้มได้ลงตัว ดื่มง่าย"
+    }
+  },
+  {
+    id: "cali-mead",
+    image: "images/cali-mead.png",
+    tags: ["mead"],
+    name: { en: "Cali Mead", th: "คาลิ มี้ด" },
+    style: { en: "Calamansi & Honey Mead", th: "มี้ดส้มจี๊ดผสมน้ำผึ้ง" },
+    abv: null,
+    ibu: 0,
+    ebc: null,
+    colorName: { en: null, th: null },
+    aroma: {
+      en: ["Calamansi zest", "Raw honey"],
+      th: ["ผิวส้มจี๊ด", "น้ำผึ้งแท้"]
+    },
+    taste: {
+      en: "A honey mead built on calamansi, the small Southeast Asian citrus, giving a sharp tangy lift against the honey sweetness.",
+      th: "มี้ดจากน้ำผึ้งแท้ ผสมน้ำส้มจี๊ด ให้ความเปรี้ยวจี๊ดตัดกับความหวานของน้ำผึ้ง"
     }
   },
   {
