@@ -54,6 +54,7 @@
       "order.email": "Email (for tracking updates)",
       "order.emailPlaceholder": "you@example.com",
       "order.errorNoSlip": "Please attach your payment slip before submitting.",
+      "order.errorSlipRejected": "We could not verify that payment slip. Please check the amount and upload the real slip, or contact us.",
       "order.errorSlipProcessing": "Your slip is still uploading — please wait a moment.",
       "order.errorSlipRead": "Could not read that image. Please try another file.",
       "order.slipProcessing": "Processing slip...",
@@ -149,6 +150,7 @@
       "order.email": "อีเมล (สำหรับแจ้งเลขพัสดุ)",
       "order.emailPlaceholder": "you@example.com",
       "order.errorNoSlip": "กรุณาแนบสลิปโอนเงินก่อนส่งคำสั่งซื้อ",
+      "order.errorSlipRejected": "ระบบตรวจสอบสลิปไม่ผ่าน กรุณาตรวจสอบยอดเงินและแนบสลิปตัวจริง หรือติดต่อทางร้าน",
       "order.errorSlipProcessing": "กำลังอัปโหลดสลิป กรุณารอสักครู่",
       "order.errorSlipRead": "อ่านไฟล์รูปไม่ได้ กรุณาเลือกไฟล์อื่น",
       "order.slipProcessing": "กำลังประมวลผลสลิป...",
@@ -919,6 +921,11 @@
             renderGrid(currentFilter);
             refreshCheckoutModal();
           });
+        } else if (result.data && result.data.error === "slip_rejected") {
+          msgEl.className = "order-form__msg order-form__msg--err";
+          msgEl.textContent = tTh("order.errorSlipRejected");
+          submitBtn.disabled = false;
+          submitBtn.textContent = tTh("order.submit");
         } else {
           throw new Error("order_failed");
         }

@@ -133,6 +133,46 @@ async function sendOrderConfirmation(env, order) {
   }
 }
 
+// EasySlip reads the QR on the slip and checks it against the banking system.
+// Inert until EASYSLIP_API_KEY exists, and even then it only reports unless
+// SLIP_VERIFY_ENFORCE=1 - so it can be watched on real orders before it is
+// allowed to turn a paying customer away.
+async function verifySlip(env, slipImage, expectedAmount) {
+  if (!env.EASYSLIP_API_KEY) return { checked: false };
+  try {
+    const body = { base64: slipImage, matchAmount: expectedAmount, checkDuplicate: true };
+    // Only meaningful once the shop's own account is registered with EasySlip.
+    if (env.SLIP_MATCH_ACCOUNT === "1") body.matchAccount = true;
+
+    const resp = await fetch("https://api.easyslip.com/v2/verify/bank", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + env.EASYSLIP_API_KEY, "content-type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    const json = await resp.json().catch(() => null);
+    if (!resp.ok || !json || !json.success) {
+      const msg = (json && (json.message || json.status)) || ("http_" + resp.status);
+      console.error("EasySlip verify failed:", msg);
+      return { checked: true, ok: false, problems: ["unreadable"], message: String(msg) };
+    }
+    const d = json.data || {};
+    const problems = [];
+    if (d.isDuplicate) problems.push("duplicate");
+    if (d.isAmountMatched === false) problems.push("amount_mismatch");
+    if (body.matchAccount && d.matchedAccount === null) problems.push("account_mismatch");
+    return {
+      checked: true,
+      ok: problems.length === 0,
+      problems,
+      amountInSlip: d.amountInSlip,
+      transRef: d.rawSlip && d.rawSlip.transRef
+    };
+  } catch (err) {
+    console.error("EasySlip verify error:", err);
+    return { checked: true, ok: false, problems: ["error"], message: String(err) };
+  }
+}
+
 function isValidEmail(s) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 }
@@ -176,6 +216,18 @@ export async function onRequestPost({ request, env }) {
     items.push({ productId, productName, quantity });
   }
 
+  const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
+  const subtotal = items.reduce((sum, i) => sum + (PRICES[i.productId] || 0) * i.quantity, 0);
+  const shipping = deliveryMethod === "pickup" ? { free: true, cost: 0, weightKg: 0 } : estimateShipping(totalQty);
+  const shipCost = deliveryMethod === "pickup" ? 0 : (shipping.free ? 0 : (shipping.cost || 0));
+  const grandTotal = subtotal + shipCost;
+
+  // Verify the transfer before taking stock, so a rejected slip leaves nothing behind.
+  const slipCheck = await verifySlip(env, slipImage, grandTotal);
+  if (slipCheck.checked && !slipCheck.ok && env.SLIP_VERIFY_ENFORCE === "1") {
+    return Response.json({ error: "slip_rejected", problems: slipCheck.problems }, { status: 400 });
+  }
+
   // Check stock for every item first - don't decrement anything if any item is short.
   const shortfalls = [];
   const currentStock = {};
@@ -204,12 +256,6 @@ export async function onRequestPost({ request, env }) {
     }
   }
 
-  const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
-  const subtotal = items.reduce((sum, i) => sum + (PRICES[i.productId] || 0) * i.quantity, 0);
-  const shipping = deliveryMethod === "pickup" ? { free: true, cost: 0, weightKg: 0 } : estimateShipping(totalQty);
-  const shipCost = deliveryMethod === "pickup" ? 0 : (shipping.free ? 0 : (shipping.cost || 0));
-  const grandTotal = subtotal + shipCost;
-
   const orderId = new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + Math.random().toString(36).slice(2, 8).toUpperCase();
 
   const itemLines = items
@@ -218,7 +264,11 @@ export async function onRequestPost({ request, env }) {
   const shipLine = deliveryMethod === "pickup"
     ? "Self pickup (no shipping)"
     : (shipping.free ? "Free (" + totalQty + "+ cans)" : (shipping.cost != null ? shipping.cost + " THB" : "Contact customer - over 30kg"));
-  const slipLine = "Payment slip: attached above";
+  const slipLine = !slipCheck.checked
+    ? "Payment slip: attached above (not auto-verified)"
+    : (slipCheck.ok
+        ? "Payment slip: VERIFIED" + (slipCheck.transRef ? " ref " + slipCheck.transRef : "")
+        : "Payment slip: NOT VERIFIED - " + (slipCheck.problems || []).join(", "));
 
   const text =
     "New Order #" + orderId + " - Srinuan Brewing\n\n" +
@@ -250,6 +300,9 @@ export async function onRequestPost({ request, env }) {
     email,
     address,
     deliveryMethod,
+    slipCheck: slipCheck.checked
+      ? { ok: slipCheck.ok, problems: slipCheck.problems || [], amountInSlip: slipCheck.amountInSlip || null, transRef: slipCheck.transRef || null }
+      : null,
     subtotal,
     shipping: shipCost,
     total: grandTotal,

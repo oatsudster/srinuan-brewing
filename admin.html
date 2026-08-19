@@ -6,7 +6,7 @@
 <title>Admin | Srinuan Brewing</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=35">
+<link rel="stylesheet" href="css/style.css?v=36">
 <style>
   body { min-height: 100vh; }
   .admin-wrap { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
@@ -70,6 +70,10 @@
     color: var(--ink-muted); font-size: 13px; white-space: nowrap;
   }
   .order-card__shipped-info { font-size: 12.5px; color: var(--teal-400); margin-top: 8px; }
+  .slip-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px; margin-bottom: 6px; }
+  .slip-badge.ok { background: rgba(63,122,118,0.18); color: var(--teal-400); }
+  .slip-badge.bad { background: rgba(192,85,63,0.16); color: var(--danger); }
+  .slip-badge.none { background: rgba(245,236,217,0.07); color: var(--ink-muted); }
   .order-card__footer { display: flex; justify-content: flex-end; margin-top: 10px; }
   .order-card__delete {
     background: none; border: 1px solid rgba(192,85,63,0.45); border-radius: 8px;
@@ -137,7 +141,7 @@
   <div class="admin-logout"><a id="logout-link">Log out</a></div>
 </div>
 
-<script src="js/products.js?v=35"></script>
+<script src="js/products.js?v=36"></script>
 <script>
 (function () {
   "use strict";
@@ -346,6 +350,15 @@
     orders.forEach(function (o) { ordersList.appendChild(orderCard(o)); });
   }
 
+  function slipBadge(o) {
+    if (!o.slipCheck) return '<span class="slip-badge none">slip not auto-checked</span>';
+    if (o.slipCheck.ok) {
+      return '<span class="slip-badge ok">slip verified' +
+             (o.slipCheck.transRef ? " - " + esc(o.slipCheck.transRef) : "") + "</span>";
+    }
+    return '<span class="slip-badge bad">slip NOT verified: ' + esc((o.slipCheck.problems || []).join(", ")) + "</span>";
+  }
+
   function orderCard(o) {
     var card = document.createElement("div");
     card.className = "order-card";
@@ -356,6 +369,7 @@
         '<span class="order-card__id">#' + esc(o.id) + "</span>" +
         '<span class="order-card__status ' + esc(o.status) + '">' + esc(o.status) + "</span>" +
       "</div>" +
+      slipBadge(o) +
       '<p class="order-card__items">' + itemsText + "</p>" +
       '<p class="order-card__meta">' + esc(o.name) + " · " + esc(o.phone) + (o.email ? " · " + esc(o.email) : "") + "</p>" +
       '<p class="order-card__meta">' + (o.deliveryMethod === "pickup" ? "🚶 Self Pickup" : esc(o.address)) + "</p>" +
