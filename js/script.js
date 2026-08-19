@@ -88,6 +88,8 @@
       "cart.payTitle": "Scan to Pay via PromptPay",
       "cart.payHint": "Amount is pre-filled in the QR — just scan with your banking app.",
       "cart.attachSlip": "📎 Attach Payment Slip (required)",
+      "cart.shippingPickup": "Shipping",
+      "cart.kg": "kg",
       "cart.pickupFree": "Free (self pickup)"
     },
     th: {
@@ -174,6 +176,8 @@
       "cart.payTitle": "สแกนจ่ายผ่าน PromptPay",
       "cart.payHint": "ระบบใส่ยอดเงินให้อัตโนมัติแล้ว สแกนด้วยแอปธนาคารได้เลย",
       "cart.attachSlip": "📎 แนบสลิปโอนเงิน (จำเป็นต้องแนบ)",
+      "cart.shippingPickup": "ค่าจัดส่ง",
+      "cart.kg": "กก.",
       "cart.pickupFree": "ฟรี (มารับเอง)"
     }
   };
@@ -575,8 +579,8 @@
       : (est.free ? tTh("cart.free") : (est.cost != null ? est.cost + " " + tTh("cart.baht") : tTh("cart.shipContactUs")));
     return (
       '<div class="cart-summary__row"><span>' + tTh("cart.subtotal") + "</span><span>" + subtotal + " " + tTh("cart.baht") + "</span></div>" +
-      (!isPickup ? '<div class="cart-summary__row"><span>' + tTh("cart.weight") + "</span><span>" + est.weightKg + " kg</span></div>" : "") +
-      '<div class="cart-summary__row"><span>' + tTh("cart.shipping") + "</span><span>" + shipText + "</span></div>" +
+      (!isPickup ? '<div class="cart-summary__row"><span>' + tTh("cart.weight") + "</span><span>" + est.weightKg + " " + tTh("cart.kg") + "</span></div>" : "") +
+      '<div class="cart-summary__row"><span>' + (isPickup ? tTh("cart.shippingPickup") : tTh("cart.shipping")) + "</span><span>" + shipText + "</span></div>" +
       '<div class="cart-summary__row cart-summary__row--total"><span>' + tTh("cart.total") + "</span><span>" + grandTotal + " " + tTh("cart.baht") + "</span></div>" +
       (!isPickup && !est.free ? '<p class="cart-summary__hint">' + tTh("cart.freeHint").replace("{n}", FREE_SHIPPING_QTY) + "</p>" : "")
     );
