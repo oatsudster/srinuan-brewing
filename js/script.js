@@ -212,24 +212,11 @@
     });
   }
 
-  // Inline SVG rather than an emoji: it inherits the navy text colour and stays
-  // crisp at any size / on any device.
-  var TRUCK_ICON =
-    '<svg class="promo-banner__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-    'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-      '<path d="M2.5 5.5h11v10h-11z"/>' +
-      '<path d="M13.5 9h3.7l3.6 3.6v2.9h-7.3z"/>' +
-      '<circle cx="7" cy="17.6" r="2"/>' +
-      '<circle cx="16.8" cy="17.6" r="2"/>' +
-      '<path d="M9 17.6h5.8"/>' +
-    "</svg>";
-
   function renderPromoBanner() {
     var el = document.getElementById("promo-banner");
     if (!el) return;
     el.innerHTML =
-      TRUCK_ICON +
-      '<span class="promo-banner__text">' +
+      '<span class="promo-banner__panel">' +
         '<span class="promo-banner__title">' + t("promo.freeShippingTitle") + "</span>" +
         '<span class="promo-banner__sub">' + t("promo.freeShippingSub").replace("{n}", FREE_SHIPPING_QTY) + "</span>" +
       "</span>";

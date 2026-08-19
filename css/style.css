@@ -200,10 +200,11 @@ a { color: inherit; text-decoration: none; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 20% 20%, rgba(63, 122, 118, 0.25), transparent 45%),
-    radial-gradient(circle at 80% 30%, rgba(217, 164, 91, 0.18), transparent 50%),
-    radial-gradient(circle at 50% 100%, rgba(217, 164, 91, 0.12), transparent 60%),
-    linear-gradient(180deg, var(--navy-950), var(--navy-900) 60%, var(--navy-950));
+    radial-gradient(circle at 20% 20%, rgba(63, 122, 118, 0.16), transparent 45%),
+    radial-gradient(circle at 80% 30%, rgba(217, 164, 91, 0.12), transparent 50%),
+    /* keeps the headline readable over the photo */
+    linear-gradient(180deg, rgba(7, 15, 26, 0.78) 0%, rgba(7, 15, 26, 0.55) 42%, rgba(7, 15, 26, 0.95) 100%),
+    url("../images/hero-bg.jpg") center center / cover no-repeat;
 }
 .hero__bg::after {
   content: "";
@@ -255,52 +256,46 @@ a { color: inherit; text-decoration: none; }
 
 /* ===== Products ===== */
 .products { padding: 100px 0 80px; background: var(--navy-950); }
-/* Solid gold on the dark page so the offer actually catches the eye. */
+/* The illustrated banner supplies the frame and artwork; the text is drawn by
+   the browser so Thai renders correctly and both languages stay editable. */
 .promo-banner {
   position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: fit-content;
-  max-width: 100%;
+  container-type: inline-size;
+  width: min(660px, 100%);
+  aspect-ratio: 4640 / 928;
   margin: 0 auto 34px;
-  padding: 13px 30px;
-  border-radius: 999px;
-  background: linear-gradient(120deg, #d9a45b 0%, #f2d9ab 48%, #d9a45b 100%);
-  border: 1px solid rgba(255, 246, 226, 0.6);
-  color: var(--navy-950);
-  text-align: left;
-  box-shadow: 0 12px 30px rgba(217, 164, 91, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  background: url("../images/promo-freeshipping.jpg") center / contain no-repeat;
 }
-.promo-banner__icon { width: 30px; height: 30px; flex-shrink: 0; }
-.promo-banner__text { display: flex; flex-direction: column; line-height: 1.25; }
-.promo-banner__title {
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-.promo-banner__sub { font-size: 12.5px; font-weight: 500; opacity: 0.78; }
-
-/* Light sweep to draw the eye without being noisy. */
-.promo-banner::after {
-  content: "";
+/* Sits exactly inside the gold frame painted in the artwork. */
+.promo-banner__panel {
   position: absolute;
-  top: -60%;
-  left: -45%;
-  width: 38%;
-  height: 220%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
-  transform: rotate(18deg);
-  pointer-events: none;
-  animation: promo-shine 4.5s ease-in-out infinite;
+  left: 42.56%;
+  width: 55.71%;
+  top: 9.91%;
+  height: 83.19%;
+  padding: 0 2%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.18em;
+  text-align: center;
+  line-height: 1.12;
+  color: #e0aa5e;
 }
-@keyframes promo-shine {
-  0%, 62% { left: -45%; }
-  100% { left: 125%; }
+.promo-banner__title {
+  font-size: 20px;
+  font-size: 5.6cqw;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
-@media (prefers-reduced-motion: reduce) {
-  .promo-banner::after { animation: none; opacity: 0; }
+.promo-banner__sub {
+  font-size: 10px;
+  font-size: 2.6cqw;
+  font-weight: 500;
+  opacity: 0.92;
+  white-space: nowrap;
 }
 .filter-bar {
   display: flex;
@@ -510,8 +505,10 @@ a { color: inherit; text-decoration: none; }
 .story__media { display: flex; justify-content: center; }
 .story__badge {
   width: 100%;
-  max-width: 300px;
-  filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
+  max-width: 320px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(217, 164, 91, 0.28);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
 }
 .story__text p { color: var(--ink-muted); margin: 0 0 16px; font-size: 15.5px; }
 .story__stats { display: flex; gap: 36px; margin-top: 28px; }
@@ -722,10 +719,7 @@ a { color: inherit; text-decoration: none; }
   .contact__grid { grid-template-columns: 1fr; }
   .story__stats { gap: 24px; flex-wrap: wrap; }
   .order-form__address-row { grid-template-columns: 1fr; }
-  .promo-banner { gap: 11px; padding: 11px 20px; }
-  .promo-banner__icon { width: 26px; height: 26px; }
-  .promo-banner__title { font-size: 15px; }
-  .promo-banner__sub { font-size: 11.5px; }
+  .promo-banner { margin-bottom: 26px; }
 }
 
 /* ===== Stepper (add to cart) ===== */
