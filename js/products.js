@@ -117,7 +117,6 @@ const PRODUCTS = [
   {
     id: "ipa",
     image: "images/ipa.png",
-    badges: ["bestseller"],
     tags: ["ipa"],
     name: { en: "India Pale Ale", th: "อินเดีย เพล เอล" },
     style: { en: "American IPA", th: "อเมริกัน ไอพีเอ" },
@@ -251,7 +250,6 @@ const PRODUCTS = [
   {
     id: "blue-moon-pastry",
     image: "images/blue-moon-pastry.png",
-    badges: ["bestseller", "signature"],
     tags: ["sour"],
     name: { en: "Blue Moon Pastry", th: "บลูมูน เพสตรี้" },
     style: { en: "Black Sour (Pastry Sour)", th: "แบล็กซาวร์ (เพสตรี้ซาวร์)" },
