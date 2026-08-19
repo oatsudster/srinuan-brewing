@@ -610,8 +610,10 @@
     slipEncoding = false;
 
     var itemsHtml = lines.map(function (line) {
-      var name = line.product.name.th || line.product.name.en;
-      var style = line.product.style.th || line.product.style.en;
+      // Product names stay English so the customer, the Telegram alert and the
+      // admin list all refer to a beer by exactly the same name.
+      var name = line.product.name.en || line.product.name.th;
+      var style = line.product.style.en || line.product.style.th;
       var price = priceOf(line.product.id);
       return (
         '<div class="cart-item" data-id="' + line.product.id + '">' +
