@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ศรีนวล — Srinuan Brewing</title>
+<meta name="description" content="ตามศรีนวล บริววิ่งและสั่งซื้อได้ที่นี่">
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Zilla+Slab:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#182238;--navy-deep:#0f1626;--cream:#F1E6CE;--cream-dim:#d9caa8;--amber:#D98A2B;--coral:#C1442C;--teal:#4C776E;--line:rgba(241,230,206,0.18);}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--navy-deep);color:var(--cream);font-family:'Zilla Slab',serif;min-height:100%;}
+body{background-image:radial-gradient(ellipse at 50% -10%,rgba(76,119,110,0.25),transparent 60%),repeating-linear-gradient(0deg,rgba(241,230,206,0.025) 0px,rgba(241,230,206,0.025) 1px,transparent 1px,transparent 3px),linear-gradient(180deg,var(--navy) 0%,var(--navy-deep) 100%);background-attachment:fixed;display:flex;justify-content:center;padding:0 0 64px;}
+.wrap{width:100%;max-width:440px;padding:56px 28px 0;position:relative;z-index:1;}
+.crest{display:flex;justify-content:center;margin-bottom:18px;}
+.crest svg{width:128px;height:128px;}
+.eyebrow{text-align:center;font-family:'Space Mono',monospace;letter-spacing:.32em;text-transform:uppercase;font-size:11px;color:var(--teal);margin:0 0 6px;}
+h1.wordmark{font-family:'Pirata One',serif;font-size:clamp(44px,13vw,60px);line-height:.95;text-align:center;letter-spacing:.02em;margin:0;color:var(--cream);text-shadow:0 2px 0 rgba(0,0,0,.4);}
+.subtitle{text-align:center;font-size:14px;color:var(--cream-dim);letter-spacing:.04em;margin:8px 0 0;font-style:italic;}
+.rule{display:flex;align-items:center;gap:10px;margin:28px 0 22px;color:var(--teal);}
+.rule::before,.rule::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent);}
+.rule span{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--cream-dim);}
+.order-card{position:relative;display:flex;align-items:center;gap:16px;padding:20px 22px;text-decoration:none;color:var(--navy-deep);background:linear-gradient(135deg,var(--amber),#f0b45a);border-radius:3px;margin-bottom:22px;box-shadow:0 6px 20px rgba(217,138,43,.35);}
+.order-icon{flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;}
+.order-icon svg{width:26px;height:26px;}
+.order-text{flex:1;}
+.order-title{font-weight:700;font-size:19px;margin:0;letter-spacing:.01em;}
+.order-sub{font-family:'Space Mono',monospace;font-size:11px;margin:3px 0 0;opacity:.75;letter-spacing:.03em;}
+.links{display:flex;flex-direction:column;gap:16px;}
+.link-card{position:relative;display:flex;align-items:center;gap:16px;padding:18px 20px;text-decoration:none;color:var(--cream);border:1px solid var(--line);background:linear-gradient(180deg,rgba(241,230,206,.05),rgba(241,230,206,.02));border-radius:2px;}
+.link-card::before{content:"";position:absolute;left:0;top:10%;bottom:10%;width:3px;background:var(--accent,var(--amber));}
+.icon{flex:none;width:38px;height:38px;display:flex;align-items:center;justify-content:center;color:var(--accent,var(--amber));}
+.icon svg{width:22px;height:22px;}
+.link-text{flex:1;min-width:0;}
+.link-title{font-weight:700;font-size:17px;letter-spacing:.01em;margin:0;}
+.link-handle{font-family:'Space Mono',monospace;font-size:11.5px;color:var(--cream-dim);margin:2px 0 0;letter-spacing:.02em;}
+.chevron{flex:none;color:var(--cream-dim);}
+.tiktok{--accent:var(--coral);}
+.instagram{--accent:var(--amber);}
+.facebook{--accent:var(--teal);}
+footer{text-align:center;margin-top:40px;font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:var(--cream-dim);opacity:.6;}
+footer p{margin:4px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="crest">
+<svg viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="70" cy="70" r="66" stroke="#4C776E" stroke-width="1.5" opacity="0.5"/>
+<circle cx="70" cy="70" r="58" stroke="#D9CAA8" stroke-width="1" opacity="0.35" stroke-dasharray="1 5"/>
+<path d="M40 58 L34 32 L58 48 Z" fill="#F1E6CE"/>
+<path d="M100 58 L106 32 L82 48 Z" fill="#F1E6CE"/>
+<path d="M43 60 L37 37 L58 50 Z" stroke="#182238" stroke-width="2" fill="none"/>
+<path d="M97 60 L103 37 L82 50 Z" stroke="#182238" stroke-width="2" fill="none"/>
+<ellipse cx="70" cy="78" rx="34" ry="30" fill="#F1E6CE" stroke="#182238" stroke-width="2"/>
+<ellipse cx="58" cy="76" rx="5.5" ry="7" fill="#4C776E"/>
+<ellipse cx="82" cy="76" rx="5.5" ry="7" fill="#4C776E"/>
+<circle cx="58" cy="76" r="2" fill="#0f1626"/>
+<circle cx="82" cy="76" r="2" fill="#0f1626"/>
+<path d="M67 88 L73 88 L70 92 Z" fill="#C1442C"/>
+<path d="M70 92 Q70 97 63 98 M70 92 Q70 97 77 98" stroke="#182238" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+<path d="M30 82 L50 84 M30 92 L50 90 M110 82 L90 84 M110 92 L90 90" stroke="#182238" stroke-width="1.2" opacity="0.6" stroke-linecap="round"/>
+<path d="M55 40 Q70 20 85 40 Q78 34 70 38 Q62 34 55 40Z" fill="#D98A2B" stroke="#182238" stroke-width="1.5"/>
+</svg>
+</div>
+<p class="eyebrow">Nakhon Si Thammarat &middot; Est. 2023</p>
+<h1 class="wordmark">ศรีนวล</h1>
+<p class="subtitle">Srinuan Brewing &mdash; Craft Beer, Hand-Crafted</p>
+<div class="rule"><span>สั่งซื้อ</span></div>
+<a class="order-card" href="https://srinuan-brewing.pages.dev/" target="_blank" rel="noopener">
+<span class="order-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>
+<span class="order-text"><p class="order-title">สั่งซื้อ / Order Now</p><p class="order-sub">srinuan-brewing.pages.dev</p></span>
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+</a>
+<div class="rule"><span>ตามเราได้ที่นี่</span></div>
+<div class="links">
+<a class="link-card tiktok" href="https://www.tiktok.com/@srinuan.brewing" target="_blank" rel="noopener">
+<span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82s.51.5 0 0A4.278 4.278 0 0 1 15.54 3h-3.09v12.4a2.592 2.592 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64 0 3.33 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48z"/></svg></span>
+<span class="link-text"><p class="link-title">TikTok</p><p class="link-handle">@srinuan.brewing</p></span>
+<svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+</a>
+<a class="link-card instagram" href="https://www.instagram.com/srinuan.brewing" target="_blank" rel="noopener">
+<span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></span>
+<span class="link-text"><p class="link-title">Instagram</p><p class="link-handle">@srinuan.brewing</p></span>
+<svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+</a>
+<a class="link-card facebook" href="https://www.facebook.com/profile.php?id=61593228093492" target="_blank" rel="noopener">
+<span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.2h-3.1V7.7c0-.9.25-1.6 1.6-1.6h1.7V3.3C15.9 3.2 15 3.1 14 3.1c-2.6 0-4.4 1.6-4.4 4.5v2.2H7v3.2h2.6v8h3.9z"/></svg></span>
+<span class="link-text"><p class="link-title">Facebook</p><p class="link-handle">Srinuan Brewing</p></span>
+<svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+</a>
+</div>
+<footer><p>ศรีนวล &mdash; SRINUAN BREWING</p><p>HAND-CRAFTED SINCE 2023</p></footer>
+</div>
+</body>
+</html>
