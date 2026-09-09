@@ -17,8 +17,6 @@
       "hero.scroll": "Scroll to explore ↓",
       "products.eyebrow": "OUR BEERS",
       "products.title": "Our Craft Beer Lineup",
-      "promo.freeShippingTitle": "FREE SHIPPING",
-      "promo.freeShippingSub": "on every order of {n} cans or more",
       "filter.all": "All",
       "story.eyebrow": "OUR STORY",
       "story.title": "The Srinuan Story",
@@ -53,9 +51,7 @@
       "order.phone": "Phone Number",
       "order.email": "Email (for tracking updates)",
       "order.emailPlaceholder": "you@example.com",
-      "order.errorNoSlip": "Please attach your payment slip before submitting.",
       "order.errorSlipRejected": "We could not verify that payment slip. Please check the amount and upload the real slip, or contact us.",
-      "order.errorSlipProcessing": "Your slip is still uploading — please wait a moment.",
       "order.errorSlipRead": "Could not read that image. Please try another file.",
       "order.slipProcessing": "Processing slip...",
       "cart.stockChanged": "Some items were adjusted — stock changed while you were shopping. Please check the total before paying.",
@@ -91,11 +87,8 @@
       "cart.total": "Total",
       "cart.weight": "Est. weight",
       "cart.shipping": "Est. shipping (Thailand Post EMS)",
-      "cart.freeHint": "Free shipping on orders of {n}+ cans",
       "cart.shipContactUs": "Contact us for a quote",
-      "cart.payTitle": "Scan to Pay via PromptPay",
-      "cart.payHint": "Amount is pre-filled in the QR — just scan with your banking app.",
-      "cart.attachSlip": "📎 Attach Payment Slip (required)",
+      "cart.payNotice": "After you send this order we will email you the payment details and a private link to upload your transfer slip.",
       "cart.shippingPickup": "Shipping",
       "cart.kg": "kg",
       "cart.pickupFree": "Free (self pickup)"
@@ -113,8 +106,6 @@
       "hero.scroll": "เลื่อนลงเพื่อดูเพิ่มเติม ↓",
       "products.eyebrow": "สินค้าของเรา",
       "products.title": "สินค้าคราฟต์เบียร์ของเรา",
-      "promo.freeShippingTitle": "ส่งฟรีทั่วประเทศ",
-      "promo.freeShippingSub": "เมื่อสั่งครบ {n} กระป๋องขึ้นไป",
       "filter.all": "ทั้งหมด",
       "story.eyebrow": "เรื่องราวของเรา",
       "story.title": "เรื่องราวของศรีนวล",
@@ -149,9 +140,7 @@
       "order.phone": "เบอร์โทรศัพท์",
       "order.email": "อีเมล (สำหรับแจ้งเลขพัสดุ)",
       "order.emailPlaceholder": "you@example.com",
-      "order.errorNoSlip": "กรุณาแนบสลิปโอนเงินก่อนส่งคำสั่งซื้อ",
       "order.errorSlipRejected": "ระบบตรวจสอบสลิปไม่ผ่าน กรุณาตรวจสอบยอดเงินและแนบสลิปตัวจริง หรือติดต่อทางร้าน",
-      "order.errorSlipProcessing": "กำลังอัปโหลดสลิป กรุณารอสักครู่",
       "order.errorSlipRead": "อ่านไฟล์รูปไม่ได้ กรุณาเลือกไฟล์อื่น",
       "order.slipProcessing": "กำลังประมวลผลสลิป...",
       "cart.stockChanged": "มีบางรายการถูกปรับจำนวน เนื่องจากสต็อกเปลี่ยนระหว่างที่คุณเลือกซื้อ กรุณาตรวจสอบยอดรวมก่อนชำระเงิน",
@@ -187,11 +176,8 @@
       "cart.total": "ยอดรวมทั้งหมด",
       "cart.weight": "น้ำหนักโดยประมาณ",
       "cart.shipping": "ค่าจัดส่งโดยประมาณ (ไปรษณีย์ไทย EMS)",
-      "cart.freeHint": "ส่งฟรีเมื่อสั่งตั้งแต่ {n} กระป๋องขึ้นไป",
       "cart.shipContactUs": "ติดต่อร้านเพื่อสอบถามค่าส่ง",
-      "cart.payTitle": "สแกนจ่ายผ่าน PromptPay",
-      "cart.payHint": "ระบบใส่ยอดเงินให้อัตโนมัติแล้ว สแกนด้วยแอปธนาคารได้เลย",
-      "cart.attachSlip": "📎 แนบสลิปโอนเงิน (จำเป็นต้องแนบ)",
+      "cart.payNotice": "หลังกดสั่งซื้อ ทางร้านจะส่งช่องทางชำระเงินและลิงก์สำหรับแนบสลิปไปทางอีเมลของคุณ",
       "cart.shippingPickup": "ค่าจัดส่ง",
       "cart.kg": "กก.",
       "cart.pickupFree": "ฟรี (มารับเอง)"
@@ -226,21 +212,10 @@
     });
   }
 
-  function renderPromoBanner() {
-    var el = document.getElementById("promo-banner");
-    if (!el) return;
-    el.innerHTML =
-      '<span class="promo-banner__panel">' +
-        '<span class="promo-banner__title">' + t("promo.freeShippingTitle") + "</span>" +
-        '<span class="promo-banner__sub">' + t("promo.freeShippingSub").replace("{n}", FREE_SHIPPING_QTY) + "</span>" +
-      "</span>";
-  }
-
   function setLang(lang) {
     currentLang = lang;
     localStorage.setItem(LANG_KEY, lang);
     applyStaticText();
-    renderPromoBanner();
     renderFilters();
     renderGrid(currentFilter);
     renderCartBar();
@@ -603,19 +578,8 @@
       (!isPickup ? '<div class="cart-summary__row"><span>' + tTh("cart.weight") + "</span><span>" + est.weightKg + " " + tTh("cart.kg") + "</span></div>" : "") +
       '<div class="cart-summary__row"><span>' + (isPickup ? tTh("cart.shippingPickup") : tTh("cart.shipping")) + "</span><span>" + shipText + "</span></div>" +
       '<div class="cart-summary__row cart-summary__row--total"><span>' + tTh("cart.total") + "</span><span>" + grandTotal + " " + tTh("cart.baht") + "</span></div>" +
-      (!isPickup && !est.free ? '<p class="cart-summary__hint">' + tTh("cart.freeHint").replace("{n}", FREE_SHIPPING_QTY) + "</p>" : "")
+      ""
     );
-  }
-
-  function renderPromptPayQr(amountBaht) {
-    var container = document.getElementById("promptpay-qr");
-    if (!container) return;
-    if (amountBaht <= 0) { container.innerHTML = ""; return; }
-    var payload = buildPromptPayPayload(amountBaht);
-    var qr = qrcode(0, "M");
-    qr.addData(payload);
-    qr.make();
-    container.innerHTML = qr.createSvgTag(5, 0);
   }
 
   var checkoutDeliveryMethod = "delivery";
@@ -625,10 +589,6 @@
     if (!lines.length) return;
     var totalQty = cartTotalQty();
     checkoutDeliveryMethod = "delivery";
-    // Never carry a previously attached slip into a new checkout - it may be for
-    // a different (smaller) amount, and the customer sees an empty upload box.
-    slipDataUrl = null;
-    slipEncoding = false;
 
     var itemsHtml = lines.map(function (line) {
       // Product names stay English so the customer, the Telegram alert and the
@@ -670,16 +630,7 @@
           "</div>" +
           '<p class="delivery-method__hint" id="pickup-hint" style="display:none">' + tTh("order.pickupHint") + "</p>" +
         "</div>" +
-        '<div class="qr-pay">' +
-          '<p class="qr-pay__label">' + tTh("cart.payTitle") + "</p>" +
-          '<div id="promptpay-qr" class="qr-pay__code"></div>' +
-          '<p class="qr-pay__hint">' + tTh("cart.payHint") + "</p>" +
-          '<label class="qr-pay__upload">' +
-            tTh("cart.attachSlip") +
-            '<input type="file" accept="image/*" id="slip-input">' +
-          "</label>" +
-          '<div id="slip-preview" class="qr-pay__preview"></div>' +
-        "</div>" +
+        '<p class="pay-notice">' + tTh("cart.payNotice") + "</p>" +
         '<form id="order-form">' +
           '<label>' + tTh("order.name") + '<input type="text" name="name" required></label>' +
           '<label>' + tTh("order.phone") + '<input type="tel" name="phone" required></label>' +
@@ -717,8 +668,6 @@
       });
     });
 
-    document.getElementById("slip-input").addEventListener("change", handleSlipSelect);
-
     document.querySelectorAll('input[name="deliveryMethod"]').forEach(function (radio) {
       radio.addEventListener("change", function () {
         checkoutDeliveryMethod = radio.value;
@@ -732,7 +681,6 @@
       submitOrder(e.target);
     });
 
-    renderPromptPayQr(cartSubtotal(lines) + (estimateShipping(totalQty).free ? 0 : (estimateShipping(totalQty).cost || 0)));
   }
 
   function updateDeliveryUI() {
@@ -762,74 +710,11 @@
     var est = estimateShipping(totalQty);
     var isPickup = checkoutDeliveryMethod === "pickup";
     var shipCost = isPickup ? 0 : (est.free ? 0 : (est.cost || 0));
-    renderPromptPayQr(cartSubtotal(lines) + shipCost);
-  }
-
-  /* ---------- Slip upload ---------- */
-  var slipDataUrl = null;
-  var slipEncoding = false;
-
-  // Resizing a phone photo takes a moment; lock the submit button while it runs
-  // so a fast tap can't be rejected as "no slip attached".
-  function setSlipEncoding(on) {
-    slipEncoding = on;
-    var btn = document.querySelector(".order-form__submit");
-    if (!btn) return;
-    btn.disabled = on;
-    btn.textContent = on ? tTh("order.slipProcessing") : tTh("order.submit");
-  }
-
-  function handleSlipSelect(e) {
-    var file = e.target.files[0];
-    var previewEl = document.getElementById("slip-preview");
-    var uploadEl = document.querySelector(".qr-pay__upload");
-    if (uploadEl) uploadEl.classList.remove("qr-pay__upload--error");
-    slipDataUrl = null;
-    if (!file) { previewEl.innerHTML = ""; setSlipEncoding(false); return; }
-
-    setSlipEncoding(true);
-    previewEl.innerHTML = "";
-
-    function fail() {
-      slipDataUrl = null;
-      setSlipEncoding(false);
-      var msgEl = document.getElementById("order-form-msg");
-      if (msgEl) {
-        msgEl.className = "order-form__msg order-form__msg--err";
-        msgEl.textContent = tTh("order.errorSlipRead");
-      }
-      if (uploadEl) uploadEl.classList.add("qr-pay__upload--error");
-    }
-
-    var img = new Image();
-    var reader = new FileReader();
-    reader.onerror = fail;
-    img.onerror = fail;
-    reader.onload = function (ev) {
-      img.onload = function () {
-        try {
-          var maxW = 900;
-          var scale = Math.min(1, maxW / img.width);
-          var canvas = document.createElement("canvas");
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          var ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          slipDataUrl = canvas.toDataURL("image/jpeg", 0.82);
-          previewEl.innerHTML = '<img src="' + slipDataUrl + '" alt="slip">';
-          setSlipEncoding(false);
-        } catch (err) { fail(); }
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
   }
 
   function closeOrderModal() {
     orderModal.classList.add("hidden");
     document.body.style.overflow = "";
-    slipDataUrl = null;
-    slipEncoding = false;
   }
 
   function submitOrder(formEl) {
@@ -837,20 +722,6 @@
     if (!lines.length) return;
     var msgEl = document.getElementById("order-form-msg");
     var submitBtn = formEl.querySelector(".order-form__submit");
-    var uploadEl = document.querySelector(".qr-pay__upload");
-
-    if (slipEncoding) {
-      msgEl.className = "order-form__msg order-form__msg--err";
-      msgEl.textContent = tTh("order.errorSlipProcessing");
-      return;
-    }
-    if (!slipDataUrl) {
-      msgEl.className = "order-form__msg order-form__msg--err";
-      msgEl.textContent = tTh("order.errorNoSlip");
-      if (uploadEl) uploadEl.classList.add("qr-pay__upload--error");
-      return;
-    }
-    if (uploadEl) uploadEl.classList.remove("qr-pay__upload--error");
 
     var items = lines.map(function (line) {
       // Records keep the canonical English name so Telegram, the admin list and
@@ -874,8 +745,7 @@
       phone: formEl.phone.value,
       email: formEl.email.value,
       address: address,
-      deliveryMethod: checkoutDeliveryMethod,
-      slipImage: slipDataUrl || null
+      deliveryMethod: checkoutDeliveryMethod
     };
 
     submitBtn.disabled = true;
@@ -904,7 +774,6 @@
           formEl.reset();
           formEl.querySelectorAll("input,textarea,button").forEach(function (el) { el.disabled = true; });
           CART = {};
-          slipDataUrl = null;
           renderCartBar();
           renderGrid(currentFilter);
         } else if (result.status === 409) {
@@ -942,7 +811,6 @@
 
   /* ---------- Init ---------- */
   applyStaticText();
-  renderPromoBanner();
   renderFilters();
   renderGrid("all");
   renderCartBar();

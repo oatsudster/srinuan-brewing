@@ -18,7 +18,6 @@ function ebcToSrm(ebc) {
 // functions/api/order.js as the server-side source of truth — keep both in sync.
 var CAN_WEIGHT_KG = 0.34;
 var PACKAGING_KG = 0.15;
-var FREE_SHIPPING_QTY = 10;
 var EMS_RATE_TIERS = [
   [0.02, 32], [0.10, 37], [0.25, 42], [0.50, 52], [1.00, 67],
   [1.50, 82], [2.00, 97], [5.00, 120], [10.00, 220], [20.00, 320], [30.00, 480]
@@ -37,9 +36,6 @@ function emsRateForWeight(weightKg) {
 
 function estimateShipping(totalQty) {
   if (totalQty <= 0) return { free: false, cost: 0, weightKg: 0 };
-  if (totalQty >= FREE_SHIPPING_QTY) {
-    return { free: true, cost: 0, weightKg: cartWeightKg(totalQty) };
-  }
   var weightKg = cartWeightKg(totalQty);
   return { free: false, cost: emsRateForWeight(weightKg), weightKg: weightKg };
 }
@@ -60,43 +56,6 @@ var PRICES = {
   midnight: 110
 };
 function priceOf(id) { return PRICES[id] != null ? PRICES[id] : 0; }
-
-// PromptPay dynamic QR payload builder (EMV QR Code spec / PromptPay).
-// The merchant account block below was extracted from the shop's own static
-// PromptPay QR - swapping the point-of-initiation method to "12" (dynamic)
-// and adding a transaction-amount field produces a QR that pre-fills the
-// exact order amount when scanned. No third-party service is involved.
-var PROMPTPAY_MERCHANT_BLOCK = "0016A0000006770101110315004999074338343";
-// ^ tag 29 inner value (AID + proxy/reference subfields), fixed length 39.
-
-function crc16ccitt(str) {
-  var crc = 0xFFFF;
-  for (var i = 0; i < str.length; i++) {
-    crc ^= str.charCodeAt(i) << 8;
-    for (var b = 0; b < 8; b++) {
-      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
-      crc &= 0xFFFF;
-    }
-  }
-  return crc.toString(16).toUpperCase().padStart(4, "0");
-}
-
-function tlv(tag, value) {
-  var len = String(value.length).padStart(2, "0");
-  return tag + len + value;
-}
-
-function buildPromptPayPayload(amountBaht) {
-  var amountStr = amountBaht.toFixed(2);
-  var payload =
-    tlv("00", "01") +
-    tlv("01", "12") +
-    tlv("29", PROMPTPAY_MERCHANT_BLOCK) +
-    tlv("53", "764") +
-    tlv("54", amountStr) +
-    tlv("58", "TH");
-  return payload + "6304" + crc16ccitt(payload + "6304");
-}
 
 const STYLE_LABELS = {
   ipa:        { en: "IPA",            th: "ไอพีเอ" },

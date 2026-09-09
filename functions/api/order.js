@@ -1,14 +1,14 @@
-// POST /api/order - public, places a cart order: checks stock for every item,
-// decrements it, computes shipping + total (prices are always taken from the
-// server-side table below, never trusted from the client), and notifies the
-// shop owner via Telegram (with the payment slip photo, if one was attached).
-// No payment is processed here; PromptPay is a self-serve bank transfer the
-// customer completes themselves - this only creates an order inquiry.
+// POST /api/order - public. Records a cart order: checks stock for every item,
+// reserves it, computes shipping + total (prices always come from the table
+// below, never from the client) and alerts the shop over Telegram.
+//
+// No payment details appear here or anywhere public. The order is created
+// unpaid; how to pay is sent privately to the customer by email, and the slip
+// comes back later through /api/submit-slip.
 
 // Mirrors js/products.js (client-side estimate/preview) - keep both in sync.
 const CAN_WEIGHT_KG = 0.34;
 const PACKAGING_KG = 0.15;
-const FREE_SHIPPING_QTY = 10;
 const LOW_STOCK_THRESHOLD = 5;
 const EMS_RATE_TIERS = [
   [0.02, 32], [0.10, 37], [0.25, 42], [0.50, 52], [1.00, 67],
@@ -36,7 +36,6 @@ function emsRateForWeight(weightKg) {
 
 function estimateShipping(totalQty) {
   const weightKg = Math.round((totalQty * CAN_WEIGHT_KG + PACKAGING_KG) * 100) / 100;
-  if (totalQty >= FREE_SHIPPING_QTY) return { free: true, cost: 0, weightKg };
   return { free: false, cost: emsRateForWeight(weightKg), weightKg };
 }
 
@@ -44,32 +43,8 @@ function escapeText(s) {
   return String(s).replace(/[\r\n]+/g, " ").trim().slice(0, 500);
 }
 
-function base64ToBytes(dataUrl) {
-  const base64 = dataUrl.split(",")[1] || "";
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
-
-async function sendTelegram(env, text, slipImage) {
+async function sendTelegram(env, text) {
   try {
-    // Photo captions are capped at 1024 chars by Telegram, and the delivery
-    // address is the last line - so a long order would silently lose it.
-    // Send the slip with a short caption, then the full details as their own
-    // message (4096 limit).
-    if (slipImage && slipImage.startsWith("data:image")) {
-      const bytes = base64ToBytes(slipImage);
-      const form = new FormData();
-      form.append("chat_id", env.TELEGRAM_CHAT_ID);
-      form.append("caption", text.slice(0, 200));
-      form.append("photo", new Blob([bytes], { type: "image/jpeg" }), "slip.jpg");
-      const photoResp = await fetch("https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendPhoto", {
-        method: "POST",
-        body: form
-      });
-      if (!photoResp.ok) console.error("Telegram sendPhoto failed:", await photoResp.text());
-    }
     const resp = await fetch("https://api.telegram.org/bot" + env.TELEGRAM_BOT_TOKEN + "/sendMessage", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -92,6 +67,8 @@ function escapeHtml(v) {
 async function sendOrderConfirmation(env, order) {
   if (!order.email || !env.RESEND_API_KEY) return { sent: false };
   try {
+    const payUrl = "https://srinuan-brewing.pages.dev/pay.html?id=" +
+      encodeURIComponent(order.id) + "&phone=" + encodeURIComponent(order.phone);
     const rows = order.items
       .map((i) => "<tr><td style=\"padding:4px 12px 4px 0\">" + escapeHtml(i.productName) +
                   "</td><td style=\"padding:4px 0;text-align:right\">x" + escapeHtml(i.quantity) + "</td></tr>")
@@ -111,10 +88,14 @@ async function sendOrderConfirmation(env, order) {
       "ค่าจัดส่ง " + (order.shipping ? escapeHtml(order.shipping) + " บาท" : "ฟรี") + "<br>" +
       "<strong>ยอดรวม " + escapeHtml(order.total) + " บาท</strong></p>" +
       "<p>จัดส่งไปที่: " + where + "</p>" +
-      '<p><a href="https://srinuan-brewing.pages.dev/track.html" ' +
+      '<p style="margin-top:24px">ขั้นตอนถัดไป: กดปุ่มด้านล่างเพื่อดูช่องทางชำระเงิน ' +
+      "แล้วแนบสลิปกลับมาในหน้าเดียวกันได้เลยครับ</p>" +
+      '<p><a href="' + payUrl + '" ' +
       'style="display:inline-block;padding:12px 24px;background:#d9a45b;color:#0d1b2a;' +
-      'text-decoration:none;border-radius:8px;font-weight:bold">เช็คสถานะออเดอร์</a></p>' +
-      "<p>ทางร้านจะตรวจสอบสลิปและติดต่อกลับเพื่อยืนยันอีกครั้ง ขอบคุณที่อุดหนุนครับ</p>" +
+      'text-decoration:none;border-radius:8px;font-weight:bold">ชำระเงินและแนบสลิป</a></p>' +
+      '<p style="font-size:12px;color:#666">ลิงก์นี้เป็นของออเดอร์คุณโดยเฉพาะ ' +
+      "กรุณาอย่าส่งต่อให้ผู้อื่น</p>" +
+      "<p>เมื่อทางร้านตรวจสลิปแล้วจะติดต่อกลับเพื่อยืนยันอีกครั้ง ขอบคุณที่อุดหนุนครับ</p>" +
       "</body></html>";
     const resp = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -131,46 +112,6 @@ async function sendOrderConfirmation(env, order) {
   } catch (err) {
     console.error("Resend confirmation error:", err);
     return { sent: false };
-  }
-}
-
-// EasySlip reads the QR on the slip and checks it against the banking system.
-// Inert until EASYSLIP_API_KEY exists, and even then it only reports unless
-// SLIP_VERIFY_ENFORCE=1 - so it can be watched on real orders before it is
-// allowed to turn a paying customer away.
-async function verifySlip(env, slipImage, expectedAmount) {
-  if (!env.EASYSLIP_API_KEY) return { checked: false };
-  try {
-    const body = { base64: slipImage, matchAmount: expectedAmount, checkDuplicate: true };
-    // Only meaningful once the shop's own account is registered with EasySlip.
-    if (env.SLIP_MATCH_ACCOUNT === "1") body.matchAccount = true;
-
-    const resp = await fetch("https://api.easyslip.com/v2/verify/bank", {
-      method: "POST",
-      headers: { "Authorization": "Bearer " + env.EASYSLIP_API_KEY, "content-type": "application/json" },
-      body: JSON.stringify(body)
-    });
-    const json = await resp.json().catch(() => null);
-    if (!resp.ok || !json || !json.success) {
-      const msg = (json && (json.message || json.status)) || ("http_" + resp.status);
-      console.error("EasySlip verify failed:", msg);
-      return { checked: true, ok: false, problems: ["unreadable"], message: String(msg) };
-    }
-    const d = json.data || {};
-    const problems = [];
-    if (d.isDuplicate) problems.push("duplicate");
-    if (d.isAmountMatched === false) problems.push("amount_mismatch");
-    if (body.matchAccount && d.matchedAccount === null) problems.push("account_mismatch");
-    return {
-      checked: true,
-      ok: problems.length === 0,
-      problems,
-      amountInSlip: d.amountInSlip,
-      transRef: d.rawSlip && d.rawSlip.transRef
-    };
-  } catch (err) {
-    console.error("EasySlip verify error:", err);
-    return { checked: true, ok: false, problems: ["error"], message: String(err) };
   }
 }
 
@@ -196,16 +137,6 @@ export async function onRequestPost({ request, env }) {
   if (!isValidEmail(email)) {
     return Response.json({ error: "invalid_email" }, { status: 400 });
   }
-  // The browser blocks this, but the browser is not a security boundary: without
-  // a server check a direct POST creates a real order and decrements stock.
-  const slipImage = typeof body.slipImage === "string" ? body.slipImage : "";
-  if (!/^data:image\/(jpeg|jpg|png|webp);base64,/.test(slipImage)) {
-    return Response.json({ error: "missing_slip" }, { status: 400 });
-  }
-  if (slipImage.length > 8 * 1024 * 1024) {
-    return Response.json({ error: "slip_too_large" }, { status: 413 });
-  }
-
   const items = [];
   for (const raw of body.items) {
     const productId = escapeText(raw.productId || "");
@@ -224,11 +155,6 @@ export async function onRequestPost({ request, env }) {
   const grandTotal = subtotal + shipCost;
 
   // Verify the transfer before taking stock, so a rejected slip leaves nothing behind.
-  const slipCheck = await verifySlip(env, slipImage, grandTotal);
-  if (slipCheck.checked && !slipCheck.ok && env.SLIP_VERIFY_ENFORCE === "1") {
-    return Response.json({ error: "slip_rejected", problems: slipCheck.problems }, { status: 400 });
-  }
-
   // Check stock for every item first - don't decrement anything if any item is short.
   const shortfalls = [];
   const currentStock = {};
@@ -264,12 +190,7 @@ export async function onRequestPost({ request, env }) {
     .join("\n");
   const shipLine = deliveryMethod === "pickup"
     ? "Self pickup (no shipping)"
-    : (shipping.free ? "Free (" + totalQty + "+ cans)" : (shipping.cost != null ? shipping.cost + " THB" : "Contact customer - over 30kg"));
-  const slipLine = !slipCheck.checked
-    ? "Payment slip: attached above (not auto-verified)"
-    : (slipCheck.ok
-        ? "Payment slip: VERIFIED" + (slipCheck.transRef ? " ref " + slipCheck.transRef : "")
-        : "Payment slip: NOT VERIFIED - " + (slipCheck.problems || []).join(", "));
+    : (shipping.cost != null ? shipping.cost + " THB" : "Contact customer - over 30kg");
 
   const text =
     "New Order #" + orderId + " - Srinuan Brewing\n\n" +
@@ -278,19 +199,19 @@ export async function onRequestPost({ request, env }) {
     (deliveryMethod === "pickup" ? "" : "Est. weight: " + shipping.weightKg + " kg\n") +
     "Shipping: " + shipLine + "\n" +
     "Total: " + grandTotal + " THB\n" +
-    slipLine + "\n\n" +
+    "AWAITING PAYMENT - slip not received yet" + "\n\n" +
     "Name: " + name + "\n" +
     "Phone: " + phone + "\n" +
     "Email: " + (email || "-") + "\n" +
     (deliveryMethod === "pickup" ? "Pickup: Self pickup at Tham Phanna, Nakhon Si Thammarat" : "Address: " + address);
 
-  await sendTelegram(env, text, slipImage);
+  await sendTelegram(env, text);
 
   if (lowStockAlerts.length) {
     const alertText =
       "⚠️ Low Stock Alert\n\n" +
       lowStockAlerts.map((a) => "  - " + a.productName + ": " + a.remaining + " left").join("\n");
-    await sendTelegram(env, alertText, null);
+    await sendTelegram(env, alertText);
   }
 
   const orderRecord = {
@@ -301,13 +222,12 @@ export async function onRequestPost({ request, env }) {
     email,
     address,
     deliveryMethod,
-    slipCheck: slipCheck.checked
-      ? { ok: slipCheck.ok, problems: slipCheck.problems || [], amountInSlip: slipCheck.amountInSlip || null, transRef: slipCheck.transRef || null }
-      : null,
     subtotal,
     shipping: shipCost,
     total: grandTotal,
-    status: "pending",
+    paid: false,
+    paidAt: null,
+    status: "awaiting_payment",
     trackingNumber: null,
     carrier: null,
     createdAt: new Date().toISOString()

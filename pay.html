@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>ชำระเงิน | Srinuan Brewing</title>
+<link rel="icon" href="images/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=45">
+<style>
+  body { min-height: 100vh; }
+  .pay-wrap { max-width: 520px; margin: 0 auto; padding: 70px 24px 100px; }
+  .pay-header { text-align: center; margin-bottom: 30px; }
+  .pay-header img { width: 42px; height: 42px; border-radius: 50%; margin-bottom: 18px; }
+  .pay-title { font-family: var(--font-display); font-size: 26px; margin: 0 0 8px; }
+  .pay-sub { color: var(--ink-muted); font-size: 14px; }
+  .pay-card {
+    background: var(--navy-900); border: 1px solid rgba(217,164,91,0.2);
+    border-radius: var(--radius); padding: 26px; margin-bottom: 20px;
+  }
+  .pay-card h2 { font-size: 16px; margin: 0 0 14px; color: var(--gold-400); }
+  .pay-form { display: flex; flex-direction: column; gap: 14px; }
+  .pay-form label { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--ink-muted); }
+  .pay-form input[type="text"], .pay-form input[type="tel"] {
+    padding: 11px 13px; border-radius: 10px; border: 1px solid rgba(245,236,217,0.2);
+    background: var(--navy-800); color: var(--cream-100); font-family: var(--font-body); font-size: 14.5px;
+  }
+  .pay-msg { font-size: 13.5px; min-height: 18px; }
+  .pay-msg--err { color: var(--danger); }
+  .pay-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 6px 0; color: var(--cream-200); }
+  .pay-row span:last-child { font-weight: 600; color: var(--gold-400); }
+  .pay-total { font-size: 26px; font-weight: 700; color: var(--gold-400); text-align: center; margin: 6px 0 18px; }
+  .pay-qr { background: #fff; border-radius: 12px; padding: 14px; width: 232px; margin: 0 auto 14px; }
+  .pay-qr svg { display: block; width: 100%; height: auto; }
+  .pay-note { font-size: 12.5px; color: var(--ink-muted); text-align: center; line-height: 1.7; }
+  .pay-upload {
+    border: 1px dashed rgba(217,164,91,0.45); border-radius: 12px; padding: 18px;
+    text-align: center; font-size: 13px; color: var(--ink-muted); cursor: pointer; display: block;
+  }
+  .pay-upload--error { border-color: var(--danger); }
+  .pay-upload input { display: none; }
+  #slip-preview img { max-width: 190px; border-radius: 10px; margin-top: 14px; }
+  .pay-done { text-align: center; }
+  .pay-done__mark { font-size: 40px; margin-bottom: 8px; color: var(--teal-400); }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="pay-wrap">
+  <div class="pay-header">
+    <a href="index.html"><img src="images/logo.png" alt="Srinuan Brewing"></a>
+    <h1 class="pay-title">ชำระเงิน</h1>
+    <p class="pay-sub">กรอกเลขออเดอร์และเบอร์โทรที่ใช้สั่งซื้อ เพื่อดูช่องทางชำระเงินของคุณ</p>
+  </div>
+
+  <!-- The order id + phone pair is the only key to this page; nothing about how
+       to pay is served until both match a real order. -->
+  <form class="pay-card pay-form" id="lookup-form">
+    <label>เลขออเดอร์<input type="text" name="orderId" placeholder="เช่น 20260909-B0C8F5" required></label>
+    <label>เบอร์โทรศัพท์<input type="tel" name="phone" required></label>
+    <button type="submit" class="btn btn--primary">ดูช่องทางชำระเงิน</button>
+    <p class="pay-msg" id="lookup-msg"></p>
+  </form>
+
+  <div class="pay-card hidden" id="pay-panel"></div>
+
+  <div class="pay-card hidden" id="slip-panel">
+    <h2>แนบสลิปโอนเงิน</h2>
+    <form class="pay-form" id="slip-form">
+      <label class="pay-upload" id="slip-upload">
+        แตะเพื่อเลือกรูปสลิป
+        <input type="file" id="slip-input" accept="image/*">
+      </label>
+      <div id="slip-preview"></div>
+      <button type="submit" class="btn btn--primary" id="slip-submit">ส่งสลิป</button>
+      <p class="pay-msg" id="slip-msg"></p>
+    </form>
+  </div>
+</div>
+
+<script src="js/vendor/qrcode.js"></script>
+<script>
+(function () {
+  "use strict";
+  var lookupForm = document.getElementById("lookup-form");
+  var lookupMsg = document.getElementById("lookup-msg");
+  var payPanel = document.getElementById("pay-panel");
+  var slipPanel = document.getElementById("slip-panel");
+  var slipForm = document.getElementById("slip-form");
+  var slipInput = document.getElementById("slip-input");
+  var slipUpload = document.getElementById("slip-upload");
+  var slipPreview = document.getElementById("slip-preview");
+  var slipSubmit = document.getElementById("slip-submit");
+  var slipMsg = document.getElementById("slip-msg");
+
+  var currentOrderId = "";
+  var currentPhone = "";
+  var slipDataUrl = null;
+  var slipEncoding = false;
+
+  function esc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function qrSvg(payload) {
+    var qr = qrcode(0, "M");
+    qr.addData(payload);
+    qr.make();
+    return qr.createSvgTag(5, 0);
+  }
+
+  function showPaid(orderId) {
+    payPanel.className = "pay-card pay-done";
+    payPanel.innerHTML =
+      '<div class="pay-done__mark">&#10003;</div>' +
+      "<h2>ได้รับสลิปของออเดอร์ #" + esc(orderId) + " แล้ว</h2>" +
+      '<p class="pay-note">ทางร้านกำลังตรวจสอบและจะติดต่อกลับเพื่อยืนยันอีกครั้งครับ<br>' +
+      'ติดตามสถานะได้ที่ <a href="track.html">หน้าติดตามคำสั่งซื้อ</a></p>';
+    payPanel.classList.remove("hidden");
+    slipPanel.classList.add("hidden");
+  }
+
+  function renderPayPanel(data) {
+    if (data.paid) { showPaid(data.orderId); return; }
+    payPanel.className = "pay-card";
+
+    var html =
+      "<h2>ออเดอร์ #" + esc(data.orderId) + "</h2>" +
+      '<p class="pay-note">ยอดที่ต้องชำระ</p>' +
+      '<p class="pay-total">' + esc(data.total) + " บาท</p>";
+
+    if (data.payload) {
+      html +=
+        '<div class="pay-qr">' + qrSvg(data.payload) + "</div>" +
+        '<p class="pay-note">สแกนด้วยแอปธนาคาร ยอดเงินถูกกรอกไว้ให้แล้ว<br>' +
+        "โอนแล้วแนบสลิปด้านล่างได้เลยครับ</p>";
+    } else {
+      html += '<p class="pay-note">ทางร้านจะติดต่อกลับเพื่อแจ้งช่องทางชำระเงินครับ</p>';
+    }
+    payPanel.innerHTML = html;
+    payPanel.classList.remove("hidden");
+    slipPanel.classList.toggle("hidden", !data.payload);
+  }
+
+  lookupForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    lookupMsg.textContent = "";
+    lookupMsg.className = "pay-msg";
+    var orderId = lookupForm.orderId.value.trim();
+    var phone = lookupForm.phone.value.trim();
+
+    fetch("/api/payment-info?id=" + encodeURIComponent(orderId) + "&phone=" + encodeURIComponent(phone), { cache: "no-store" })
+      .then(function (res) { return res.json().then(function (d) { return { status: res.status, data: d }; }); })
+      .then(function (r) {
+        if (r.status !== 200) {
+          lookupMsg.textContent = "ไม่พบคำสั่งซื้อ กรุณาตรวจสอบเลขออเดอร์และเบอร์โทรอีกครั้ง";
+          lookupMsg.className = "pay-msg pay-msg--err";
+          return;
+        }
+        currentOrderId = r.data.orderId;
+        currentPhone = phone;
+        renderPayPanel(r.data);
+      })
+      .catch(function () {
+        lookupMsg.textContent = "เชื่อมต่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+        lookupMsg.className = "pay-msg pay-msg--err";
+      });
+  });
+
+  // Resizing a phone photo takes a moment; lock the button while it runs so a
+  // fast tap cannot be rejected as "no slip attached".
+  function setSlipEncoding(on) {
+    slipEncoding = on;
+    slipSubmit.disabled = on;
+    slipSubmit.textContent = on ? "กำลังเตรียมรูป..." : "ส่งสลิป";
+  }
+
+  slipInput.addEventListener("change", function (e) {
+    var file = e.target.files[0];
+    slipUpload.classList.remove("pay-upload--error");
+    slipMsg.textContent = "";
+    slipDataUrl = null;
+    slipPreview.innerHTML = "";
+    if (!file) { setSlipEncoding(false); return; }
+
+    setSlipEncoding(true);
+    function fail() {
+      slipDataUrl = null;
+      setSlipEncoding(false);
+      slipMsg.className = "pay-msg pay-msg--err";
+      slipMsg.textContent = "อ่านไฟล์รูปไม่สำเร็จ กรุณาเลือกรูปใหม่";
+      slipUpload.classList.add("pay-upload--error");
+    }
+    var img = new Image();
+    var reader = new FileReader();
+    reader.onerror = fail;
+    img.onerror = fail;
+    reader.onload = function (ev) {
+      img.onload = function () {
+        try {
+          var scale = Math.min(1, 900 / img.width);
+          var canvas = document.createElement("canvas");
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+          slipDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+          slipPreview.innerHTML = '<img src="' + slipDataUrl + '" alt="slip">';
+          setSlipEncoding(false);
+        } catch (err) { fail(); }
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  slipForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    slipMsg.textContent = "";
+    slipMsg.className = "pay-msg";
+    if (slipEncoding) {
+      slipMsg.className = "pay-msg pay-msg--err";
+      slipMsg.textContent = "กำลังเตรียมรูปสลิป กรุณารอสักครู่";
+      return;
+    }
+    if (!slipDataUrl) {
+      slipMsg.className = "pay-msg pay-msg--err";
+      slipMsg.textContent = "กรุณาเลือกรูปสลิปก่อนส่ง";
+      slipUpload.classList.add("pay-upload--error");
+      return;
+    }
+    slipSubmit.disabled = true;
+    slipSubmit.textContent = "กำลังส่ง...";
+
+    fetch("/api/submit-slip", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ orderId: currentOrderId, phone: currentPhone, slipImage: slipDataUrl })
+    })
+      .then(function (res) { return res.json().then(function (d) { return { status: res.status, data: d }; }); })
+      .then(function (r) {
+        if (r.status === 200 && r.data.ok) { showPaid(r.data.orderId); return; }
+        slipSubmit.disabled = false;
+        slipSubmit.textContent = "ส่งสลิป";
+        slipMsg.className = "pay-msg pay-msg--err";
+        slipMsg.textContent = r.data.error === "slip_too_large"
+          ? "ไฟล์รูปใหญ่เกินไป กรุณาเลือกรูปที่เล็กลง"
+          : "ส่งสลิปไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+      })
+      .catch(function () {
+        slipSubmit.disabled = false;
+        slipSubmit.textContent = "ส่งสลิป";
+        slipMsg.className = "pay-msg pay-msg--err";
+        slipMsg.textContent = "เชื่อมต่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+      });
+  });
+
+  // The confirmation email links straight here with both values filled in.
+  var params = new URLSearchParams(location.search);
+  if (params.get("id") && params.get("phone")) {
+    lookupForm.orderId.value = params.get("id");
+    lookupForm.phone.value = params.get("phone");
+    lookupForm.dispatchEvent(new Event("submit"));
+  }
+})();
+</script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "11c3134f9000445daf03bdaf63dba18e"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

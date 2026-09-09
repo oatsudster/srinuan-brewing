@@ -6,7 +6,7 @@
 <title>Admin | Srinuan Brewing</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=44">
+<link rel="stylesheet" href="css/style.css?v=45">
 <style>
   body { min-height: 100vh; }
   .admin-wrap { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
@@ -52,6 +52,7 @@
   .order-card__id { font-family: var(--font-display); font-size: 15px; color: var(--gold-400); }
   .order-card__status { font-size: 11px; padding: 3px 10px; border-radius: 999px; font-weight: 600; text-transform: uppercase; }
   .order-card__status.pending { background: rgba(217,164,91,0.15); color: var(--gold-400); }
+  .order-card__status.awaiting_payment { background: rgba(192,85,63,0.16); color: var(--danger); }
   .order-card__status.shipped { background: rgba(63,122,118,0.18); color: var(--teal-400); }
   .order-card__items { font-size: 13px; color: var(--cream-200); margin: 0 0 8px; }
   .order-card__meta { font-size: 12.5px; color: var(--ink-muted); margin: 0 0 4px; }
@@ -141,7 +142,7 @@
   <div class="admin-logout"><a id="logout-link">Log out</a></div>
 </div>
 
-<script src="js/products.js?v=44"></script>
+<script src="js/products.js?v=45"></script>
 <script>
 (function () {
   "use strict";
@@ -291,9 +292,10 @@
     var stock = await stockRes.json();
 
     var totalOrders = orders.length;
-    var totalRevenue = orders.reduce(function (sum, o) { return sum + (o.total || 0); }, 0);
-    var pendingCount = orders.filter(function (o) { return o.status !== "shipped"; }).length;
-    var shippedCount = totalOrders - pendingCount;
+    var totalRevenue = orders.reduce(function (sum, o) { return sum + (o.paid ? (o.total || 0) : 0); }, 0);
+    var unpaidCount = orders.filter(function (o) { return !o.paid; }).length;
+    var shippedCount = orders.filter(function (o) { return o.status === "shipped"; }).length;
+    var pendingCount = orders.filter(function (o) { return o.paid && o.status !== "shipped"; }).length;
 
     var qtyByProduct = {};
     orders.forEach(function (o) {
@@ -315,7 +317,8 @@
       '<div class="stat-grid">' +
         '<div class="stat-card"><div class="stat-card__label">Total Orders</div><div class="stat-card__value">' + totalOrders + "</div></div>" +
         '<div class="stat-card"><div class="stat-card__label">Total Revenue</div><div class="stat-card__value">' + totalRevenue.toLocaleString() + " THB</div></div>" +
-        '<div class="stat-card"><div class="stat-card__label">Pending</div><div class="stat-card__value">' + pendingCount + '</div><div class="stat-card__sub">awaiting shipment</div></div>' +
+        '<div class="stat-card"><div class="stat-card__label">Unpaid</div><div class="stat-card__value">' + unpaidCount + '</div><div class="stat-card__sub">awaiting payment</div></div>' +
+        '<div class="stat-card"><div class="stat-card__label">Pending</div><div class="stat-card__value">' + pendingCount + '</div><div class="stat-card__sub">paid, awaiting shipment</div></div>' +
         '<div class="stat-card"><div class="stat-card__label">Shipped</div><div class="stat-card__value">' + shippedCount + "</div></div>" +
       "</div>";
 
@@ -350,13 +353,10 @@
     orders.forEach(function (o) { ordersList.appendChild(orderCard(o)); });
   }
 
-  function slipBadge(o) {
-    if (!o.slipCheck) return '<span class="slip-badge none">slip not auto-checked</span>';
-    if (o.slipCheck.ok) {
-      return '<span class="slip-badge ok">slip verified' +
-             (o.slipCheck.transRef ? " - " + esc(o.slipCheck.transRef) : "") + "</span>";
-    }
-    return '<span class="slip-badge bad">slip NOT verified: ' + esc((o.slipCheck.problems || []).join(", ")) + "</span>";
+  function payBadge(o) {
+    if (!o.paid) return '<span class="slip-badge bad">awaiting payment - no slip yet</span>';
+    var when = o.paidAt ? " - " + new Date(o.paidAt).toLocaleString() : "";
+    return '<span class="slip-badge ok">slip received' + esc(when) + "</span>";
   }
 
   function orderCard(o) {
@@ -369,7 +369,7 @@
         '<span class="order-card__id">#' + esc(o.id) + "</span>" +
         '<span class="order-card__status ' + esc(o.status) + '">' + esc(o.status) + "</span>" +
       "</div>" +
-      slipBadge(o) +
+      payBadge(o) +
       '<p class="order-card__items">' + itemsText + "</p>" +
       '<p class="order-card__meta">' + esc(o.name) + " · " + esc(o.phone) + (o.email ? " · " + esc(o.email) : "") + "</p>" +
       '<p class="order-card__meta">' + (o.deliveryMethod === "pickup" ? "🚶 Self Pickup" : esc(o.address)) + "</p>" +
