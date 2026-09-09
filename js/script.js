@@ -9,7 +9,6 @@
       "nav.story": "Our Story",
       "nav.events": "Events",
       "nav.contact": "Contact",
-      "nav.track": "Track Order",
       "hero.eyebrow": "EST. 2023",
       "hero.tagline": "Small-batch craft beer with a feline soul.<br>Brewed in Nakhon Si Thammarat since 2023.",
       "hero.cta1": "See All Beers",
@@ -29,7 +28,6 @@
       "events.title": "Bring Srinuan to Your Event",
       "events.desc": "Hosting a private party, wedding, or corporate event?<br>We bring our draft beer tap setup to you, fully stocked and ready to pour.",
       "events.kegLabel": "Keg (20L)",
-      "events.kegPrice": "Starting from 4,000 THB / keg",
       "events.kegServings": "~60 servings (300ml glass)",
       "events.note": "Flavors available: same lineup as our canned beers.<br>Looking for something specific? Contact us to discuss.",
       "events.cta": "Contact Us to Book",
@@ -43,62 +41,15 @@
       "modal.abv": "ABV",
       "modal.ibu": "IBU",
       "modal.color": "Color",
-      "order.button": "Order Now",
       "order.soldOut": "Sold Out",
+      "catalog.contactCta": "Ask about this beer",
       "order.inStock": "In stock",
-      "order.title": "Place an Order",
-      "order.name": "Full Name",
-      "order.phone": "Phone Number",
-      "order.email": "Email (for tracking updates)",
-      "order.emailPlaceholder": "you@example.com",
-      "order.errorSlipRejected": "We could not verify that payment slip. Please check the amount and upload the real slip, or contact us.",
-      "order.errorSlipRead": "Could not read that image. Please try another file.",
-      "order.slipProcessing": "Processing slip...",
-      "cart.stockChanged": "Some items were adjusted — stock changed while you were shopping. Please check the total before paying.",
-      "cart.allSoldOut": "Sorry, those items just sold out.",
-      "order.deliveryMethod": "How would you like to receive it?",
-      "order.deliveryEms": "Delivery (Thailand Post EMS)",
-      "order.pickup": "Self Pickup",
-      "order.pickupHint": "Pick up in person at Tham Phanna, Nakhon Si Thammarat — no shipping cost. We'll confirm a pickup time with you.",
-      "order.address": "Delivery Address",
-      "order.addressLine": "House No. / Village",
-      "order.addressLinePlaceholder": "e.g. 663 Moo 1",
-      "order.subdistrict": "Sub-district",
-      "order.district": "District",
-      "order.province": "Province",
-      "order.postalCode": "Postal Code",
-      "order.quantity": "Quantity",
-      "order.submit": "Send Order",
-      "order.sending": "Sending...",
-      "order.success": "Order sent! We'll contact you shortly to confirm.",
-      "order.successTitle": "Order received!",
-      "order.successId": "Your order number",
-      "order.successKeep": "Keep this number to check your delivery status.",
-      "order.successTrack": "Check order status",
-      "order.addressHint": "Fill each box separately - no need to type the full address in one field.",
-      "order.errorInsufficient": "Sorry, only {n} left in stock.",
-      "order.errorGeneric": "Something went wrong. Please try again.",
-      "order.close": "Close",
-      "cart.items": "{n} in cart",
-      "cart.confirm": "Confirm Order",
-      "cart.free": "Free",
-      "cart.baht": "THB",
-      "cart.subtotal": "Items",
-      "cart.total": "Total",
-      "cart.weight": "Est. weight",
-      "cart.shipping": "Est. shipping (Thailand Post EMS)",
-      "cart.shipContactUs": "Contact us for a quote",
-      "cart.payNotice": "After you send this order we will email you the payment details and a private link to upload your transfer slip.",
-      "cart.shippingPickup": "Shipping",
-      "cart.kg": "kg",
-      "cart.pickupFree": "Free (self pickup)"
     },
     th: {
       "nav.products": "สินค้า",
       "nav.story": "เรื่องราว",
       "nav.events": "งานอีเวนต์",
       "nav.contact": "ติดต่อ",
-      "nav.track": "เช็คสถานะออเดอร์",
       "hero.eyebrow": "ก่อตั้ง 2023",
       "hero.tagline": "คราฟต์เบียร์โฮมเมด กลิ่นอายแมวเหมียว<br>ผลิตแบบ small-batch ที่นครศรีธรรมราช ตั้งแต่ปี 2023",
       "hero.cta1": "ดูสินค้าทั้งหมด",
@@ -118,7 +69,6 @@
       "events.title": "พาศรีนวลไปงานของคุณ",
       "events.desc": "จัดปาร์ตี้ส่วนตัว งานแต่ง หรืองานอีเวนต์บริษัท?<br>เรายกชุดก๊อกเบียร์สดพร้อมเบียร์ไปให้ถึงหน้างาน",
       "events.kegLabel": "ถังเคก (20 ลิตร)",
-      "events.kegPrice": "เริ่มต้น 4,000 บาท/ถัง",
       "events.kegServings": "เสิร์ฟได้ประมาณ 60 แก้ว (แก้วขนาด 300 มล.)",
       "events.note": "รสชาติมีให้เลือกตามไลน์เบียร์กระป๋องของเรา<br>หากต้องการรสชาติอื่นเพิ่มเติม ติดต่อสอบถามได้เลย",
       "events.cta": "ติดต่อจองคิวงาน",
@@ -132,55 +82,9 @@
       "modal.abv": "แอลกอฮอล์",
       "modal.ibu": "ความขม (IBU)",
       "modal.color": "สี",
-      "order.button": "สั่งซื้อ",
       "order.soldOut": "สินค้าหมด",
+      "catalog.contactCta": "สอบถามเกี่ยวกับเบียร์ตัวนี้",
       "order.inStock": "คงเหลือ",
-      "order.title": "สั่งซื้อสินค้า",
-      "order.name": "ชื่อ-นามสกุล",
-      "order.phone": "เบอร์โทรศัพท์",
-      "order.email": "อีเมล (สำหรับแจ้งเลขพัสดุ)",
-      "order.emailPlaceholder": "you@example.com",
-      "order.errorSlipRejected": "ระบบตรวจสอบสลิปไม่ผ่าน กรุณาตรวจสอบยอดเงินและแนบสลิปตัวจริง หรือติดต่อทางร้าน",
-      "order.errorSlipRead": "อ่านไฟล์รูปไม่ได้ กรุณาเลือกไฟล์อื่น",
-      "order.slipProcessing": "กำลังประมวลผลสลิป...",
-      "cart.stockChanged": "มีบางรายการถูกปรับจำนวน เนื่องจากสต็อกเปลี่ยนระหว่างที่คุณเลือกซื้อ กรุณาตรวจสอบยอดรวมก่อนชำระเงิน",
-      "cart.allSoldOut": "ขออภัย สินค้าที่เลือกเพิ่งหมดพอดี",
-      "order.deliveryMethod": "เลือกวิธีรับสินค้า",
-      "order.deliveryEms": "จัดส่งทางไปรษณีย์ (EMS)",
-      "order.pickup": "มารับด้วยตนเอง",
-      "order.pickupHint": "มารับสินค้าด้วยตนเองที่ถ้ำพรรณรา จ.นครศรีธรรมราช ไม่เสียค่าส่ง ทางร้านจะติดต่อนัดเวลารับสินค้า",
-      "order.address": "ที่อยู่จัดส่ง",
-      "order.addressLine": "เลขที่/หมู่บ้าน",
-      "order.addressLinePlaceholder": "เช่น 663 หมู่ 1",
-      "order.subdistrict": "ตำบล/แขวง",
-      "order.district": "อำเภอ/เขต",
-      "order.province": "จังหวัด",
-      "order.postalCode": "รหัสไปรษณีย์",
-      "order.quantity": "จำนวน",
-      "order.submit": "ส่งคำสั่งซื้อ",
-      "order.sending": "กำลังส่ง...",
-      "order.success": "ส่งคำสั่งซื้อแล้ว! ทางร้านจะติดต่อกลับเพื่อยืนยันเร็วๆ นี้",
-      "order.successTitle": "รับคำสั่งซื้อแล้ว!",
-      "order.successId": "เลขออเดอร์ของคุณ",
-      "order.successKeep": "กรุณาเก็บเลขนี้ไว้ สำหรับเช็คสถานะการจัดส่ง",
-      "order.successTrack": "เช็คสถานะออเดอร์",
-      "order.addressHint": "กรอกแยกทีละช่อง ไม่ต้องพิมพ์ที่อยู่เต็มในช่องเดียว",
-      "order.errorInsufficient": "ขออภัย เหลือสินค้าเพียง {n} ชิ้น",
-      "order.errorGeneric": "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
-      "order.close": "ปิด",
-      "cart.items": "ในตะกร้า {n} ชิ้น",
-      "cart.confirm": "ยืนยันการสั่งซื้อ",
-      "cart.free": "ฟรี",
-      "cart.baht": "บาท",
-      "cart.subtotal": "ค่าสินค้า",
-      "cart.total": "ยอดรวมทั้งหมด",
-      "cart.weight": "น้ำหนักโดยประมาณ",
-      "cart.shipping": "ค่าจัดส่งโดยประมาณ (ไปรษณีย์ไทย EMS)",
-      "cart.shipContactUs": "ติดต่อร้านเพื่อสอบถามค่าส่ง",
-      "cart.payNotice": "หลังกดสั่งซื้อ ทางร้านจะส่งช่องทางชำระเงินและลิงก์สำหรับแนบสลิปไปทางอีเมลของคุณ",
-      "cart.shippingPickup": "ค่าจัดส่ง",
-      "cart.kg": "กก.",
-      "cart.pickupFree": "ฟรี (มารับเอง)"
     }
   };
 
@@ -193,10 +97,6 @@
   // The checkout screen always renders in Thai, whatever the site toggle says:
   // buyers are filling in a Thai name and address, so Thai labels are easier to
   // read and fill in. Site chrome still follows the EN/TH switch.
-  function tTh(key) {
-    return (i18n.th && i18n.th[key]) || t(key);
-  }
-
   function applyStaticText() {
     document.documentElement.lang = currentLang;
     document.querySelectorAll("[data-i18n]").forEach(function (el) {
@@ -218,7 +118,6 @@
     applyStaticText();
     renderFilters();
     renderGrid(currentFilter);
-    renderCartBar();
   }
 
   /* ---------- Age Gate ---------- */
@@ -316,106 +215,10 @@
     return STOCK[id] != null ? STOCK[id] : null;
   }
 
-  /* ---------- Cart ---------- */
-  var CART = {};
-
-  function cartQtyOf(id) { return CART[id] || 0; }
-
-  function cartTotalQty() {
-    return Object.keys(CART).reduce(function (sum, id) { return sum + CART[id]; }, 0);
-  }
-
-  function setCartQty(id, qty) {
-    var stock = stockOf(id);
-    var max = stock != null ? stock : 99;
-    qty = Math.max(0, Math.min(qty, max));
-    if (qty <= 0) { delete CART[id]; } else { CART[id] = qty; }
-    renderCartBar();
-  }
-
-  function clampCartToStock() {
-    var changed = false;
-    Object.keys(CART).forEach(function (id) {
-      var stock = stockOf(id);
-      if (stock == null) return;
-      if (CART[id] > stock) {
-        changed = true;
-        if (stock <= 0) { delete CART[id]; } else { CART[id] = stock; }
-      }
-    });
-    return changed;
-  }
-
-  // Re-check stock right before checkout: the customer is about to scan the QR
-  // and pay, so the amount must reflect stock as it is now, not at page load.
-  function openCheckoutFlow() {
-    if (!cartTotalQty()) return;
-    fetchStock().then(function () {
-      var changed = clampCartToStock();
-      renderCartBar();
-      renderGrid(currentFilter);
-      if (!cartTotalQty()) { alert(tTh("cart.allSoldOut")); return; }
-      openCheckoutModal();
-      if (changed) {
-        var msgEl = document.getElementById("order-form-msg");
-        if (msgEl) {
-          msgEl.className = "order-form__msg order-form__msg--err";
-          msgEl.textContent = tTh("cart.stockChanged");
-        }
-      }
-    });
-  }
-
   function stockLineHtml(p) {
     var stock = stockOf(p.id);
     if (!stockLoaded || stock == null || stock <= 0) return "";
     return '<p class="product-card__stock">' + t("order.inStock") + ": " + stock + "</p>";
-  }
-
-  function stepperHtml(p) {
-    var stock = stockOf(p.id);
-    var soldOut = stockLoaded && stock != null && stock <= 0;
-    if (soldOut) {
-      return '<div class="stepper stepper--soldout">' + t("order.soldOut") + "</div>";
-    }
-    var qty = cartQtyOf(p.id);
-    return (
-      '<div class="stepper" data-id="' + p.id + '">' +
-        '<button class="stepper__btn" data-step="-1" ' + (qty <= 0 ? "disabled" : "") + '>&minus;</button>' +
-        '<span class="stepper__qty">' + qty + "</span>" +
-        '<button class="stepper__btn" data-step="1">+</button>' +
-      "</div>"
-    );
-  }
-
-  function refreshSteppers() {
-    document.querySelectorAll(".stepper[data-id]").forEach(function (el) {
-      var id = el.dataset.id;
-      var qty = cartQtyOf(id);
-      var qtyEl = el.querySelector(".stepper__qty");
-      if (qtyEl) qtyEl.textContent = qty;
-      var decBtn = el.querySelector('[data-step="-1"]');
-      if (decBtn) decBtn.disabled = qty <= 0;
-    });
-  }
-
-  /* ---------- Cart bar ---------- */
-  var cartBar = document.getElementById("cart-bar");
-
-  function renderCartBar() {
-    var total = cartTotalQty();
-    if (total <= 0) {
-      cartBar.classList.add("hidden");
-      cartBar.innerHTML = "";
-      refreshSteppers();
-      return;
-    }
-    cartBar.classList.remove("hidden");
-    cartBar.innerHTML =
-      '<span class="cart-bar__count">' + t("cart.items").replace("{n}", "<strong>" + total + "</strong>") + "</span>" +
-      '<button class="cart-bar__btn" id="cart-confirm-btn">' + t("cart.confirm") + "</button>";
-    document.getElementById("cart-confirm-btn").addEventListener("click", openCheckoutFlow);
-    refreshSteppers();
   }
 
   var BADGE_ICONS = {
@@ -444,39 +247,19 @@
     return '<div class="soldout-ribbon">' + t("order.soldOut") + "</div>";
   }
 
-  function priceTagHtml(p) {
-    var price = priceOf(p.id);
-    if (!price) return "";
-    return '<div class="price-tag">' + price + " " + t("cart.baht") + "</div>";
-  }
-
   function cardTemplate(p) {
     var name = p.name[currentLang] || p.name.en;
     var style = p.style[currentLang] || p.style.en;
     return (
       '<article class="product-card' + (isSoldOut(p) ? " product-card--soldout" : "") + '" data-id="' + p.id + '">' +
         badgeRow(p) +
-        priceTagHtml(p) +
         '<div class="product-card__img-wrap"><img src="' + p.image + '" alt="' + name + '" loading="lazy">' + soldOutRibbonHtml(p) + "</div>" +
         '<p class="product-card__style">' + style + "</p>" +
         '<h3 class="product-card__name">' + name + "</h3>" +
         '<div class="product-card__specs">' + abvIbuColorRow(p) + "</div>" +
         stockLineHtml(p) +
-        '<div class="product-card__order">' + stepperHtml(p) + "</div>" +
       "</article>"
     );
-  }
-
-  function bindSteppers(root) {
-    root.querySelectorAll(".stepper[data-id]").forEach(function (el) {
-      el.querySelectorAll("[data-step]").forEach(function (btn) {
-        btn.addEventListener("click", function (e) {
-          e.stopPropagation();
-          var id = el.dataset.id;
-          setCartQty(id, cartQtyOf(id) + parseInt(btn.dataset.step, 10));
-        });
-      });
-    });
   }
 
   function renderGrid(filter) {
@@ -486,12 +269,8 @@
     }
     grid.innerHTML = items.map(cardTemplate).join("");
     grid.querySelectorAll(".product-card").forEach(function (card) {
-      card.addEventListener("click", function (e) {
-        if (e.target.closest(".stepper")) return;
-        openModal(card.dataset.id);
-      });
+      card.addEventListener("click", function () { openModal(card.dataset.id); });
     });
-    bindSteppers(grid);
   }
 
   /* ---------- Modal ---------- */
@@ -528,13 +307,14 @@
           '<div class="modal__tags">' + aroma.map(function (a) { return '<span class="modal__tag">' + a + "</span>"; }).join("") + "</div>" +
           '<p class="modal__section-label">' + t("modal.taste") + '</p>' +
           '<p class="modal__desc">' + taste + "</p>" +
-          '<div class="modal__order">' + stepperHtml(p) + stockLineHtml(p) + "</div>" +
+          '<div class="modal__order">' + stockLineHtml(p) +
+            '<a class="btn btn--primary modal__contact" href="#contact">' + t("catalog.contactCta") + "</a></div>" +
         "</div>" +
       "</div>";
     modal.classList.remove("hidden");
     document.body.style.overflow = "hidden";
     document.getElementById("modal-close").addEventListener("click", closeModal);
-    bindSteppers(modalCard);
+    modalCard.querySelector(".modal__contact").addEventListener("click", closeModal);
   }
 
   function closeModal() {
@@ -544,279 +324,12 @@
 
   modalBackdrop.addEventListener("click", closeModal);
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") { closeModal(); closeOrderModal(); }
+    if (e.key === "Escape") closeModal();
   });
-
-  /* ---------- Checkout Modal (cart) ---------- */
-  var orderModal = document.getElementById("order-modal");
-  var orderModalCard = document.getElementById("order-modal-card");
-  var orderModalBackdrop = document.getElementById("order-modal-backdrop");
-
-  function cartLineItems() {
-    return Object.keys(CART).map(function (id) {
-      var p = PRODUCTS.find(function (x) { return x.id === id; });
-      return { product: p, qty: CART[id] };
-    }).filter(function (line) { return line.product; });
-  }
-
-  function cartSubtotal(lines) {
-    return lines.reduce(function (sum, line) { return sum + priceOf(line.product.id) * line.qty; }, 0);
-  }
-
-  function cartSummaryHtml(lines, deliveryMethod) {
-    var totalQty = lines.reduce(function (s, l) { return s + l.qty; }, 0);
-    var est = estimateShipping(totalQty);
-    var subtotal = cartSubtotal(lines);
-    var isPickup = deliveryMethod === "pickup";
-    var shipCost = isPickup ? 0 : (est.free ? 0 : (est.cost || 0));
-    var grandTotal = subtotal + shipCost;
-    var shipText = isPickup
-      ? tTh("cart.pickupFree")
-      : (est.free ? tTh("cart.free") : (est.cost != null ? est.cost + " " + tTh("cart.baht") : tTh("cart.shipContactUs")));
-    return (
-      '<div class="cart-summary__row"><span>' + tTh("cart.subtotal") + "</span><span>" + subtotal + " " + tTh("cart.baht") + "</span></div>" +
-      (!isPickup ? '<div class="cart-summary__row"><span>' + tTh("cart.weight") + "</span><span>" + est.weightKg + " " + tTh("cart.kg") + "</span></div>" : "") +
-      '<div class="cart-summary__row"><span>' + (isPickup ? tTh("cart.shippingPickup") : tTh("cart.shipping")) + "</span><span>" + shipText + "</span></div>" +
-      '<div class="cart-summary__row cart-summary__row--total"><span>' + tTh("cart.total") + "</span><span>" + grandTotal + " " + tTh("cart.baht") + "</span></div>" +
-      ""
-    );
-  }
-
-  var checkoutDeliveryMethod = "delivery";
-
-  function openCheckoutModal() {
-    var lines = cartLineItems();
-    if (!lines.length) return;
-    var totalQty = cartTotalQty();
-    checkoutDeliveryMethod = "delivery";
-
-    var itemsHtml = lines.map(function (line) {
-      // Product names stay English so the customer, the Telegram alert and the
-      // admin list all refer to a beer by exactly the same name.
-      var name = line.product.name.en || line.product.name.th;
-      var style = line.product.style.en || line.product.style.th;
-      var price = priceOf(line.product.id);
-      return (
-        '<div class="cart-item" data-id="' + line.product.id + '">' +
-          '<img src="' + line.product.image + '" alt="' + name + '">' +
-          '<div class="cart-item__info"><h4>' + name + " (" + style + ")</h4>" +
-            '<span class="cart-item__price">' + price + " " + tTh("cart.baht") + " &middot; " + line.product.abv + "% ABV</span></div>" +
-          '<div class="stepper stepper--sm" data-id="' + line.product.id + '">' +
-            '<button class="stepper__btn" data-step="-1">&minus;</button>' +
-            '<span class="stepper__qty">' + line.qty + "</span>" +
-            '<button class="stepper__btn" data-step="1">+</button>' +
-          "</div>" +
-        "</div>"
-      );
-    }).join("");
-
-    orderModalCard.innerHTML =
-      '<button class="modal__close" id="order-modal-close">&times;</button>' +
-      '<div class="order-form">' +
-        '<h4 class="order-form__title">' + tTh("order.title") + "</h4>" +
-        '<div class="cart-list" id="cart-list">' + itemsHtml + "</div>" +
-        '<div class="cart-summary" id="cart-summary">' + cartSummaryHtml(lines, checkoutDeliveryMethod) + "</div>" +
-        '<div class="delivery-choice">' +
-          '<p class="delivery-choice__title">' + tTh("order.deliveryMethod") + "</p>" +
-          '<div class="delivery-method">' +
-            '<label class="delivery-method__option">' +
-              '<input type="radio" name="deliveryMethod" value="delivery" checked>' +
-              '<span>' + tTh("order.deliveryEms") + "</span>" +
-            "</label>" +
-            '<label class="delivery-method__option">' +
-              '<input type="radio" name="deliveryMethod" value="pickup">' +
-              '<span>' + tTh("order.pickup") + "</span>" +
-            "</label>" +
-          "</div>" +
-          '<p class="delivery-method__hint" id="pickup-hint" style="display:none">' + tTh("order.pickupHint") + "</p>" +
-        "</div>" +
-        '<p class="pay-notice">' + tTh("cart.payNotice") + "</p>" +
-        '<form id="order-form">' +
-          '<label>' + tTh("order.name") + '<input type="text" name="name" required></label>' +
-          '<label>' + tTh("order.phone") + '<input type="tel" name="phone" required></label>' +
-          '<label>' + tTh("order.email") + '<input type="email" name="email" placeholder="' + tTh("order.emailPlaceholder") + '" required></label>' +
-          '<div class="order-form__address-group" id="address-group">' +
-            '<p class="order-form__address-title">' + tTh("order.address") + '</p>' +
-            '<p class="order-form__address-hint">' + tTh("order.addressHint") + '</p>' +
-            '<label>' + tTh("order.addressLine") + '<input type="text" name="addressLine" placeholder="' + tTh("order.addressLinePlaceholder") + '" required></label>' +
-            '<div class="order-form__address-row">' +
-              '<label>' + tTh("order.subdistrict") + '<input type="text" name="subdistrict" required></label>' +
-              '<label>' + tTh("order.district") + '<input type="text" name="district" required></label>' +
-            "</div>" +
-            '<div class="order-form__address-row">' +
-              '<label>' + tTh("order.province") + '<input type="text" name="province" required></label>' +
-              '<label>' + tTh("order.postalCode") + '<input type="text" name="postalCode" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required></label>' +
-            "</div>" +
-          "</div>" +
-          '<button type="submit" class="btn btn--primary order-form__submit">' + tTh("order.submit") + "</button>" +
-          '<p class="order-form__msg" id="order-form-msg"></p>' +
-        "</form>" +
-      "</div>";
-
-    orderModal.classList.remove("hidden");
-    document.body.style.overflow = "hidden";
-    document.getElementById("order-modal-close").addEventListener("click", closeOrderModal);
-
-    var cartListEl = document.getElementById("cart-list");
-    cartListEl.querySelectorAll(".stepper[data-id]").forEach(function (el) {
-      el.querySelectorAll("[data-step]").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          var id = el.dataset.id;
-          setCartQty(id, cartQtyOf(id) + parseInt(btn.dataset.step, 10));
-          refreshCheckoutModal();
-        });
-      });
-    });
-
-    document.querySelectorAll('input[name="deliveryMethod"]').forEach(function (radio) {
-      radio.addEventListener("change", function () {
-        checkoutDeliveryMethod = radio.value;
-        updateDeliveryUI();
-        refreshCheckoutModal();
-      });
-    });
-
-    document.getElementById("order-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      submitOrder(e.target);
-    });
-
-  }
-
-  function updateDeliveryUI() {
-    var isPickup = checkoutDeliveryMethod === "pickup";
-    var group = document.getElementById("address-group");
-    var hint = document.getElementById("pickup-hint");
-    if (group) {
-      group.style.display = isPickup ? "none" : "";
-      group.querySelectorAll("input").forEach(function (inp) { inp.required = !isPickup; });
-    }
-    if (hint) hint.style.display = isPickup ? "" : "none";
-  }
-
-  function refreshCheckoutModal() {
-    var lines = cartLineItems();
-    if (!lines.length) { closeOrderModal(); return; }
-    orderModalCard.querySelectorAll(".cart-item[data-id]").forEach(function (el) {
-      if (!CART[el.dataset.id]) el.remove();
-    });
-    lines.forEach(function (line) {
-      var row = orderModalCard.querySelector('.cart-item[data-id="' + line.product.id + '"] .stepper__qty');
-      if (row) row.textContent = line.qty;
-    });
-    var summaryEl = document.getElementById("cart-summary");
-    if (summaryEl) summaryEl.innerHTML = cartSummaryHtml(lines, checkoutDeliveryMethod);
-    var totalQty = lines.reduce(function (s, l) { return s + l.qty; }, 0);
-    var est = estimateShipping(totalQty);
-    var isPickup = checkoutDeliveryMethod === "pickup";
-    var shipCost = isPickup ? 0 : (est.free ? 0 : (est.cost || 0));
-  }
-
-  function closeOrderModal() {
-    orderModal.classList.add("hidden");
-    document.body.style.overflow = "";
-  }
-
-  function submitOrder(formEl) {
-    var lines = cartLineItems();
-    if (!lines.length) return;
-    var msgEl = document.getElementById("order-form-msg");
-    var submitBtn = formEl.querySelector(".order-form__submit");
-
-    var items = lines.map(function (line) {
-      // Records keep the canonical English name so Telegram, the admin list and
-      // the best-seller totals stay consistent with older orders.
-      var name = line.product.name.en || line.product.name.th;
-      return { productId: line.product.id, productName: name, quantity: line.qty };
-    });
-
-    var isPickup = checkoutDeliveryMethod === "pickup";
-    var address = isPickup ? "" : [
-      formEl.addressLine.value.trim(),
-      "ต." + formEl.subdistrict.value.trim(),
-      "อ." + formEl.district.value.trim(),
-      "จ." + formEl.province.value.trim(),
-      formEl.postalCode.value.trim()
-    ].join(" ");
-
-    var payload = {
-      items: items,
-      name: formEl.name.value,
-      phone: formEl.phone.value,
-      email: formEl.email.value,
-      address: address,
-      deliveryMethod: checkoutDeliveryMethod
-    };
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = tTh("order.sending");
-    msgEl.className = "order-form__msg";
-    msgEl.textContent = "";
-
-    fetch("/api/order", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload)
-    })
-      .then(function (res) { return res.json().then(function (data) { return { status: res.status, data: data }; }); })
-      .then(function (result) {
-        if (result.status === 200 && result.data.ok) {
-          Object.keys(result.data.remaining || {}).forEach(function (id) { STOCK[id] = result.data.remaining[id]; });
-          msgEl.className = "order-form__msg order-form__msg--ok";
-          // The order number is the only way a customer can use the tracking
-          // page later, so put it on screen rather than a generic "sent".
-          msgEl.innerHTML =
-            '<span class="order-done__title">' + tTh("order.successTitle") + "</span>" +
-            '<span class="order-done__label">' + tTh("order.successId") + "</span>" +
-            '<span class="order-done__id">#' + String(result.data.orderId || "").replace(/[^A-Za-z0-9-]/g, "") + "</span>" +
-            '<span class="order-done__keep">' + tTh("order.successKeep") + "</span>" +
-            '<a class="order-done__track" href="track.html">' + tTh("order.successTrack") + "</a>";
-          formEl.reset();
-          formEl.querySelectorAll("input,textarea,button").forEach(function (el) { el.disabled = true; });
-          CART = {};
-          renderCartBar();
-          renderGrid(currentFilter);
-        } else if (result.status === 409) {
-          msgEl.className = "order-form__msg order-form__msg--err";
-          var shortfall = (result.data.shortfalls || [])[0];
-          msgEl.textContent = shortfall
-            ? tTh("order.errorInsufficient").replace("{n}", shortfall.available)
-            : tTh("order.errorGeneric");
-          submitBtn.disabled = false;
-          submitBtn.textContent = tTh("order.submit");
-          fetchStock().then(function () {
-            clampCartToStock();
-            renderCartBar();
-            renderGrid(currentFilter);
-            refreshCheckoutModal();
-          });
-        } else if (result.data && result.data.error === "slip_rejected") {
-          msgEl.className = "order-form__msg order-form__msg--err";
-          msgEl.textContent = tTh("order.errorSlipRejected");
-          submitBtn.disabled = false;
-          submitBtn.textContent = tTh("order.submit");
-        } else {
-          throw new Error("order_failed");
-        }
-      })
-      .catch(function () {
-        msgEl.className = "order-form__msg order-form__msg--err";
-        msgEl.textContent = tTh("order.errorGeneric");
-        submitBtn.disabled = false;
-        submitBtn.textContent = tTh("order.submit");
-      });
-  }
-
-  orderModalBackdrop.addEventListener("click", closeOrderModal);
 
   /* ---------- Init ---------- */
   applyStaticText();
   renderFilters();
   renderGrid("all");
-  renderCartBar();
-  fetchStock().then(function () {
-    clampCartToStock();
-    renderCartBar();
-    renderGrid(currentFilter);
-  });
+  fetchStock().then(function () { renderGrid(currentFilter); });
 })();
