@@ -39,6 +39,9 @@
   }
   .track-status.pending { background: rgba(217,164,91,0.15); color: var(--gold-400); }
   .track-status.shipped { background: rgba(63,122,118,0.18); color: var(--teal-400); }
+  .track-status.awaiting_payment { background: rgba(192,85,63,0.16); color: var(--danger); }
+  .track-pay { margin-top: 14px; font-size: 13px; color: var(--ink-muted); }
+  .track-pay a { color: var(--gold-400); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -92,13 +95,21 @@
         var o = result.data;
         var isPickup = o.deliveryMethod === "pickup";
         var itemsText = o.items.map(function (i) { return esc(i.productName) + " x" + esc(i.quantity); }).join(", ");
-        var statusLabel = o.status === "shipped" ? (isPickup ? "Picked Up" : "Shipped") : (isPickup ? "Awaiting Pickup" : "Pending");
+        // An unpaid order must not read as "Pending" - that looks finished,
+        // and the customer never goes back to complete the transfer.
+        var statusLabel = o.status === "awaiting_payment"
+          ? "Awaiting Payment"
+          : (o.status === "shipped" ? (isPickup ? "Picked Up" : "Shipped") : (isPickup ? "Awaiting Pickup" : "Pending"));
         var html =
           '<span class="track-status ' + esc(o.status) + '">' + statusLabel + "</span>" +
           '<div class="track-result__row"><span>Order ID</span><span>#' + esc(o.id) + "</span></div>" +
           '<div class="track-result__row"><span>Items</span><span>' + itemsText + "</span></div>" +
           '<div class="track-result__row"><span>Total</span><span>' + esc(o.total) + " THB</span></div>" +
           '<div class="track-result__row"><span>Ordered</span><span>' + new Date(o.createdAt).toLocaleDateString() + "</span></div>";
+        if (!o.paid) {
+          html += '<p class="track-pay">ยังไม่ได้รับสลิปของออเดอร์นี้ ' +
+                  '<a href="pay.html?id=' + encodeURIComponent(o.id) + '">ชำระเงินและแนบสลิป</a></p>';
+        }
         if (o.status === "shipped" && !isPickup) {
           html += '<div class="track-result__row"><span>Tracking</span><span>' + (o.carrier ? esc(o.carrier) + " - " : "") + esc(o.trackingNumber) + "</span></div>";
         }

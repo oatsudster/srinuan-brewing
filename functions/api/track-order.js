@@ -27,6 +27,7 @@ export async function onRequestGet({ request, env }) {
     items: order.items,
     total: order.total,
     status: order.status,
+    paid: !!order.paid,
     deliveryMethod: order.deliveryMethod || "delivery",
     trackingNumber: order.trackingNumber,
     carrier: order.carrier,
