@@ -59,8 +59,11 @@ export async function onRequestGet({ request, env }) {
   };
   // Without the secret configured we still answer, just without a QR, so the
   // page can tell the customer the shop will be in touch instead of breaking.
-  if (env.PROMPTPAY_MERCHANT_BLOCK && !order.paid) {
-    body.payload = buildPromptPayPayload(env.PROMPTPAY_MERCHANT_BLOCK, order.total);
+  // Strip anything the secret picked up on its way in - a stray BOM or newline
+  // lands inside tag 29 and every banking app rejects the resulting QR.
+  const merchant = String(env.PROMPTPAY_MERCHANT_BLOCK || "").replace(/[^0-9A-Za-z]/g, "");
+  if (merchant && !order.paid) {
+    body.payload = buildPromptPayPayload(merchant, order.total);
   }
   return Response.json(body, {
     headers: { "Cache-Control": "no-store, no-cache, must-revalidate" }
