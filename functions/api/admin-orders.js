@@ -1,10 +1,9 @@
+import { guardAdmin } from "./_admin.js";
 // GET /api/admin-orders - lists recent orders. Requires the admin password
 // in the x-admin-password header.
 export async function onRequestGet({ request, env }) {
-  const auth = request.headers.get("x-admin-password") || "";
-  if (!auth || auth !== env.ADMIN_PASSWORD) {
-    return Response.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const blocked = await guardAdmin(request, env, request.headers.get("x-admin-password") || "");
+  if (blocked) return blocked;
 
   const list = await env.STOCK_KV.list({ prefix: "order:" });
   const orders = [];

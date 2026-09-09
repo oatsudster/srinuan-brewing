@@ -1,10 +1,9 @@
+import { guardAdmin } from "./_admin.js";
 // POST /api/admin-stock - updates the stock count for one product.
 // Requires the admin password in the x-admin-password header.
 export async function onRequestPost({ request, env }) {
-  const auth = request.headers.get("x-admin-password") || "";
-  if (!auth || auth !== env.ADMIN_PASSWORD) {
-    return Response.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const blocked = await guardAdmin(request, env, request.headers.get("x-admin-password") || "");
+  if (blocked) return blocked;
 
   const body = await request.json().catch(() => null);
   if (!body || !body.productId || body.stock == null) {

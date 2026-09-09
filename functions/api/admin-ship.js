@@ -1,3 +1,4 @@
+import { guardAdmin } from "./_admin.js";
 // POST /api/admin-ship - marks an order as shipped with a tracking number,
 // and emails the customer via Resend (if they gave an email and RESEND_API_KEY
 // is configured). Requires the admin password in the x-admin-password header.
@@ -37,10 +38,8 @@ async function sendTrackingEmail(env, order) {
 }
 
 export async function onRequestPost({ request, env }) {
-  const auth = request.headers.get("x-admin-password") || "";
-  if (!auth || auth !== env.ADMIN_PASSWORD) {
-    return Response.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const blocked = await guardAdmin(request, env, request.headers.get("x-admin-password") || "");
+  if (blocked) return blocked;
 
   const body = await request.json().catch(() => null);
   if (!body || !body.orderId) {

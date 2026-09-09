@@ -41,12 +41,12 @@ const PRODUCTS = [
     ebc: 14,
     colorName: { en: "Golden Amber", th: "สีทองอำพัน" },
     aroma: {
-      en: ["Ripe mango & passionfruit", "Citrus zest", "Light pine resin"],
-      th: ["มะม่วงสุกและเสาวรส", "ผิวส้ม/เลมอน", "สนอ่อนๆ"]
+      en: ["Mango & passionfruit", "Citrus", "Pine"],
+      th: ["มะม่วงและเสาวรส", "ส้ม/เลมอน", "สน"]
     },
     taste: {
-      en: "A juicy, dry-hopped IPA loaded with Citra, Mosaic, Simcoe and Nectaron. Ripe mango and passionfruit up front, a light biscuity malt backbone, and a clean, moderately bitter finish.",
-      th: "ไอพีเอดราย-ฮอปจัดเต็มด้วย Citra, Mosaic, Simcoe และ Nectaron หอมมะม่วงสุกและเสาวรสนำ ตามด้วยมอลต์รสขนมปังบางๆ ปิดท้ายด้วยความขมสะอาดระดับกลาง"
+      en: "American IPA, dry-hopped with Citra, Mosaic, Simcoe and Nectaron. Built on pale and biscuit malts, bitterness around 30 IBU.",
+      th: "อเมริกันไอพีเอ ดราย-ฮอปด้วย Citra, Mosaic, Simcoe และ Nectaron ใช้มอลต์เพลและบิสกิตเป็นฐาน ความขมประมาณ 30 IBU"
     }
   },
   {
@@ -60,12 +60,12 @@ const PRODUCTS = [
     ebc: 7,
     colorName: { en: "Hazy Pale Gold", th: "สีทองอ่อนขุ่น" },
     aroma: {
-      en: ["Guava & peach", "Citrus & passionfruit", "Dank tropical punch"],
-      th: ["ฝรั่งและพีช", "ส้มและเสาวรส", "หอมฮ็อปเขตร้อนจัดจ้าน"]
+      en: ["Guava & peach", "Citrus & passionfruit", "Tropical hops"],
+      th: ["ฝรั่งและพีช", "ส้มและเสาวรส", "ฮ็อปเขตร้อน"]
     },
     taste: {
-      en: "Double dry-hopped with Citra, Mosaic, Amarillo and Galaxy Cryo hops for maximum juice. A soft, pillowy body, low perceived bitterness, and a huge tropical hop punch in every sip.",
-      th: "ดับเบิลดราย-ฮอปด้วย Citra, Mosaic, Amarillo และ Galaxy แบบ Cryo เพื่อความจัดจ้านสูงสุด เนื้อเบียร์นุ่มละมุน ความขมต่ำ แต่หอมฮ็อปเขตร้อนแน่นทุกอึก"
+      en: "Double dry-hopped with Citra, Mosaic, Amarillo and Galaxy Cryo hops. Hazy body, bitterness around 35 IBU.",
+      th: "ดับเบิลดราย-ฮอปด้วย Citra, Mosaic, Amarillo และ Galaxy แบบ Cryo เนื้อเบียร์ขุ่น ความขมประมาณ 35 IBU"
     }
   },
   {
@@ -83,8 +83,8 @@ const PRODUCTS = [
       th: ["ผลไม้ตระกูลเบอร์รี่และส้ม", "เสาวรส", "คาราเมลอ่อนๆ"]
     },
     taste: {
-      en: "An easy-drinking pale ale built on Munich and caramel malts, finished with Citra, Mosaic and Riwaka for a soft, fruity hop character and a smooth, low-bitterness finish.",
-      th: "เพล เอล ดื่มง่าย ใช้มอลต์มิวนิกและคาราเมลเป็นฐาน ปิดท้ายด้วยฮ็อป Citra, Mosaic และ Riwaka ให้กลิ่นผลไม้นุ่มนวล ความขมต่ำ ดื่มลื่นคอ"
+      en: "American pale ale built on Munich and caramel malts, hopped with Citra, Mosaic and Riwaka.",
+      th: "อเมริกันเพลเอล ใช้มอลต์มิวนิกและคาราเมลเป็นฐาน ฮ็อปด้วย Citra, Mosaic และ Riwaka"
     }
   },
   {
@@ -98,12 +98,12 @@ const PRODUCTS = [
     ebc: 6,
     colorName: { en: "Pale Straw", th: "สีฟางอ่อน" },
     aroma: {
-      en: ["Ripe banana", "Clove & bubblegum", "Soft bread crust"],
-      th: ["กล้วยสุก", "กานพลูและหมากฝรั่ง", "ขนมปังนุ่มๆ"]
+      en: ["Banana", "Clove", "Bread crust"],
+      th: ["กล้วย", "กานพลู", "ขนมปัง"]
     },
     taste: {
-      en: "A traditional Bavarian-style wheat beer fermented with a classic banana-and-clove yeast strain. Soft, hazy and bready with noble Hallertauer hop character in the background.",
-      th: "วีทเบียร์สไตล์บาวาเรียแบบดั้งเดิม หมักด้วยยีสต์สายพันธุ์กล้วย-กานพลูคลาสสิก เนื้อนุ่มขุ่นหอมขนมปัง แซมด้วยกลิ่นฮ็อปโนเบิลบางๆ"
+      en: "Bavarian-style wheat beer fermented with a banana-and-clove yeast strain, with Hallertauer hops. Hazy body.",
+      th: "วีทเบียร์สไตล์บาวาเรีย หมักด้วยยีสต์สายพันธุ์กล้วย-กานพลู ใช้ฮ็อป Hallertauer เนื้อเบียร์ขุ่น"
     }
   },
   {
@@ -117,12 +117,12 @@ const PRODUCTS = [
     ebc: 6,
     colorName: { en: "Pale Straw", th: "สีฟางอ่อน" },
     aroma: {
-      en: ["Coriander & sweet orange peel", "Soft citrus zest", "Delicate spice"],
-      th: ["ผักชีและเปลือกส้มหวาน", "ผิวส้มอ่อนๆ", "เครื่องเทศละมุน"]
+      en: ["Coriander & orange peel", "Citrus", "Spice"],
+      th: ["ผักชีและเปลือกส้ม", "ส้ม", "เครื่องเทศ"]
     },
     taste: {
-      en: "A classic Belgian-style wheat beer brewed with coriander seed and sweet orange peel. Silky body from flaked oats and pale wheat, finished crisp, spiced and refreshing.",
-      th: "วิทเบียร์สไตล์เบลเยียมแท้ ใส่เมล็ดผักชีและเปลือกส้มหวาน เนื้อเบียร์นุ่มลื่นจากข้าวโอ๊ตเกล็ดและข้าวสาลี ปิดท้ายสดชื่น หอมเครื่องเทศ"
+      en: "Belgian-style wheat beer brewed with coriander seed and sweet orange peel, using flaked oats and pale wheat.",
+      th: "วิทเบียร์สไตล์เบลเยียม ใส่เมล็ดผักชีและเปลือกส้มหวาน ใช้ข้าวโอ๊ตเกล็ดและข้าวสาลี"
     }
   },
   {
@@ -136,12 +136,12 @@ const PRODUCTS = [
     ebc: null,
     colorName: { en: null, th: null },
     aroma: {
-      en: ["Raw honey", "Fresh lime zest"],
-      th: ["น้ำผึ้งแท้", "ผิวมะนาวสด"]
+      en: ["Honey", "Lime zest"],
+      th: ["น้ำผึ้ง", "ผิวมะนาว"]
     },
     taste: {
-      en: "A honey mead brightened with fresh lime, balancing natural sweetness with citrus acidity for an easy, refreshing sip.",
-      th: "มี้ดจากน้ำผึ้งแท้ เติมความสดชื่นด้วยมะนาว บาลานซ์ความหวานธรรมชาติกับความเปรี้ยวจากส้มได้ลงตัว ดื่มง่าย"
+      en: "Honey mead made with fresh lime.",
+      th: "มี้ดจากน้ำผึ้งแท้ ใส่มะนาวสด"
     }
   },
   {
@@ -155,12 +155,12 @@ const PRODUCTS = [
     ebc: null,
     colorName: { en: null, th: null },
     aroma: {
-      en: ["Calamansi zest", "Raw honey"],
-      th: ["ผิวส้มจี๊ด", "น้ำผึ้งแท้"]
+      en: ["Calamansi zest", "Honey"],
+      th: ["ผิวส้มจี๊ด", "น้ำผึ้ง"]
     },
     taste: {
-      en: "A honey mead built on calamansi, the small Southeast Asian citrus, giving a sharp tangy lift against the honey sweetness.",
-      th: "มี้ดจากน้ำผึ้งแท้ ผสมน้ำส้มจี๊ด ให้ความเปรี้ยวจี๊ดตัดกับความหวานของน้ำผึ้ง"
+      en: "Honey mead made with calamansi, a small Southeast Asian citrus.",
+      th: "มี้ดจากน้ำผึ้งแท้ ผสมน้ำส้มจี๊ด"
     }
   },
   {
@@ -174,12 +174,12 @@ const PRODUCTS = [
     ebc: null,
     colorName: { en: null, th: null },
     aroma: {
-      en: ["Fresh apple", "Light caramel"],
-      th: ["แอปเปิ้ลสด", "คาราเมลอ่อนๆ"]
+      en: ["Apple", "Light caramel"],
+      th: ["แอปเปิ้ล", "คาราเมลอ่อนๆ"]
     },
     taste: {
-      en: "A crisp apple cider balancing natural sweetness and tartness for an easy, sessionable drink.",
-      th: "ไซเดอร์แอปเปิ้ลสดชื่น บาลานซ์ความหวานธรรมชาติและความเปรี้ยวได้ลงตัว ดื่มง่ายทุกโอกาส"
+      en: "Cider fermented from apple juice.",
+      th: "ไซเดอร์หมักจากน้ำแอปเปิ้ล"
     }
   },
   {
@@ -193,12 +193,12 @@ const PRODUCTS = [
     ebc: 65,
     colorName: { en: "Deep Black-Brown", th: "สีดำน้ำตาลเข้ม" },
     aroma: {
-      en: ["Dark chocolate & coffee", "Blueberry", "Light lactic tartness"],
-      th: ["ดาร์กช็อกโกแลตและกาแฟ", "บลูเบอร์รี่", "เปรี้ยวแลคติกบางๆ"]
+      en: ["Dark chocolate & coffee", "Blueberry", "Lactic tartness"],
+      th: ["ดาร์กช็อกโกแลตและกาแฟ", "บลูเบอร์รี่", "เปรี้ยวแลคติก"]
     },
     taste: {
-      en: "A dessert-inspired black sour brewed with chocolate malt, roasted barley and lactose, kettle-soured for a smooth tartness, then rounded out with coffee and blueberry for a rich, pastry-like finish.",
-      th: "แบล็กซาวร์แนวของหวาน ใช้มอลต์ช็อกโกแลต ข้าวบาร์เลย์คั่ว และแลคโตส หมักเปรี้ยวแบบ kettle sour ให้ความเปรี้ยวนุ่มนวล เติมกาแฟและบลูเบอร์รี่ให้รสสัมผัสเข้มข้นแบบของหวาน"
+      en: "Black sour brewed with chocolate malt, roasted barley and lactose, kettle-soured, with coffee and blueberry added.",
+      th: "แบล็กซาวร์ ใช้มอลต์ช็อกโกแลต ข้าวบาร์เลย์คั่ว และแลคโตส หมักเปรี้ยวแบบ kettle sour เติมกาแฟและบลูเบอร์รี่"
     }
   },
   {
@@ -216,8 +216,8 @@ const PRODUCTS = [
       th: ["ดาร์กช็อกโกแลตและกลิ่นคั่วอ่อน", "ธัญพืชคั่ว"]
     },
     taste: {
-      en: "A rich oatmeal stout built on roasted barley and chocolate malt with a silky, full body from flaked oats. Noble Saaz hops keep the bitterness restrained, letting the roasted malt lead.",
-      th: "โอ๊ตมีลสเตาต์เข้มข้น ใช้ข้าวบาร์เลย์คั่วและมอลต์ช็อกโกแลตเป็นฐาน เนื้อเบียร์นุ่มเต็มคำจากข้าวโอ๊ตเกล็ด ฮ็อป Saaz คุมความขมให้นวล เน้นรสมอลต์คั่วเป็นพระเอก"
+      en: "Oatmeal stout built on roasted barley and chocolate malt with flaked oats, hopped with Saaz. Bitterness around 13 IBU.",
+      th: "โอ๊ตมีลสเตาต์ ใช้ข้าวบาร์เลย์คั่วและมอลต์ช็อกโกแลต เติมข้าวโอ๊ตเกล็ด ใช้ฮ็อป Saaz ความขมประมาณ 13 IBU"
     }
   }
 ];

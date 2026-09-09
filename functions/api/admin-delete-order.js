@@ -1,3 +1,4 @@
+import { guardAdmin } from "./_admin.js";
 // POST /api/admin-delete-order - permanently removes one order record.
 // Requires the admin password in the x-admin-password header.
 //
@@ -5,10 +6,8 @@
 // but it would also be reachable for a real fulfilled order, and silently
 // putting those cans back would corrupt the real inventory count.
 export async function onRequestPost({ request, env }) {
-  const auth = request.headers.get("x-admin-password") || "";
-  if (!auth || auth !== env.ADMIN_PASSWORD) {
-    return Response.json({ error: "unauthorized" }, { status: 401 });
-  }
+  const blocked = await guardAdmin(request, env, request.headers.get("x-admin-password") || "");
+  if (blocked) return blocked;
 
   const body = await request.json().catch(() => null);
   const orderId = body && typeof body.orderId === "string" ? body.orderId.trim() : "";
