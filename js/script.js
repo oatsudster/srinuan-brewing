@@ -167,9 +167,15 @@
   var filterBar = document.getElementById("filter-bar");
   var currentFilter = "all";
 
+  // Beers the shop took off the storefront in admin (ids from /api/hidden).
+  var HIDDEN = [];
+  function visibleProducts() {
+    return PRODUCTS.filter(function (p) { return HIDDEN.indexOf(p.id) === -1; });
+  }
+
   function usedCategories() {
     var set = [];
-    PRODUCTS.forEach(function (p) {
+    visibleProducts().forEach(function (p) {
       if (set.indexOf(p.tags[0]) === -1) set.push(p.tags[0]);
     });
     return set;
@@ -262,9 +268,9 @@
   }
 
   function renderGrid(filter) {
-    var items = PRODUCTS;
+    var items = visibleProducts();
     if (filter && filter !== "all") {
-      items = PRODUCTS.filter(function (p) { return p.tags[0] === filter; });
+      items = items.filter(function (p) { return p.tags[0] === filter; });
     }
     grid.innerHTML = items.map(cardTemplate).join("");
     grid.querySelectorAll(".product-card").forEach(function (card) {
@@ -327,8 +333,27 @@
   });
 
   /* ---------- Init ---------- */
+  function fetchHidden() {
+    return fetch("/api/hidden?t=" + Date.now(), { cache: "no-store" })
+      .then(function (res) { return res.ok ? res.json() : []; })
+      .then(function (ids) { HIDDEN = Array.isArray(ids) ? ids : []; })
+      .catch(function () { HIDDEN = []; });
+  }
+
+  // Wait for the hidden list before drawing the grid, so a beer taken off the
+  // storefront never flashes up first. If the API is slow, draw everything
+  // after 2.5s rather than leave the section empty.
+  function paintCatalogue() {
+    renderFilters();
+    renderGrid(currentFilter);
+  }
   applyStaticText();
-  renderFilters();
-  renderGrid("all");
-  fetchStock().then(function () { renderGrid(currentFilter); });
+  var giveUp = setTimeout(paintCatalogue, 2500);
+  Promise.all([fetchHidden(), fetchStock()]).then(function () {
+    clearTimeout(giveUp);
+    // A visitor may have picked a style chip during the fallback paint whose
+    // only beers turn out to be hidden; fall back to "All" instead of an empty grid.
+    if (currentFilter !== "all" && usedCategories().indexOf(currentFilter) === -1) currentFilter = "all";
+    paintCatalogue();
+  });
 })();

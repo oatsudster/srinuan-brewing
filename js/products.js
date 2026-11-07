@@ -17,6 +17,7 @@ const STYLE_LABELS = {
   ipa:        { en: "IPA",            th: "ไอพีเอ" },
   "pale-ale": { en: "Pale Ale",       th: "เพล เอล" },
   weizen:     { en: "Weizen",         th: "ไวเซน" },
+  lager:      { en: "Lager",          th: "ลาเกอร์" },
   witbier:    { en: "Witbier",        th: "วิทเบียร์" },
   mead:       { en: "Mead",           th: "มี้ด" },
   cider:      { en: "Cider",          th: "ไซเดอร์" },
@@ -36,17 +37,17 @@ const PRODUCTS = [
     tags: ["ipa"],
     name: { en: "India Pale Ale", th: "อินเดีย เพล เอล" },
     style: { en: "American IPA", th: "อเมริกัน ไอพีเอ" },
-    abv: 6.0,
-    ibu: 30,
-    ebc: 14,
-    colorName: { en: "Golden Amber", th: "สีทองอำพัน" },
+    abv: 7.5,
+    ibu: 15,
+    ebc: 6,
+    colorName: { en: "Pale Gold", th: "สีทองอ่อน" },
     aroma: {
-      en: ["Mango & passionfruit", "Citrus", "Pine"],
-      th: ["มะม่วงและเสาวรส", "ส้ม/เลมอน", "สน"]
+      en: ["Tropical fruit", "Citrus", "Passionfruit"],
+      th: ["ผลไม้เมืองร้อน", "ส้ม/เลมอน", "เสาวรส"]
     },
     taste: {
-      en: "American IPA, dry-hopped with Citra, Mosaic, Simcoe and Nectaron. Built on pale and biscuit malts, bitterness around 30 IBU.",
-      th: "อเมริกันไอพีเอ ดราย-ฮอปด้วย Citra, Mosaic, Simcoe และ Nectaron ใช้มอลต์เพลและบิสกิตเป็นฐาน ความขมประมาณ 30 IBU"
+      en: "American IPA on a pilsner and wheat malt base, whirlpooled with Citra, Mosaic and Nectaron, then dry-hopped with Citra, Mosaic and Amarillo. Bitterness around 15 IBU.",
+      th: "อเมริกันไอพีเอ ใช้มอลต์พิลสเนอร์และข้าวสาลีเป็นฐาน ฮ็อปสแตนด์ด้วย Citra, Mosaic และ Nectaron แล้วดราย-ฮอปด้วย Citra, Mosaic และ Amarillo ความขมประมาณ 15 IBU"
     }
   },
   {
@@ -85,6 +86,25 @@ const PRODUCTS = [
     taste: {
       en: "American pale ale built on Munich and caramel malts, hopped with Citra, Mosaic and Riwaka.",
       th: "อเมริกันเพลเอล ใช้มอลต์มิวนิกและคาราเมลเป็นฐาน ฮ็อปด้วย Citra, Mosaic และ Riwaka"
+    }
+  },
+  {
+    id: "corona-khon",
+    image: "images/corona-khon-mexican-lager.png",
+    tags: ["lager"],
+    name: { en: "Corona-Khon", th: "โคโรน่า-คอน" },
+    style: { en: "Mexican Lager", th: "เม็กซิกัน ลาเกอร์" },
+    abv: 6.0,
+    ibu: 13,
+    ebc: 7,
+    colorName: { en: "Pale Straw", th: "สีฟางอ่อน" },
+    aroma: {
+      en: ["Light grain", "Sweet corn", "Soft herbal hops"],
+      th: ["ธัญพืชอ่อนๆ", "ข้าวโพดหวาน", "ฮ็อปกลิ่นสมุนไพรเบาๆ"]
+    },
+    taste: {
+      en: "Crisp Mexican-style lager on pilsner malt with flaked maize, hopped with Saaz and Hallertauer Mittelfrüh, fermented cold and lagered for two weeks. Bitterness around 13 IBU.",
+      th: "ลาเกอร์สไตล์เม็กซิกัน สดชื่น ใช้มอลต์พิลสเนอร์และข้าวโพดเกล็ด ฮ็อปด้วย Saaz และ Hallertauer Mittelfrüh หมักเย็นแล้วบ่มอีกสองสัปดาห์ ความขมประมาณ 13 IBU"
     }
   },
   {
@@ -161,6 +181,25 @@ const PRODUCTS = [
     taste: {
       en: "Honey mead made with calamansi, a small Southeast Asian citrus.",
       th: "มี้ดจากน้ำผึ้งแท้ ผสมน้ำส้มจี๊ด"
+    }
+  },
+  {
+    id: "mangosteen-mead",
+    image: "images/mangosteen-mead.png",
+    tags: ["mead"],
+    name: { en: "Mangosteen Mead", th: "มังคุด มี้ด" },
+    style: { en: "Mangosteen & Honey Mead", th: "มี้ดมังคุดผสมน้ำผึ้ง" },
+    abv: 4.0,
+    ibu: 0,
+    ebc: null,
+    colorName: { en: null, th: null },
+    aroma: {
+      en: ["Mangosteen", "Honey", "Floral"],
+      th: ["มังคุด", "น้ำผึ้ง", "กลิ่นดอกไม้"]
+    },
+    taste: {
+      en: "Honey mead made with mangosteen from Young Tam Farm in Phrom Khiri, a collaboration with the farm.",
+      th: "มี้ดจากน้ำผึ้งแท้ ใส่มังคุดจากยังทำฟาร์ม อ.พรหมคีรี ทำร่วมกับทางฟาร์ม"
     }
   },
   {

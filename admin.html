@@ -6,7 +6,7 @@
 <title>Admin | Srinuan Brewing</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=49">
+<link rel="stylesheet" href="css/style.css?v=50">
 <style>
   body { min-height: 100vh; }
   .admin-wrap { max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
@@ -41,6 +41,18 @@
   .stock-row__status { font-size: 11px; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
   .stock-row__status.ok { background: rgba(63,122,118,0.18); color: var(--teal-400); }
   .stock-row__status.saving { background: rgba(217,164,91,0.15); color: var(--gold-400); }
+  .stock-row__vis {
+    padding: 7px 12px; border-radius: 8px; font-family: var(--font-body); font-size: 12.5px; cursor: pointer;
+    background: none; border: 1px solid rgba(63,122,118,0.6); color: var(--teal-400); white-space: nowrap;
+  }
+  .stock-row__vis.is-hidden { border-color: rgba(192,85,63,0.55); color: var(--danger); }
+  .stock-row__vis[disabled] { opacity: 0.5; cursor: default; }
+  .stock-row.is-hidden img, .stock-row.is-hidden .stock-row__name { opacity: 0.45; }
+  .stock-row__note { display: block; font-size: 11px; color: var(--danger); font-weight: 400; }
+  @media (max-width: 520px) {
+    .stock-row { flex-wrap: wrap; }
+    .stock-row__name { flex-basis: calc(100% - 60px); }
+  }
   .admin-logout { text-align: center; margin-top: 30px; }
   .admin-logout a { color: var(--ink-muted); font-size: 13px; text-decoration: underline; cursor: pointer; }
 
@@ -142,7 +154,7 @@
   <div class="admin-logout"><a id="logout-link">Log out</a></div>
 </div>
 
-<script src="js/products.js?v=49"></script>
+<script src="js/products.js?v=50"></script>
 <script>
 (function () {
   "use strict";
@@ -232,21 +244,44 @@
 
   async function loadStock() {
     stockList.innerHTML = "Loading...";
-    var res = await fetch("/api/stock?t=" + Date.now(), { cache: "no-store" });
-    var stock = await res.json();
+    var results = await Promise.all([
+      fetch("/api/stock?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.json(); }),
+      fetch("/api/hidden?t=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
+    ]);
+    var stock = results[0];
+    var hidden = results[1] || [];
     stockList.innerHTML = "";
     PRODUCTS.forEach(function (p) {
       var row = document.createElement("div");
       row.className = "stock-row";
       row.innerHTML =
         '<img src="' + p.image + '" alt="">' +
-        '<div class="stock-row__name">' + p.name.en + "</div>" +
+        '<div class="stock-row__name">' + p.name.en + '<span class="stock-row__note"></span></div>' +
         '<input type="number" min="0" value="' + (stock[p.id] != null ? stock[p.id] : 0) + '" data-id="' + p.id + '">' +
+        '<button type="button" class="stock-row__vis"></button>' +
         '<span class="stock-row__status"></span>';
       stockList.appendChild(row);
 
       var input = row.querySelector("input");
       var statusEl = row.querySelector(".stock-row__status");
+      var visBtn = row.querySelector(".stock-row__vis");
+      var noteEl = row.querySelector(".stock-row__note");
+      var isHidden = hidden.indexOf(p.id) !== -1;
+      function paintVisibility() {
+        row.classList.toggle("is-hidden", isHidden);
+        visBtn.classList.toggle("is-hidden", isHidden);
+        visBtn.textContent = isHidden ? "Show on site" : "Hide from site";
+        noteEl.textContent = isHidden ? "Hidden from storefront" : "";
+      }
+      paintVisibility();
+      visBtn.addEventListener("click", async function () {
+        var next = !isHidden;
+        if (next && !confirm('Hide "' + p.name.en + '" from the storefront? You can show it again any time.')) return;
+        visBtn.disabled = true;
+        var ok = await saveVisibility(p.id, next, statusEl);
+        visBtn.disabled = false;
+        if (ok) { isHidden = next; paintVisibility(); }
+      });
       var timer = null;
       input.addEventListener("input", function () {
         clearTimeout(timer);
@@ -279,6 +314,32 @@
     } catch (e) {
       statusEl.textContent = "Error";
     }
+  }
+
+  async function saveVisibility(productId, hide, statusEl) {
+    statusEl.textContent = "Saving...";
+    statusEl.className = "stock-row__status saving";
+    try {
+      var res = await fetch("/api/admin-visibility", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-admin-password": sessionStorage.getItem(PW_KEY) },
+        body: JSON.stringify({ productId: productId, hidden: hide })
+      });
+      if (res.ok) {
+        statusEl.textContent = hide ? "Hidden" : "Visible";
+        statusEl.className = "stock-row__status ok";
+        return true;
+      }
+      if (res.status === 401) {
+        alert("Session expired, please log in again.");
+        location.reload();
+        return false;
+      }
+      statusEl.textContent = "Error";
+    } catch (e) {
+      statusEl.textContent = "Error";
+    }
+    return false;
   }
 
   async function loadDashboard() {
