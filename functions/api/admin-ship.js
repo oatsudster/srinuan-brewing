@@ -2,15 +2,25 @@ import { guardAdmin } from "./_admin.js";
 // POST /api/admin-ship - marks an order as shipped with a tracking number,
 // and emails the customer via Resend (if they gave an email and RESEND_API_KEY
 // is configured). Requires the admin password in the x-admin-password header.
+//
+// Resend's shared onboarding@resend.dev sender only delivers to the Resend
+// account owner, so customer emails need a sender on a verified domain: set
+// RESEND_FROM (e.g. "Srinuan Brewing <orders@your-domain>") in Cloudflare.
+function escapeHtml(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 async function sendTrackingEmail(env, order) {
   if (!order.email || !env.RESEND_API_KEY) return { sent: false };
   try {
     const trackUrl = "https://track.thailandpost.co.th/?trackNumber=" + encodeURIComponent(order.trackingNumber);
     const html =
       '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' +
-      "<p>Hi " + order.name + ",</p>" +
-      "<p>Your Srinuan Brewing order <strong>#" + order.id + "</strong> has shipped via " + order.carrier + "!</p>" +
-      '<p><a href="' + trackUrl + '" style="display:inline-block;padding:12px 24px;background:#d9a45b;color:#0d1b2a;text-decoration:none;border-radius:8px;font-weight:bold;">Track Your Package</a></p>' +
+      "<p>Hi " + escapeHtml(order.name) + ",</p>" +
+      "<p>Your Srinuan Brewing order <strong>#" + escapeHtml(order.id) + "</strong> has shipped via " + escapeHtml(order.carrier) + "!</p>" +
+      '<p><a href="' + escapeHtml(trackUrl) + '" style="display:inline-block;padding:12px 24px;background:#d9a45b;color:#0d1b2a;text-decoration:none;border-radius:8px;font-weight:bold;">Track Your Package</a></p>' +
       "<p>Thank you for your order!</p>" +
       "</body></html>";
     const resp = await fetch("https://api.resend.com/emails", {
@@ -20,7 +30,7 @@ async function sendTrackingEmail(env, order) {
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        from: "Srinuan Brewing <onboarding@resend.dev>",
+        from: env.RESEND_FROM || "Srinuan Brewing <onboarding@resend.dev>",
         to: [order.email],
         subject: "Your Srinuan Brewing order has shipped - #" + order.id,
         html

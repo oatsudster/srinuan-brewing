@@ -96,9 +96,6 @@
     return (i18n[currentLang] && i18n[currentLang][key]) || (i18n.en[key] || key);
   }
 
-  // The checkout screen always renders in Thai, whatever the site toggle says:
-  // buyers are filling in a Thai name and address, so Thai labels are easier to
-  // read and fill in. Site chrome still follows the EN/TH switch.
   function applyStaticText() {
     document.documentElement.lang = currentLang;
     document.querySelectorAll("[data-i18n]").forEach(function (el) {

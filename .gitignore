@@ -1,2 +1,4 @@
 firebase-debug.log
 .wrangler/
+.dev.vars
+node_modules/

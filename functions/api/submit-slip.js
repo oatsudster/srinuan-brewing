@@ -65,6 +65,13 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ error: "not_found" }, { status: 404 });
   }
 
+  // A slip already arrived for this order: answer as before so the page shows
+  // the paid state, but don't forward it again - repeat posts would otherwise
+  // flood the shop's Telegram chat.
+  if (order.paid) {
+    return Response.json({ ok: true, orderId: order.id, status: order.status, alreadyPaid: true });
+  }
+
   await notifyShop(env, order, slipImage);
 
   order.paid = true;
