@@ -242,9 +242,11 @@
     return '<div class="product-card__badges">' + items + "</div>";
   }
 
+  // A beer with no stock saved yet (e.g. just added) counts as 0, the same
+  // number admin shows for it - otherwise it would never read "Sold Out".
   function isSoldOut(p) {
     var stock = stockOf(p.id);
-    return stockLoaded && stock != null && stock <= 0;
+    return stockLoaded && (stock == null || stock <= 0);
   }
 
   function soldOutRibbonHtml(p) {
